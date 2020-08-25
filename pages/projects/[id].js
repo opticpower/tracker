@@ -29,6 +29,22 @@ const Projects = () => {
     return 'default';
   };
 
+  const getBorderColor = type => {
+    if (type === 'feature') {
+      return 'gray';
+    }
+    if (type === 'bug') {
+      return 'red';
+    }
+    if (type === 'chore') {
+      return 'green';
+    }
+    if (type === 'release') {
+      return 'blue';
+    }
+    return 'gray';
+  };
+
   useEffect(() => {
     if (!id) {
       return;
@@ -36,7 +52,7 @@ const Projects = () => {
     const getStories = async () => {
       let stories = {};
       for (const state of states) {
-        let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners,labels,blockers`;
+        let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners,labels,blockers,reviews,story_type`;
         if (state === 'Accepted') {
           const oneWeekAgo = subDays(new Date(), 7);
           fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
@@ -72,9 +88,10 @@ const Projects = () => {
               <Text h3>{state}</Text>
               {(stories[state] || []).map(story => (
                 <Fragment key={story.id}>
-                  <Card width="250px">
+                  <Card width="250px" hoverable style={{ borderColor: getBorderColor(story.story_type) }}>
                     <Card.Content>
                       <Breadcrumbs size="mini">
+                        <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>
                         <Breadcrumbs.Item>
                           <a
                             href={`https://www.pivotaltracker.com/story/show/${story.id}`}
