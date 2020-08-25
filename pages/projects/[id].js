@@ -1,5 +1,5 @@
 import { useEffect, useState, Fragment } from 'react';
-import { Text, Spacer, Row, Col, Card, Divider, Loading } from '@geist-ui/react';
+import { Text, Spacer, Row, Col, Card, Divider, Loading, Badge } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { parseCookies } from 'nookies';
 import { subDays } from 'date-fns';
@@ -21,11 +21,10 @@ const Projects = () => {
     const getStories = async () => {
       let stories = {};
       for (const state of states) {
-        let fetchString = `stories?limit=500&with_state=${state}`;
-
+        let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners`;
         if (state === 'accepted') {
-          const twoWeeksAgo = subDays(new Date(), 14);
-          fetchString = `${fetchString}&accepted_after=${twoWeeksAgo.getTime()}`;
+          const oneWeekAgo = subDays(new Date(), 7);
+          fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
         }
 
         const request = await fetch(`https://www.pivotaltracker.com/services/v5/projects/${id}/${fetchString}`, {
@@ -60,6 +59,7 @@ const Projects = () => {
                 <Fragment key={story.id}>
                   <Card width="250px">
                     <Card.Content>
+                      {story.estimate && <Badge>{story.estimate}</Badge>}
                       <Text b>{story.name}</Text>
                     </Card.Content>
                     <Divider y={0} />
