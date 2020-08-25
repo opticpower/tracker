@@ -59,7 +59,7 @@ const Projects = () => {
                 <Fragment key={story.id}>
                   <Card width="250px">
                     <Card.Content>
-                      {story.estimate && <Badge>{story.estimate}</Badge>}
+                      {Number.isInteger(story.estimate) && <Badge>{story.estimate}</Badge>}
                       <Text b>{story.name}</Text>
                     </Card.Content>
                     <Divider y={0} />
