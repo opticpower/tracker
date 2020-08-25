@@ -4,7 +4,7 @@ const MyApp = ({ Component, pageProps }) => {
   return (
     <GeistProvider theme={{ type: 'dark' }}>
       <CssBaseline />
-      <Component {...pageProps} />
+      <Component {...pageProps} toggleLight />
     </GeistProvider>
   );
 };

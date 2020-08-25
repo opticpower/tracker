@@ -75,7 +75,15 @@ const Projects = () => {
                   <Card width="250px">
                     <Card.Content>
                       <Breadcrumbs size="mini">
-                        <Breadcrumbs.Item>{story.id}</Breadcrumbs.Item>
+                        <Breadcrumbs.Item>
+                          <a
+                            href={`https://www.pivotaltracker.com/story/show/${story.id}`}
+                            target="_blank"
+                            rel="noreferrer nofollow"
+                          >
+                            {story.id}
+                          </a>
+                        </Breadcrumbs.Item>
                         {Number.isInteger(story.estimate) && (
                           <Breadcrumbs.Item>
                             <Badge>{story.estimate}</Badge>
