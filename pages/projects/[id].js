@@ -1,5 +1,5 @@
 import { useEffect, useState, Fragment } from 'react';
-import { Text, Spacer, Row, Col, Card, Divider, Loading, Badge } from '@geist-ui/react';
+import { Text, Spacer, Row, Col, Card, Divider, Loading, Badge, User } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { parseCookies } from 'nookies';
 import { subDays } from 'date-fns';
@@ -22,7 +22,7 @@ const Projects = () => {
       let stories = {};
       for (const state of states) {
         let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners`;
-        if (state === 'accepted') {
+        if (state === 'Accepted') {
           const oneWeekAgo = subDays(new Date(), 7);
           fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
         }
@@ -63,7 +63,15 @@ const Projects = () => {
                       <Text b>{story.name}</Text>
                     </Card.Content>
                     <Divider y={0} />
-                    <Card.Content>Todo: Add picture of Owner & also add Github</Card.Content>
+                    <Card.Content>
+                      {story.owners.map(owner => (
+                        <>
+                          <User name={owner.name} text={owner.initials.toUpperCase()} />
+                          <Spacer y={1} />
+                        </>
+                      ))}
+                      Add Github, Blockers, Tags
+                    </Card.Content>
                   </Card>
                   <Spacer y={1} />
                 </Fragment>
