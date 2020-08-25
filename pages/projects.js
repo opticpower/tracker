@@ -9,7 +9,7 @@ const Projects = () => {
         <title>Choose Project</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Text h1>Optic x Pivotal</Text>
+      <Text h1>Choose your project Wisely</Text>
       <Spacer y={1.5} />
       <ProjectPicker />
     </Page>

@@ -1,5 +1,5 @@
 import { useEffect, useState, Fragment } from 'react';
-import { Text, Spacer, Row, Col, Card, Divider } from '@geist-ui/react';
+import { Text, Spacer, Row, Col, Card, Divider, Loading } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { parseCookies } from 'nookies';
 import { subDays } from 'date-fns';
@@ -10,6 +10,7 @@ const states = ['Unscheduled', 'Unstarted', 'Planned', 'Started', 'Finished', 'D
 const Projects = () => {
   const { apiToken } = parseCookies();
   const [stories, setStories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { id } = router.query;
 
@@ -35,6 +36,7 @@ const Projects = () => {
         stories = { ...stories, [state]: await request.json() };
       }
       setStories(stories);
+      setLoading(false);
     };
     getStories();
   }, [id]);
@@ -48,23 +50,26 @@ const Projects = () => {
       </Row>
 
       <Row gap={0.8}>
-        {states.map(state => (
-          <Col gap={0.8} key={state}>
-            <Text h3>{state}</Text>
-            {(stories[state] || []).map(story => (
-              <Fragment key={story.id}>
-                <Card width="250px">
-                  <Card.Content>
-                    <Text b>{story.name}</Text>
-                  </Card.Content>
-                  <Divider y={0} />
-                  <Card.Content>Todo: Add picture of Owner & also add Github</Card.Content>
-                </Card>
-                <Spacer y={1} />
-              </Fragment>
-            ))}
-          </Col>
-        ))}
+        {loading && <Loading />}
+        <Spacer y={0.8} />
+        {!loading &&
+          states.map(state => (
+            <Col gap={0.8} key={state}>
+              <Text h3>{state}</Text>
+              {(stories[state] || []).map(story => (
+                <Fragment key={story.id}>
+                  <Card width="250px">
+                    <Card.Content>
+                      <Text b>{story.name}</Text>
+                    </Card.Content>
+                    <Divider y={0} />
+                    <Card.Content>Todo: Add picture of Owner & also add Github</Card.Content>
+                  </Card>
+                  <Spacer y={1} />
+                </Fragment>
+              ))}
+            </Col>
+          ))}
       </Row>
     </Fragment>
   );
