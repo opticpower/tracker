@@ -1,11 +1,11 @@
 import { useEffect, useState, Fragment } from 'react';
-import { Text, Spacer, Row, Col, Card, Divider, Loading, Badge, User } from '@geist-ui/react';
+import { Text, Spacer, Row, Col, Card, Divider, Loading, Badge, User, Tag, Breadcrumbs } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { parseCookies } from 'nookies';
 import { subDays } from 'date-fns';
 import ProjectPicker from '../../components/ProjectPicker';
 
-const states = ['Unscheduled', 'Unstarted', 'Planned', 'Started', 'Finished', 'Delivered', 'Rejected', 'Accepted'];
+const states = ['Unscheduled', 'Unstarted', 'Started', 'Finished', 'Delivered', 'Rejected', 'Accepted'];
 
 const Projects = () => {
   const { apiToken } = parseCookies();
@@ -14,6 +14,21 @@ const Projects = () => {
   const router = useRouter();
   const { id } = router.query;
 
+  const getType = name => {
+    if (name === 'medium' || name === 'med') {
+      return 'warning';
+    }
+
+    if (name === 'optic') {
+      return 'secondary';
+    }
+
+    if (name === 'high') {
+      return 'error';
+    }
+    return 'default';
+  };
+
   useEffect(() => {
     if (!id) {
       return;
@@ -21,7 +36,7 @@ const Projects = () => {
     const getStories = async () => {
       let stories = {};
       for (const state of states) {
-        let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners`;
+        let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners,labels,blockers`;
         if (state === 'Accepted') {
           const oneWeekAgo = subDays(new Date(), 7);
           fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
@@ -59,7 +74,16 @@ const Projects = () => {
                 <Fragment key={story.id}>
                   <Card width="250px">
                     <Card.Content>
-                      {Number.isInteger(story.estimate) && <Badge>{story.estimate}</Badge>}
+                      <Breadcrumbs size="mini">
+                        <Breadcrumbs.Item>{story.id}</Breadcrumbs.Item>
+                        {Number.isInteger(story.estimate) && (
+                          <Breadcrumbs.Item>
+                            <Badge>{story.estimate}</Badge>
+                          </Breadcrumbs.Item>
+                        )}
+                      </Breadcrumbs>
+
+                      <Spacer x={0.8} />
                       <Text b>{story.name}</Text>
                     </Card.Content>
                     <Divider y={0} />
@@ -70,7 +94,15 @@ const Projects = () => {
                           <Spacer y={1} />
                         </Fragment>
                       ))}
-                      Add Github, Blockers, Tags
+                      {story.labels.map(label => (
+                        <Fragment key={label.id}>
+                          <Tag type={getType(label.name)} invert>
+                            {label.name}
+                          </Tag>
+                          <Spacer y={1} />
+                        </Fragment>
+                      ))}
+                      Add Github, Blockers
                     </Card.Content>
                   </Card>
                   <Spacer y={1} />
