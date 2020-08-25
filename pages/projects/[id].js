@@ -65,10 +65,10 @@ const Projects = () => {
                     <Divider y={0} />
                     <Card.Content>
                       {story.owners.map(owner => (
-                        <>
+                        <Fragment key={owner.name}>
                           <User name={owner.name} text={owner.initials.toUpperCase()} />
                           <Spacer y={1} />
-                        </>
+                        </Fragment>
                       ))}
                       Add Github, Blockers, Tags
                     </Card.Content>
