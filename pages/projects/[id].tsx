@@ -86,7 +86,6 @@ const Projects = (): JSX.Element => {
         stories = { ...stories, [state]: await request.json() };
       }
 
-      console.log('setting stories', stories);
       dispatch(
         addStories({
           id,
@@ -98,7 +97,6 @@ const Projects = (): JSX.Element => {
   }, [id]);
 
   const loading = !Boolean(stories && Object.values(stories).length);
-  console.log('have loading', loading);
 
   return (
     <Fragment>
