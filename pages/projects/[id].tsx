@@ -1,18 +1,32 @@
-import { useEffect, useState, Fragment } from 'react';
+import { useEffect, Fragment, useState } from 'react';
 import { Text, Spacer, Row, Col, Card, Divider, Loading, Badge, User, Tag, Breadcrumbs } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { parseCookies } from 'nookies';
 import { subDays } from 'date-fns';
 import ProjectPicker from '../../components/ProjectPicker';
+import { useSelector, useDispatch } from 'react-redux';
+import { State, Story, Filters, Label } from '../../redux/types';
+import { addStories } from '../../redux/actions/stories.actions';
+import { filterStories } from '../../redux/selectors/stories.selectors';
 
 const states = ['Unscheduled', 'Unstarted', 'Started', 'Finished', 'Delivered', 'Rejected', 'Accepted'];
 
-const Projects = () => {
+interface Params {
+  id?: string;
+}
+
+const Projects = (): JSX.Element => {
   const { apiToken } = parseCookies();
-  const [stories, setStories] = useState([]);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const { id } = router.query;
+  const { id }: Params = router.query;
+  const dispatch = useDispatch();
+  const [filters, setFilters] = useState<Filters>({});
+  const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
+
+  const addFilter = (name: string, filter: any): void => {
+    //todo: avoid array dups
+    setFilters({ ...filters, [name]: [...(filters[name] || []), filter] });
+  };
 
   const getType = name => {
     if (name === 'medium' || name === 'med') {
@@ -51,6 +65,8 @@ const Projects = () => {
     }
     const getStories = async () => {
       let stories = {};
+
+      //todo: we should do Promise.all for these
       for (const state of states) {
         let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners,labels,blockers,reviews,story_type`;
         if (state === 'Accepted') {
@@ -65,18 +81,35 @@ const Projects = () => {
         });
         stories = { ...stories, [state]: await request.json() };
       }
-      setStories(stories);
-      setLoading(false);
+
+      console.log('setting stories', stories);
+      dispatch(
+        addStories({
+          id,
+          stories,
+        })
+      );
     };
     getStories();
   }, [id]);
 
+  console.log('have filter', filters);
   console.log('have stories', stories);
+
+  const loading = !Boolean(stories && Object.values(stories).length);
+  console.log('have loading', loading);
 
   return (
     <Fragment>
       <Row gap={0.8}>
         <ProjectPicker id={id} />
+        {filters.labels?.map(
+          (label: Label): JSX.Element => (
+            <Tag key={label.name} type={getType(label.name)} invert>
+              {label.name}
+            </Tag>
+          )
+        )}
       </Row>
 
       <Row gap={0.8}>
@@ -84,7 +117,7 @@ const Projects = () => {
         <Spacer y={0.8} />
         {!loading &&
           states.map(state => (
-            <Col gap={0.8} key={state}>
+            <Col key={state}>
               <Text h3>{state}</Text>
               {(stories[state] || []).map(story => (
                 <Fragment key={story.id}>
@@ -121,7 +154,7 @@ const Projects = () => {
                       ))}
                       {story.labels.map(label => (
                         <Fragment key={label.id}>
-                          <Tag type={getType(label.name)} invert>
+                          <Tag type={getType(label.name)} onClick={() => addFilter('labels', label)} invert>
                             {label.name}
                           </Tag>
                           <Spacer y={1} />
