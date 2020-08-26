@@ -8,9 +8,9 @@ export const filterStories = (state: State, id: string, filters: {}): Record<str
 
   /** Current filtering is Or Filering, but we should probably do And filtering */
   for (const filter of Object.keys(filters)) {
-    filtered = true;
     if (filter === 'labels') {
       for (const label of filters[filter]) {
+        filtered = true;
         for (const status of Object.keys(stories)) {
           filteredStories[status] = stories[status].filter((story: Story): boolean => {
             for (const thisLabel of story.labels) {

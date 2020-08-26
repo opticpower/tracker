@@ -28,6 +28,10 @@ const Projects = (): JSX.Element => {
     setFilters({ ...filters, [name]: Array.from(new Set(array)) });
   };
 
+  const removeFilter = (name: string, filter: any): void => {
+    setFilters({ ...filters, [name]: [...filters[name].filter((element: any): boolean => element !== filter)] });
+  };
+
   const getType = name => {
     if (name === 'medium' || name === 'med') {
       return 'warning';
@@ -105,7 +109,7 @@ const Projects = (): JSX.Element => {
         <ProjectPicker id={id} />
         {filters.labels?.map(
           (label: Label): JSX.Element => (
-            <Tag key={label.name} type={getType(label.name)} invert>
+            <Tag key={label.name} type={getType(label.name)} onClick={() => removeFilter('labels', label)} invert>
               {label.name}
               <Spacer x={0.8} />
             </Tag>
