@@ -5,7 +5,7 @@ import { parseCookies } from 'nookies';
 import { subDays } from 'date-fns';
 import ProjectPicker from '../../components/ProjectPicker';
 import { useSelector, useDispatch } from 'react-redux';
-import { State, Story, Filters, Label } from '../../redux/types';
+import { State, Story, Filters, Label, Owner } from '../../redux/types';
 import { addStories } from '../../redux/actions/stories.actions';
 import { filterStories } from '../../redux/selectors/stories.selectors';
 
@@ -104,18 +104,24 @@ const Projects = (): JSX.Element => {
         <ProjectPicker id={id} />
         {filters.labels?.map(
           (label: Label): JSX.Element => (
-            <Tag key={label.name} type={getType(label.name)} onClick={() => removeFilter('labels', label)} invert>
+            <Tag key={label.name} type={getType(label.name)} onClick={(): void => removeFilter('labels', label)} invert>
               {label.name}
               <Spacer x={0.8} />
             </Tag>
           )
         )}
-        {filters.owners?.map(owner => (
-          <Fragment key={owner.name}>
-            <User name={owner.name} onClick={() => removeFilter('owners', owner)} text={owner.initials.toUpperCase()} />
-            <Spacer y={1} />
-          </Fragment>
-        ))}
+        {filters.owners?.map(
+          (owner: Owner): JSX.Element => (
+            <Fragment key={owner.name}>
+              <User
+                name={owner.name}
+                onClick={(): void => removeFilter('owners', owner)}
+                text={owner.initials.toUpperCase()}
+              />
+              <Spacer y={1} />
+            </Fragment>
+          )
+        )}
       </Row>
 
       <Row gap={0.8}>
@@ -125,57 +131,63 @@ const Projects = (): JSX.Element => {
           states.map(state => (
             <Col key={state}>
               <Text h3>{state}</Text>
-              {(stories[state] || []).map(story => (
-                <Fragment key={story.id}>
-                  <Card width="250px" hoverable style={{ borderColor: getBorderColor(story.story_type) }}>
-                    <Card.Content>
-                      <Breadcrumbs size="mini">
-                        <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>
-                        <Breadcrumbs.Item>
-                          <a
-                            href={`https://www.pivotaltracker.com/story/show/${story.id}`}
-                            target="_blank"
-                            rel="noreferrer nofollow"
-                          >
-                            {story.id}
-                          </a>
-                        </Breadcrumbs.Item>
-                        {Number.isInteger(story.estimate) && (
+              {(stories[state] || []).map(
+                (story: Story): JSX.Element => (
+                  <Fragment key={story.id}>
+                    <Card width="250px" hoverable style={{ borderColor: getBorderColor(story.story_type) }}>
+                      <Card.Content>
+                        <Breadcrumbs size="mini">
+                          <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>
                           <Breadcrumbs.Item>
-                            <Badge>{story.estimate}</Badge>
+                            <a
+                              href={`https://www.pivotaltracker.com/story/show/${story.id}`}
+                              target="_blank"
+                              rel="noreferrer nofollow"
+                            >
+                              {story.id}
+                            </a>
                           </Breadcrumbs.Item>
-                        )}
-                      </Breadcrumbs>
+                          {Number.isInteger(story.estimate) && (
+                            <Breadcrumbs.Item>
+                              <Badge>{story.estimate}</Badge>
+                            </Breadcrumbs.Item>
+                          )}
+                        </Breadcrumbs>
 
-                      <Spacer x={0.8} />
-                      <Text b>{story.name}</Text>
-                    </Card.Content>
-                    <Divider y={0} />
-                    <Card.Content>
-                      {story.owners.map(owner => (
-                        <Fragment key={owner.name}>
-                          <User
-                            name={owner.name}
-                            onClick={() => addFilter('owners', owner)}
-                            text={owner.initials.toUpperCase()}
-                          />
-                          <Spacer y={1} />
-                        </Fragment>
-                      ))}
-                      {story.labels.map(label => (
-                        <Fragment key={label.id}>
-                          <Tag type={getType(label.name)} onClick={() => addFilter('labels', label)} invert>
-                            {label.name}
-                          </Tag>
-                          <Spacer y={1} />
-                        </Fragment>
-                      ))}
-                      Add Github, Blockers
-                    </Card.Content>
-                  </Card>
-                  <Spacer y={1} />
-                </Fragment>
-              ))}
+                        <Spacer x={0.8} />
+                        <Text b>{story.name}</Text>
+                      </Card.Content>
+                      <Divider y={0} />
+                      <Card.Content>
+                        {story.owners.map(
+                          (owner: Owner): JSX.Element => (
+                            <Fragment key={owner.name}>
+                              <User
+                                name={owner.name}
+                                onClick={(): void => addFilter('owners', owner)}
+                                text={owner.initials.toUpperCase()}
+                              />
+                              <Spacer y={1} />
+                            </Fragment>
+                          )
+                        )}
+                        {story.labels.map(
+                          (label: Label): JSX.Element => (
+                            <Fragment key={label.id}>
+                              <Tag type={getType(label.name)} onClick={(): void => addFilter('labels', label)} invert>
+                                {label.name}
+                              </Tag>
+                              <Spacer y={1} />
+                            </Fragment>
+                          )
+                        )}
+                        Add Github, Blockers
+                      </Card.Content>
+                    </Card>
+                    <Spacer y={1} />
+                  </Fragment>
+                )
+              )}
             </Col>
           ))}
       </Row>
