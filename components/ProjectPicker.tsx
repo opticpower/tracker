@@ -14,7 +14,6 @@ const ProjectPicker = ({ id }): JSX.Element => {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  console.log('have project', projects);
 
   useEffect(() => {
     if (!projects.length) {
