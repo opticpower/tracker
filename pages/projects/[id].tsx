@@ -24,8 +24,8 @@ const Projects = (): JSX.Element => {
   const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
 
   const addFilter = (name: string, filter: any): void => {
-    //todo: avoid array dups
-    setFilters({ ...filters, [name]: [...(filters[name] || []), filter] });
+    const array = [...(filters[name] || []), filter];
+    setFilters({ ...filters, [name]: Array.from(new Set(array)) });
   };
 
   const getType = name => {
@@ -107,6 +107,7 @@ const Projects = (): JSX.Element => {
           (label: Label): JSX.Element => (
             <Tag key={label.name} type={getType(label.name)} invert>
               {label.name}
+              <Spacer x={0.8} />
             </Tag>
           )
         )}
