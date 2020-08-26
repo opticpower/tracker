@@ -18,6 +18,7 @@ export interface Story {
 }
 
 export interface Owner {
+  id: string;
   name: string;
   initials: string;
 }
@@ -29,4 +30,5 @@ export interface Label {
 
 export interface Filters {
   labels?: Label[];
+  owners?: Owner[];
 }

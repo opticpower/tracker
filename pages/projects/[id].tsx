@@ -97,9 +97,6 @@ const Projects = (): JSX.Element => {
     getStories();
   }, [id]);
 
-  console.log('have filter', filters);
-  console.log('have stories', stories);
-
   const loading = !Boolean(stories && Object.values(stories).length);
   console.log('have loading', loading);
 
@@ -115,6 +112,12 @@ const Projects = (): JSX.Element => {
             </Tag>
           )
         )}
+        {filters.owners?.map(owner => (
+          <Fragment key={owner.name}>
+            <User name={owner.name} onClick={() => removeFilter('owners', owner)} text={owner.initials.toUpperCase()} />
+            <Spacer y={1} />
+          </Fragment>
+        ))}
       </Row>
 
       <Row gap={0.8}>
@@ -153,7 +156,11 @@ const Projects = (): JSX.Element => {
                     <Card.Content>
                       {story.owners.map(owner => (
                         <Fragment key={owner.name}>
-                          <User name={owner.name} text={owner.initials.toUpperCase()} />
+                          <User
+                            name={owner.name}
+                            onClick={() => addFilter('owners', owner)}
+                            text={owner.initials.toUpperCase()}
+                          />
                           <Spacer y={1} />
                         </Fragment>
                       ))}
