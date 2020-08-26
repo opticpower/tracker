@@ -15,7 +15,7 @@ const OpticTracker: FC<AppProps> = ({ Component, pageProps }): JSX.Element => {
           <Spacer x={1} />
           <Text h5>Optic Tracker</Text>
         </Col>
-        <Col align="right">
+        <Col>
           <ButtonDropdown size="mini" auto>
             <ButtonDropdown.Item main={useLight === false} onClick={(): void => setUseLight(false)}>
               <Moon size={16} /> <Spacer inline x={0.35} />
