@@ -4,7 +4,6 @@ import { MakeStore, createWrapper, Context, HYDRATE } from 'next-redux-wrapper';
 import { State } from './types';
 import projects from './reducers/projects';
 
-// create your reducer
 const reducer = (state: State = {}, action: AnyAction) => {
   switch (action.type) {
     case HYDRATE:
@@ -15,7 +14,6 @@ const reducer = (state: State = {}, action: AnyAction) => {
   }
 };
 
-// create a makeStore function
 const makeStore: MakeStore<State> = (context: Context) =>
   createStore(
     combineReducers({
@@ -24,5 +22,4 @@ const makeStore: MakeStore<State> = (context: Context) =>
     })
   );
 
-// export an assembled wrapper
 export const wrapper = createWrapper<State>(makeStore, { debug: true });
