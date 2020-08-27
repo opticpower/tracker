@@ -9,6 +9,8 @@ import { State, Story, Filters, Label, Owner } from '../../redux/types';
 import { addStories } from '../../redux/actions/stories.actions';
 import { filterStories } from '../../redux/selectors/stories.selectors';
 
+import Labels from '../../components/Labels';
+
 const states = ['Unscheduled', 'Unstarted', 'Started', 'Finished', 'Delivered', 'Rejected', 'Accepted'];
 
 interface Params {
@@ -30,21 +32,6 @@ const Projects = (): JSX.Element => {
 
   const removeFilter = (name: string, filter: any): void => {
     setFilters({ ...filters, [name]: [...filters[name].filter((element: any): boolean => element !== filter)] });
-  };
-
-  const getType = name => {
-    if (name === 'medium' || name === 'med') {
-      return 'warning';
-    }
-
-    if (name === 'optic') {
-      return 'secondary';
-    }
-
-    if (name === 'high') {
-      return 'error';
-    }
-    return 'default';
   };
 
   const getBorderColor = type => {
@@ -102,14 +89,7 @@ const Projects = (): JSX.Element => {
     <Fragment>
       <Row gap={0.8}>
         <ProjectPicker id={id} />
-        {filters.labels?.map(
-          (label: Label): JSX.Element => (
-            <Tag key={label.name} type={getType(label.name)} onClick={(): void => removeFilter('labels', label)} invert>
-              {label.name}
-              <Spacer x={0.8} />
-            </Tag>
-          )
-        )}
+        <Labels labels={filters.labels} onClick={removeFilter} />
         {filters.owners?.map(
           (owner: Owner): JSX.Element => (
             <Fragment key={owner.name}>
@@ -171,16 +151,7 @@ const Projects = (): JSX.Element => {
                             </Fragment>
                           )
                         )}
-                        {story.labels.map(
-                          (label: Label): JSX.Element => (
-                            <Fragment key={label.id}>
-                              <Tag type={getType(label.name)} onClick={(): void => addFilter('labels', label)} invert>
-                                {label.name}
-                              </Tag>
-                              <Spacer y={1} />
-                            </Fragment>
-                          )
-                        )}
+                        <Labels labels={story.labels} onClick={addFilter} />
                         Add Github, Blockers
                       </Card.Content>
                     </Card>
