@@ -3,6 +3,7 @@ import { createStore, AnyAction, combineReducers } from 'redux';
 import { MakeStore, createWrapper, Context, HYDRATE } from 'next-redux-wrapper';
 import { State } from './types';
 import projects from './reducers/projects';
+import stories from './reducers/stories';
 
 const reducer = (state: State = {}, action: AnyAction) => {
   switch (action.type) {
@@ -19,6 +20,7 @@ const makeStore: MakeStore<State> = (context: Context) =>
     combineReducers({
       reducer,
       projects,
+      stories,
     })
   );
 
