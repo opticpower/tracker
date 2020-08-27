@@ -1,5 +1,5 @@
-import { Text, Spacer, Tag } from '@geist-ui/react';
-import { Label } from '../../redux/types';
+import { Spacer, Tag } from '@geist-ui/react';
+import { Label } from '../redux/types';
 
 interface LabelsParams {
   labels?: Label[];

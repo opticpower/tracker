@@ -8,7 +8,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { State, Story, Filters, Label, Owner } from '../../redux/types';
 import { addStories } from '../../redux/actions/stories.actions';
 import { filterStories } from '../../redux/selectors/stories.selectors';
-
+import Owners from '../../components/Owners';
 import Labels from '../../components/Labels';
 
 const states = ['Unscheduled', 'Unstarted', 'Started', 'Finished', 'Delivered', 'Rejected', 'Accepted'];
@@ -25,16 +25,16 @@ const Projects = (): JSX.Element => {
   const [filters, setFilters] = useState<Filters>({});
   const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
 
-  const addFilter = (name: string, filter: any): void => {
+  const addFilter = (name: string, filter: Owner | Label): void => {
     const array = [...(filters[name] || []), filter];
     setFilters({ ...filters, [name]: Array.from(new Set(array)) });
   };
 
-  const removeFilter = (name: string, filter: any): void => {
+  const removeFilter = (name: string, filter: Owner | Label): void => {
     setFilters({ ...filters, [name]: [...filters[name].filter((element: any): boolean => element !== filter)] });
   };
 
-  const getBorderColor = type => {
+  const getBorderColor = (type: string): string => {
     if (type === 'feature') {
       return 'gray';
     }
@@ -90,18 +90,7 @@ const Projects = (): JSX.Element => {
       <Row gap={0.8}>
         <ProjectPicker id={id} />
         <Labels labels={filters.labels} onClick={removeFilter} />
-        {filters.owners?.map(
-          (owner: Owner): JSX.Element => (
-            <Fragment key={owner.name}>
-              <User
-                name={owner.name}
-                onClick={(): void => removeFilter('owners', owner)}
-                text={owner.initials.toUpperCase()}
-              />
-              <Spacer y={1} />
-            </Fragment>
-          )
-        )}
+        <Owners owners={filters.owners} onClick={removeFilter} />
       </Row>
 
       <Row gap={0.8}>
@@ -139,18 +128,7 @@ const Projects = (): JSX.Element => {
                       </Card.Content>
                       <Divider y={0} />
                       <Card.Content>
-                        {story.owners.map(
-                          (owner: Owner): JSX.Element => (
-                            <Fragment key={owner.name}>
-                              <User
-                                name={owner.name}
-                                onClick={(): void => addFilter('owners', owner)}
-                                text={owner.initials.toUpperCase()}
-                              />
-                              <Spacer y={1} />
-                            </Fragment>
-                          )
-                        )}
+                        <Owners owners={story.owners} onClick={addFilter} />
                         <Labels labels={story.labels} onClick={addFilter} />
                         Add Github, Blockers
                       </Card.Content>
