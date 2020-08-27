@@ -11,7 +11,7 @@ const Owners = ({ owners = [], onClick }: OwnersParams): JSX.Element => (
   <>
     {owners.map(
       (owner: Owner): JSX.Element => (
-        <Fragment key={owner.name}>
+        <Fragment key={owner.id}>
           <User name={owner.name} onClick={(): void => onClick('owners', owner)} text={owner.initials.toUpperCase()} />
           <Spacer y={1} />
         </Fragment>
