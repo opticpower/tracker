@@ -11,8 +11,8 @@ const reducer = (state: Record<string, Record<string, Story[]>> = initialState, 
 
     case MOVE_STORY: {
       const { projectId, sourceState, sourceIndex, destinationState, destinationIndex } = action.payload;
-      const story = state[projectId][sourceState][sourceIndex];
-      const sourceArr = state[projectId][sourceState].filter(item => item.id !== story.id);
+      const story: Story = state[projectId][sourceState][sourceIndex];
+      const sourceArr: Story[] = state[projectId][sourceState].filter(item => item.id !== story.id);
 
       if (sourceState === destinationState) {
         // If we are moving the story order in the same column, just reorganize the same array.
@@ -24,7 +24,7 @@ const reducer = (state: Record<string, Record<string, Story[]>> = initialState, 
           },
         };
       }
-      const draggedArr = state[projectId][destinationState];
+      const draggedArr: Story[] = state[projectId][destinationState];
       // If the story is dragged between columns, we need to adjust both states items.
       return {
         ...state,
