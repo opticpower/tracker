@@ -108,15 +108,13 @@ const Projects = (): JSX.Element => {
         ? // Special case when landing further down from the same column the story was taken.
           destinationIndex + 1
         : destinationIndex;
-    const before_id = stories[destinationState][landingIndex]?.id || null;
-    const after_id = stories[destinationState][landingIndex - 1]?.id || null;
-    // A null before_id means the story was placed first in the list.
+
     const payload = {
       current_state: destinationState,
-      before_id,
-      // When moving stories to an empty column, both before_id and after_id will be null.
-      // Pivotal error if yo set a story to the first and the last item of the list. Even if is the only one.
-      ...(before_id === null && before_id === after_id ? {} : { after_id }),
+      before_id: stories[destinationState][landingIndex]?.id || null,
+      // A null before_id means the story was placed first in the list.
+      after_id: stories[destinationState][landingIndex - 1]?.id || null,
+      // A null after_id means the story was placed last in the list.
     };
     await fetch(`https://www.pivotaltracker.com/services/v5/projects/${id}/stories/${draggableId}`, {
       method: 'PUT',

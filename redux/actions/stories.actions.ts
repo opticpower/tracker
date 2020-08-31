@@ -9,7 +9,7 @@ interface AddStories {
   stories: Record<string, Story[]>;
 }
 
-interface Movetories {
+interface MoveStories {
   projectId: string;
   sourceState: string;
   sourceIndex: number;
@@ -22,7 +22,7 @@ export const addStories = (payload: AddStories): AnyAction => ({
   payload,
 });
 
-export const moveStory = (payload: Movetories): AnyAction => ({
+export const moveStory = (payload: MoveStories): AnyAction => ({
   type: MOVE_STORY,
   payload,
 });
