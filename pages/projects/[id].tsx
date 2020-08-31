@@ -1,17 +1,44 @@
-import { useEffect, Fragment, useState } from 'react';
-import { Text, Spacer, Row, Col, Card, Divider, Loading, Badge, User, Tag, Breadcrumbs } from '@geist-ui/react';
-import { useRouter } from 'next/router';
-import { parseCookies } from 'nookies';
-import { subDays } from 'date-fns';
-import ProjectPicker from '../../components/ProjectPicker';
-import { useSelector, useDispatch } from 'react-redux';
-import { State, Story, Filters, Label, Owner } from '../../redux/types';
-import { addStories } from '../../redux/actions/stories.actions';
-import { filterStories } from '../../redux/selectors/stories.selectors';
-import Owners from '../../components/Owners';
-import Labels from '../../components/Labels';
+import { useEffect, Fragment, useState, useRef } from "react";
+import {
+  Text,
+  Spacer,
+  Row,
+  Col,
+  Card,
+  Divider,
+  Loading,
+  Badge,
+  User,
+  Tag,
+  Breadcrumbs,
+} from "@geist-ui/react";
+import { useRouter } from "next/router";
+import { parseCookies } from "nookies";
+import { subDays } from "date-fns";
+import ProjectPicker from "../../components/ProjectPicker";
+import { useSelector, useDispatch } from "react-redux";
+import { State, Story, Filters, Label, Owner } from "../../redux/types";
+import { addStories } from "../../redux/actions/stories.actions";
+import { filterStories } from "../../redux/selectors/stories.selectors";
+import Owners from "../../components/Owners";
+import Labels from "../../components/Labels";
 
-const states = ['Unscheduled', 'Unstarted', 'Started', 'Finished', 'Delivered', 'Rejected', 'Accepted'];
+import {
+  Grid,
+  AutoSizer,
+  CellMeasurer,
+  CellMeasurerCache,
+} from "react-virtualized";
+
+const states = [
+  "Unscheduled",
+  "Unstarted",
+  "Started",
+  "Finished",
+  "Delivered",
+  "Rejected",
+  "Accepted",
+];
 
 interface Params {
   id?: string;
@@ -23,7 +50,16 @@ const Projects = (): JSX.Element => {
   const { id }: Params = router.query;
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
-  const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
+  const stories = useSelector(
+    (state: State): Record<string, Story[]> => filterStories(state, id, filters)
+  );
+
+  const cache = useRef(
+    new CellMeasurerCache({
+      minHeight: 280,
+      fixedHeight: true,
+    })
+  );
 
   const addFilter = (name: string, filter: Owner | Label): void => {
     const array = [...(filters[name] || []), filter];
@@ -31,23 +67,28 @@ const Projects = (): JSX.Element => {
   };
 
   const removeFilter = (name: string, filter: Owner | Label): void => {
-    setFilters({ ...filters, [name]: [...filters[name].filter((element: any): boolean => element !== filter)] });
+    setFilters({
+      ...filters,
+      [name]: [
+        ...filters[name].filter((element: any): boolean => element !== filter),
+      ],
+    });
   };
 
   const getBorderColor = (type: string): string => {
-    if (type === 'feature') {
-      return 'gray';
+    if (type === "feature") {
+      return "gray";
     }
-    if (type === 'bug') {
-      return 'red';
+    if (type === "bug") {
+      return "red";
     }
-    if (type === 'chore') {
-      return 'green';
+    if (type === "chore") {
+      return "green";
     }
-    if (type === 'release') {
-      return 'blue';
+    if (type === "release") {
+      return "blue";
     }
-    return 'gray';
+    return "gray";
   };
 
   useEffect(() => {
@@ -60,16 +101,19 @@ const Projects = (): JSX.Element => {
       //todo: we should do Promise.all for these
       for (const state of states) {
         let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners,labels,blockers,reviews,story_type`;
-        if (state === 'Accepted') {
+        if (state === "Accepted") {
           const oneWeekAgo = subDays(new Date(), 7);
           fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
         }
 
-        const request = await fetch(`https://www.pivotaltracker.com/services/v5/projects/${id}/${fetchString}`, {
-          headers: {
-            'X-TrackerToken': apiToken,
-          },
-        });
+        const request = await fetch(
+          `https://www.pivotaltracker.com/services/v5/projects/${id}/${fetchString}`,
+          {
+            headers: {
+              "X-TrackerToken": apiToken,
+            },
+          }
+        );
         stories = { ...stories, [state]: await request.json() };
       }
 
@@ -85,6 +129,74 @@ const Projects = (): JSX.Element => {
 
   const loading = !Boolean(stories && Object.values(stories).length);
 
+  const cellRenderer = ({
+    columnIndex,
+    key,
+    rowIndex,
+    style,
+    parent: {
+      props: { storiesState },
+    },
+    parent,
+  }) => {
+    const story: Story = storiesState[rowIndex];
+
+    return (
+      <CellMeasurer
+        key={key}
+        cache={cache.current}
+        parent={parent}
+        rowIndex={rowIndex}
+        columnIndex={columnIndex}
+      >
+        {({ measure, registerChild }) => (
+          <Card
+            key={key}
+            hoverable
+            style={{
+              borderColor: getBorderColor(story.story_type),
+              ...style,
+            }}
+            onLoad={measure}
+          >
+            <Card.Content>
+              <Breadcrumbs size="mini">
+                <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>
+                <Breadcrumbs.Item>
+                  <a
+                    href={`https://www.pivotaltracker.com/story/show/${story.id}`}
+                    target="_blank"
+                    rel="noreferrer nofollow"
+                  >
+                    {story.id}
+                  </a>
+                </Breadcrumbs.Item>
+                {Number.isInteger(story.estimate) && (
+                  <Breadcrumbs.Item>
+                    <Badge>{story.estimate}</Badge>
+                  </Breadcrumbs.Item>
+                )}
+              </Breadcrumbs>
+
+              <Spacer x={0.8} />
+              <Text b>{story.name}</Text>
+            </Card.Content>
+            <Divider y={0} />
+            <Card.Content>
+              <Owners owners={story.owners} onClick={addFilter} />
+              <Labels labels={story.labels} onClick={addFilter} />
+              Add Github, Blockers
+            </Card.Content>
+          </Card>
+        )}
+        {/*<Spacer y={1} /> */}
+      </CellMeasurer>
+    );
+  };
+
+  console.log("states", states);
+  console.log("stories", stories);
+
   return (
     <Fragment>
       <Row gap={0.8}>
@@ -93,55 +205,80 @@ const Projects = (): JSX.Element => {
         <Owners owners={filters.owners} onClick={removeFilter} />
       </Row>
 
-      <Row gap={0.8}>
+      <Row gap={0.8} style={{ height: "100%", display: "flex" }}>
         {loading && <Loading />}
         <Spacer y={0.8} />
-        {!loading &&
-          states.map(state => (
-            <Col key={state}>
-              <Text h3>{state}</Text>
-              {(stories[state] || []).map(
-                (story: Story): JSX.Element => (
-                  <Fragment key={story.id}>
-                    <Card width="250px" hoverable style={{ borderColor: getBorderColor(story.story_type) }}>
-                      <Card.Content>
-                        <Breadcrumbs size="mini">
-                          <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>
-                          <Breadcrumbs.Item>
-                            <a
-                              href={`https://www.pivotaltracker.com/story/show/${story.id}`}
-                              target="_blank"
-                              rel="noreferrer nofollow"
-                            >
-                              {story.id}
-                            </a>
-                          </Breadcrumbs.Item>
-                          {Number.isInteger(story.estimate) && (
-                            <Breadcrumbs.Item>
-                              <Badge>{story.estimate}</Badge>
-                            </Breadcrumbs.Item>
-                          )}
-                        </Breadcrumbs>
-
-                        <Spacer x={0.8} />
-                        <Text b>{story.name}</Text>
-                      </Card.Content>
-                      <Divider y={0} />
-                      <Card.Content>
-                        <Owners owners={story.owners} onClick={addFilter} />
-                        <Labels labels={story.labels} onClick={addFilter} />
-                        Add Github, Blockers
-                      </Card.Content>
-                    </Card>
-                    <Spacer y={1} />
-                  </Fragment>
-                )
-              )}
-            </Col>
-          ))}
+        <AutoSizer style={{ display: "flex" }}>
+          {({ width, height }) =>
+            !loading &&
+            states.map((state, idx) => (
+              <div key={idx}>
+                <Text h3>{state}</Text>
+                <Grid
+                  cellRenderer={cellRenderer}
+                  columnCount={1}
+                  columnWidth={260}
+                  height={height}
+                  rowCount={(stories[state] || []).length}
+                  rowHeight={cache.current.rowHeight}
+                  deferredMeasurementCache={cache.current}
+                  width={270}
+                  storiesState={stories[state]}
+                />
+              </div>
+            ))
+          }
+        </AutoSizer>
       </Row>
     </Fragment>
   );
 };
+
+// <Col key={state}>
+//               <Text h3>{state}</Text>
+//               {(stories[state] || []).map(
+//                 (story: Story): JSX.Element => (
+//                   <Fragment key={story.id}>
+//                     <Card
+//                       width="250px"
+//                       hoverable
+//                       style={{ borderColor: getBorderColor(story.story_type) }}
+//                     >
+//                       <Card.Content>
+//                         <Breadcrumbs size="mini">
+//                           <Breadcrumbs.Item>
+//                             {story.story_type}
+//                           </Breadcrumbs.Item>
+//                           <Breadcrumbs.Item>
+//                             <a
+//                               href={`https://www.pivotaltracker.com/story/show/${story.id}`}
+//                               target="_blank"
+//                               rel="noreferrer nofollow"
+//                             >
+//                               {story.id}
+//                             </a>
+//                           </Breadcrumbs.Item>
+//                           {Number.isInteger(story.estimate) && (
+//                             <Breadcrumbs.Item>
+//                               <Badge>{story.estimate}</Badge>
+//                             </Breadcrumbs.Item>
+//                           )}
+//                         </Breadcrumbs>
+
+//                         <Spacer x={0.8} />
+//                         <Text b>{story.name}</Text>
+//                       </Card.Content>
+//                       <Divider y={0} />
+//                       <Card.Content>
+//                         <Owners owners={story.owners} onClick={addFilter} />
+//                         <Labels labels={story.labels} onClick={addFilter} />
+//                         Add Github, Blockers
+//                       </Card.Content>
+//                     </Card>
+//                     <Spacer y={1} />
+//                   </Fragment>
+//                 )
+//               )}
+//             </Col>
 
 export default Projects;
