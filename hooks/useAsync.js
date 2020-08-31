@@ -11,6 +11,7 @@ export default (asyncFn, initialVal = {}) => {
     try {
       setResult(await asyncFn(...args));
     } catch (err) {
+      console.error(err);
       setError(err);
     }
     setLoading(false);
