@@ -1,17 +1,20 @@
-import { useEffect, Fragment, useState } from 'react';
-import { Text, Spacer, Row, Col, Card, Divider, Loading, Badge, User, Tag, Breadcrumbs } from '@geist-ui/react';
+import { useEffect, useState } from 'react';
+import { Text, Spacer, Row, Col, Card, Divider, Loading, Badge, Breadcrumbs } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { parseCookies } from 'nookies';
 import { subDays } from 'date-fns';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
 import ProjectPicker from '../../components/ProjectPicker';
 import { useSelector, useDispatch } from 'react-redux';
 import { State, Story, Filters, Label, Owner } from '../../redux/types';
-import { addStories } from '../../redux/actions/stories.actions';
+import { addStories, moveStory } from '../../redux/actions/stories.actions';
 import { filterStories } from '../../redux/selectors/stories.selectors';
 import Owners from '../../components/Owners';
 import Labels from '../../components/Labels';
+import { useAsync } from '../../hooks';
 
-const states = ['Unscheduled', 'Unstarted', 'Started', 'Finished', 'Delivered', 'Rejected', 'Accepted'];
+const states = ['unscheduled', 'unstarted', 'started', 'finished', 'delivered', 'rejected', 'accepted'];
 
 interface Params {
   id?: string;
@@ -73,20 +76,60 @@ const Projects = (): JSX.Element => {
         stories = { ...stories, [state]: await request.json() };
       }
 
-      dispatch(
-        addStories({
-          id,
-          stories,
-        })
-      );
+      dispatch(addStories({ id, stories }));
     };
     getStories();
   }, [id]);
 
+  const [, onDragEnd] = useAsync(async (result: DragDropContext.result) => {
+    const {
+      source: { droppableId: sourceDroppableId, index: sourceIndex },
+      destination,
+      destination: { droppableId: destinationDroppableId, index: destinationIndex },
+      draggableId,
+    } = result;
+
+    if (!destination) {
+      return;
+    }
+
+    if (destinationDroppableId === sourceDroppableId && destinationIndex === sourceIndex) {
+      return;
+    }
+
+    const sourceState = states[sourceDroppableId];
+    const destinationState = states[destinationDroppableId];
+
+    dispatch(moveStory({ projectId: id, sourceState, sourceIndex, destinationState, destinationIndex }));
+
+    const landingIndex =
+      // Calculates the index in between which two stories the dragged story landed.
+      destinationDroppableId === sourceDroppableId && destinationIndex > sourceIndex
+        ? // Special case when landing further down from the same column the story was taken.
+          destinationIndex + 1
+        : destinationIndex;
+
+    const payload = {
+      current_state: destinationState,
+      before_id: stories[destinationState][landingIndex]?.id || null,
+      // A null before_id means the story was placed first in the list.
+      after_id: stories[destinationState][landingIndex - 1]?.id || null,
+      // A null after_id means the story was placed last in the list.
+    };
+    await fetch(`https://www.pivotaltracker.com/services/v5/projects/${id}/stories/${draggableId}`, {
+      method: 'PUT',
+      headers: {
+        'X-TrackerToken': apiToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ...payload }),
+    });
+  });
+
   const loading = !Boolean(stories && Object.values(stories).length);
 
   return (
-    <Fragment>
+    <div style={{ overflow: 'scroll' }}>
       <Row gap={0.8}>
         <ProjectPicker id={id} />
         <Labels labels={filters.labels} onClick={removeFilter} />
@@ -96,51 +139,72 @@ const Projects = (): JSX.Element => {
       <Row gap={0.8}>
         {loading && <Loading />}
         <Spacer y={0.8} />
-        {!loading &&
-          states.map(state => (
-            <Col key={state}>
-              <Text h3>{state}</Text>
-              {(stories[state] || []).map(
-                (story: Story): JSX.Element => (
-                  <Fragment key={story.id}>
-                    <Card width="250px" hoverable style={{ borderColor: getBorderColor(story.story_type) }}>
-                      <Card.Content>
-                        <Breadcrumbs size="mini">
-                          <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>
-                          <Breadcrumbs.Item>
-                            <a
-                              href={`https://www.pivotaltracker.com/story/show/${story.id}`}
-                              target="_blank"
-                              rel="noreferrer nofollow"
-                            >
-                              {story.id}
-                            </a>
-                          </Breadcrumbs.Item>
-                          {Number.isInteger(story.estimate) && (
-                            <Breadcrumbs.Item>
-                              <Badge>{story.estimate}</Badge>
-                            </Breadcrumbs.Item>
-                          )}
-                        </Breadcrumbs>
+        {!loading && (
+          <DragDropContext onDragEnd={onDragEnd}>
+            {states.map((state: string, idx: number) => (
+              <Col key={idx}>
+                <Text h3 style={{ textAlign: 'center', textTransform: 'capitalize' }}>
+                  {state}
+                </Text>
+                <Droppable key={state} droppableId={idx.toString()}>
+                  {(provided: Droppable.provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef} style={{ minWidth: 250, height: '100%' }}>
+                      {(stories[state] || []).map(
+                        (story: Story, index: number): JSX.Element => (
+                          <Draggable key={story.id} draggableId={story.id.toString()} index={index}>
+                            {(provided: Draggable.provided) => (
+                              <div
+                                style={{ background: 'green' }}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                ref={provided.innerRef}
+                              >
+                                <Card width="250px" hoverable style={{ borderColor: getBorderColor(story.story_type) }}>
+                                  <Card.Content>
+                                    <Breadcrumbs size="mini">
+                                      <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>
+                                      <Breadcrumbs.Item>
+                                        <a
+                                          href={`https://www.pivotaltracker.com/story/show/${story.id}`}
+                                          target="_blank"
+                                          rel="noreferrer nofollow"
+                                        >
+                                          {story.id}
+                                        </a>
+                                      </Breadcrumbs.Item>
+                                      {Number.isInteger(story.estimate) && (
+                                        <Breadcrumbs.Item>
+                                          <Badge>{story.estimate}</Badge>
+                                        </Breadcrumbs.Item>
+                                      )}
+                                    </Breadcrumbs>
 
-                        <Spacer x={0.8} />
-                        <Text b>{story.name}</Text>
-                      </Card.Content>
-                      <Divider y={0} />
-                      <Card.Content>
-                        <Owners owners={story.owners} onClick={addFilter} />
-                        <Labels labels={story.labels} onClick={addFilter} />
-                        Add Github, Blockers
-                      </Card.Content>
-                    </Card>
-                    <Spacer y={1} />
-                  </Fragment>
-                )
-              )}
-            </Col>
-          ))}
+                                    <Spacer x={0.8} />
+                                    <Text b>{story.name}</Text>
+                                  </Card.Content>
+                                  <Divider y={0} />
+                                  <Card.Content>
+                                    <Owners owners={story.owners} onClick={addFilter} />
+                                    <Labels labels={story.labels} onClick={addFilter} />
+                                    Add Github, Blockers
+                                  </Card.Content>
+                                </Card>
+                                <Spacer y={1} />
+                              </div>
+                            )}
+                          </Draggable>
+                        )
+                      )}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </Col>
+            ))}
+          </DragDropContext>
+        )}
       </Row>
-    </Fragment>
+    </div>
   );
 };
 
