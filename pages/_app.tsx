@@ -1,8 +1,8 @@
 import React, { useState, FC } from 'react';
-import { GeistProvider, CssBaseline, Text, Row, Col, Spacer, ButtonDropdown } from '@geist-ui/react';
-import { Sun, Moon } from '@geist-ui/react-icons';
+import { GeistProvider, CssBaseline } from '@geist-ui/react';
 import { wrapper } from '../redux/store';
 import { AppProps } from 'next/app';
+import Nav from '../components/Nav';
 
 const OpticTracker: FC<AppProps> = ({ Component, pageProps }): JSX.Element => {
   const [useLight, setUseLight] = useState<boolean>(false);
@@ -10,24 +10,7 @@ const OpticTracker: FC<AppProps> = ({ Component, pageProps }): JSX.Element => {
   return (
     <GeistProvider theme={{ type: useLight ? 'light' : 'dark' }}>
       <CssBaseline />
-      <Row>
-        <Col>
-          <Spacer x={1} />
-          <Text h5>Optic Tracker</Text>
-        </Col>
-        <Col>
-          <ButtonDropdown size="mini" auto>
-            <ButtonDropdown.Item main={useLight === false} onClick={(): void => setUseLight(false)}>
-              <Moon size={16} /> <Spacer inline x={0.35} />
-              Dark Mode
-            </ButtonDropdown.Item>
-            <ButtonDropdown.Item main={Boolean(useLight)} onClick={(): void => setUseLight(true)}>
-              <Sun size={16} /> <Spacer inline x={0.35} />
-              Light Mode
-            </ButtonDropdown.Item>
-          </ButtonDropdown>
-        </Col>
-      </Row>
+      <Nav useLight={useLight} setUseLight={setUseLight} />
       <Component {...pageProps} toggleLight />
     </GeistProvider>
   );
