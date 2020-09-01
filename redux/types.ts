@@ -1,6 +1,7 @@
 export interface State {
   projects?: Project[];
   stories?: Record<string, Record<string, Story[]>>;
+  iterations?: Record<number, Set<Iteration>>;
 }
 
 export interface Project {
@@ -31,4 +32,14 @@ export interface Label {
 export interface Filters {
   labels?: Label[];
   owners?: Owner[];
+  iteration?: Iteration;
+}
+
+export interface Iteration {
+  project_id?: number;
+  number: number;
+  length: number;
+  stories: Story[];
+  start: string;
+  finish: string;
 }

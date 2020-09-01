@@ -5,6 +5,16 @@ export const filterStories = (state: State, id: string, filters: {}): Record<str
 
   /** Filtering is AND based filtering **/
   for (const filter of Object.keys(filters)) {
+    if (filter === 'iteration') {
+      const selectedStories = filters[filter].stories.map((s: Story): string => s.id);
+      const filteredStories = {};
+
+      for (const status of Object.keys(stories)) {
+        filteredStories[status] = stories[status].filter((story: Story): boolean => selectedStories.includes(story.id));
+      }
+      stories = { ...filteredStories };
+      continue;
+    }
     for (const label of filters[filter]) {
       const filteredStories = {};
       for (const status of Object.keys(stories)) {

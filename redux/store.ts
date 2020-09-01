@@ -4,6 +4,7 @@ import { MakeStore, createWrapper, Context, HYDRATE } from 'next-redux-wrapper';
 import { State } from './types';
 import projects from './reducers/projects';
 import stories from './reducers/stories';
+import iterations from './reducers/iterations';
 
 const reducer = (state: State = {}, action: AnyAction) => {
   switch (action.type) {
@@ -21,6 +22,7 @@ const makeStore: MakeStore<State> = (context: Context) =>
       reducer,
       projects,
       stories,
+      iterations,
     })
   );
 
