@@ -1,30 +1,38 @@
+import styled from 'styled-components';
 import { Row, Col, Spacer, Select } from '@geist-ui/react';
 import { Sun, Moon } from '@geist-ui/react-icons';
 
 const opticLogo = '/images/OpticPower.png';
 
-const Nav = ({ useLight, setUseLight }): JSX.Element => {
+const NavBar = styled(Row)`
+  align-items: center !important;
+  height: 50px;
+  border-bottom: 0.5px solid;
+  margin-bottom: 15px;
+  padding: 0px 15px;
+`;
+
+const Logo = styled.img`
+  filter: drop-shadow(0 0 1px white);
+  height: 45px;
+`;
+
+const SelectContainer = styled(Col)`
+  text-align: right;
+`;
+
+interface themeMode {
+  setUseLight(useLight: boolean): any;
+  useLight: boolean;
+}
+
+const Nav = ({ useLight, setUseLight }: themeMode): JSX.Element => {
   return (
-    <Row className="nav">
-      <style jxs>
-        {`
-        .nav {
-          align-items: center !important;
-          height: 50px;
-          border-bottom: 0.5px solid;
-          margin-bottom: 15px;
-          padding: 0px 15px
-        }
-        .logo {
-          filter: drop-shadow(0 0 1px white);
-          height: 45px;
-        }
-      `}
-      </style>
+    <NavBar>
       <Col>
-        <img className="logo" src={opticLogo} alt="OpticPower" />
+        <Logo src={opticLogo} alt="OpticPower" />
       </Col>
-      <Col align="right">
+      <SelectContainer>
         <Select placeholder={useLight ? 'Light Mode' : 'Dark Mode'}>
           <Select.Option value="Dark Mode" onClick={(): void => setUseLight(false)}>
             <Moon size={16} /> <Spacer inline x={0.35} />
@@ -35,8 +43,8 @@ const Nav = ({ useLight, setUseLight }): JSX.Element => {
             Light Mode
           </Select.Option>
         </Select>
-      </Col>
-    </Row>
+      </SelectContainer>
+    </NavBar>
   );
 };
 
