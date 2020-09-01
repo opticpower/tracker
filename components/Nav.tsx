@@ -2,7 +2,8 @@ import styled from 'styled-components';
 import { Row, Col, Spacer, Select } from '@geist-ui/react';
 import { Sun, Moon } from '@geist-ui/react-icons';
 
-const opticLogo = '/images/OpticPower.png';
+const darkLogo = '/images/opticDarkLogo.png';
+const lightLogo = '/images/opticLightLogo.png';
 
 const NavBar = styled(Row)`
   align-items: center !important;
@@ -13,24 +14,23 @@ const NavBar = styled(Row)`
 `;
 
 const Logo = styled.img`
-  filter: drop-shadow(0 0 1px white);
-  height: 45px;
+  height: 40px;
 `;
 
 const SelectContainer = styled(Col)`
   text-align: right;
 `;
 
-interface themeMode {
+interface NavParams {
   setUseLight(useLight: boolean): any;
   useLight: boolean;
 }
 
-const Nav = ({ useLight, setUseLight }: themeMode): JSX.Element => {
+const Nav = ({ useLight, setUseLight }: NavParams): JSX.Element => {
   return (
     <NavBar>
       <Col>
-        <Logo src={opticLogo} alt="OpticPower" />
+        <Logo src={useLight ? darkLogo : lightLogo} alt="OpticPower" />
       </Col>
       <SelectContainer>
         <Select placeholder={useLight ? 'Light Mode' : 'Dark Mode'}>
