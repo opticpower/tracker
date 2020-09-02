@@ -48,7 +48,6 @@ const Iterations = ({ id, selectedIteration, addIteration, removeIteration }: It
       <ButtonDropdown.Item
         main={!Boolean(selectedIteration)} //todo: add the selected iteration to state.
         onClick={(): void => {
-          //todo: logic for add/remove
           removeIteration('iterations', null);
         }}
       >
@@ -62,7 +61,6 @@ const Iterations = ({ id, selectedIteration, addIteration, removeIteration }: It
               id={String(iteration.number)}
               main={iteration.number === selectedIteration?.number} //todo: add the selected iteration to state.
               onClick={(): void => {
-                //todo: logic for add/remove
                 addIteration('iterations', iteration);
               }}
             >
