@@ -6,8 +6,9 @@ import { subDays } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import ProjectPicker from '../../components/ProjectPicker';
+import Iterations from '../../components/Iterations';
 import { useSelector, useDispatch } from 'react-redux';
-import { State, Story, Filters, Label, Owner } from '../../redux/types';
+import { State, Story, Filters, Label, Owner, Iteration } from '../../redux/types';
 import { addStories, moveStory } from '../../redux/actions/stories.actions';
 import { filterStories } from '../../redux/selectors/stories.selectors';
 import Owners from '../../components/Owners';
@@ -28,12 +29,22 @@ const Projects = (): JSX.Element => {
   const [filters, setFilters] = useState<Filters>({});
   const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
 
-  const addFilter = (name: string, filter: Owner | Label): void => {
+  const addFilter = (name: string, filter: Owner | Label | Iteration): void => {
+    if (name === 'iterations') {
+      // @ts-ignore: we know iteration can only be Iteration type
+      setFilters({ ...filters, iteration: filter });
+      return;
+    }
     const array = [...(filters[name] || []), filter];
     setFilters({ ...filters, [name]: Array.from(new Set(array)) });
   };
 
-  const removeFilter = (name: string, filter: Owner | Label): void => {
+  const removeFilter = (name: string, filter: Owner | Label | Iteration): void => {
+    if (name === 'iterations') {
+      const { iteration: omit, ...newFilters } = filters;
+      setFilters({ ...newFilters });
+      return;
+    }
     setFilters({ ...filters, [name]: [...filters[name].filter((element: any): boolean => element !== filter)] });
   };
 
@@ -132,6 +143,12 @@ const Projects = (): JSX.Element => {
     <div style={{ overflow: 'scroll' }}>
       <Row gap={0.8}>
         <ProjectPicker id={id} />
+        <Iterations
+          id={id}
+          selectedIteration={filters.iteration}
+          addIteration={addFilter}
+          removeIteration={removeFilter}
+        />
         <Labels labels={filters.labels} onClick={removeFilter} />
         <Owners owners={filters.owners} onClick={removeFilter} />
       </Row>
