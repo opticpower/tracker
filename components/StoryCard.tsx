@@ -5,20 +5,11 @@ import { Story, Owner, Label, Iteration } from '../redux/types';
 import Owners from './Owners';
 import Labels from './Labels';
 
-const getBorderColor = (type: string): string => {
-  if (type === 'feature') {
-    return 'gray';
-  }
-  if (type === 'bug') {
-    return 'red';
-  }
-  if (type === 'chore') {
-    return 'green';
-  }
-  if (type === 'release') {
-    return 'blue';
-  }
-  return 'gray';
+const borderColors = {
+  feature: 'gray',
+  bug: 'red',
+  chore: 'green',
+  release: 'blue',
 };
 
 interface StoryCardParams {
@@ -37,7 +28,7 @@ const StoryCard = ({ story, index, addFilter }: StoryCardParams): JSX.Element =>
           {...provided.dragHandleProps}
           ref={provided.innerRef}
         >
-          <Card width="250px" hoverable style={{ borderColor: getBorderColor(story.story_type) }}>
+          <Card width="250px" hoverable style={{ borderColor: borderColors[story.story_type] || 'gray' }}>
             <Card.Content>
               <Breadcrumbs size="mini">
                 <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>

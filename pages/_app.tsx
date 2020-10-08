@@ -4,13 +4,24 @@ import { wrapper } from '../redux/store';
 import { AppProps } from 'next/app';
 import Nav from '../components/Nav';
 
+import { setCookie, parseCookies } from 'nookies';
+
 const OpticTracker: FC<AppProps> = ({ Component, pageProps }): JSX.Element => {
-  const [useLight, setUseLight] = useState<boolean>(false);
+  const { useLight = 'dark' } = parseCookies();
+  const [_, setRefresh] = useState<number>();
+
+  const setTheme = (theme: string) => {
+    setCookie(null, 'useLight', theme, {
+      maxAge: 30 * 24 * 60 * 60,
+      path: '/',
+    });
+    setRefresh(Math.random()); //this will refresh state since cookies doesnt
+  };
 
   return (
-    <GeistProvider theme={{ type: useLight ? 'light' : 'dark' }}>
+    <GeistProvider theme={{ type: useLight }}>
       <CssBaseline />
-      <Nav useLight={useLight} setUseLight={setUseLight} />
+      <Nav useLight={useLight} setUseLight={setTheme} />
       <Component {...pageProps} toggleLight />
     </GeistProvider>
   );

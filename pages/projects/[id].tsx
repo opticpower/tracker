@@ -14,6 +14,7 @@ import { filterStories } from '../../redux/selectors/stories.selectors';
 import Owners from '../../components/Owners';
 import Labels from '../../components/Labels';
 import { useAsync } from '../../hooks';
+import { useTheme } from '@geist-ui/react';
 
 import Column from '../../components/Column';
 
@@ -124,9 +125,20 @@ const Projects = (): JSX.Element => {
   });
 
   const loading = !Boolean(stories && Object.values(stories).length);
+  const { palette, type } = useTheme();
 
   return (
-    <div style={{ overflow: 'scroll' }}>
+    <div
+      style={{
+        overflow: 'scroll',
+        overflowX: 'scroll',
+        backgroundColor: palette.accents_1,
+        backgroundImage: `url(/images/grid-${type}.png)`,
+        height: '100%',
+        minHeight: 1024,
+        paddingTop: 15,
+      }}
+    >
       <Row gap={0.8}>
         <ProjectPicker id={id} />
         <Iterations
@@ -145,7 +157,7 @@ const Projects = (): JSX.Element => {
         {!loading && (
           <DragDropContext onDragEnd={onDragEnd}>
             {states.map((state: string, idx: number) => (
-              <Column state={state} idx={idx} stories={stories[state]} addFilter={addFilter} />
+              <Column key={state} state={state} idx={idx} stories={stories[state]} addFilter={addFilter} />
             ))}
           </DragDropContext>
         )}
