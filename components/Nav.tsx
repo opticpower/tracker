@@ -21,23 +21,23 @@ const SelectContainer = styled(Col)`
 `;
 
 interface NavParams {
-  setUseLight(useLight: string): any;
-  useLight: string;
+  setUseLight(useLight: boolean): any;
+  useLight: boolean;
 }
 
 const Nav = ({ useLight, setUseLight }: NavParams): JSX.Element => {
   return (
     <NavBar>
       <Col>
-        <Logo src={useLight === 'light' ? darkLogo : lightLogo} alt="OpticPower" />
+        <Logo src={useLight ? darkLogo : lightLogo} alt="OpticPower" />
       </Col>
       <SelectContainer>
-        <Select placeholder={useLight === 'light' ? 'Light Mode' : 'Dark Mode'}>
-          <Select.Option value="Dark Mode" onClick={(): void => setUseLight('dark')}>
+        <Select placeholder={useLight ? 'Light Mode' : 'Dark Mode'}>
+          <Select.Option value="Dark Mode" onClick={(): void => setUseLight(false)}>
             <Moon size={16} /> <Spacer inline x={0.35} />
             Dark Mode
           </Select.Option>
-          <Select.Option value="Light Mode" onClick={(): void => setUseLight('light')}>
+          <Select.Option value="Light Mode" onClick={(): void => setUseLight(true)}>
             <Sun size={16} /> <Spacer inline x={0.35} />
             Light Mode
           </Select.Option>

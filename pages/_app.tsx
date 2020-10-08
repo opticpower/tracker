@@ -7,21 +7,12 @@ import Nav from '../components/Nav';
 import { setCookie, parseCookies } from 'nookies';
 
 const OpticTracker: FC<AppProps> = ({ Component, pageProps }): JSX.Element => {
-  const { useLight = 'dark' } = parseCookies();
-  const [_, setRefresh] = useState<number>();
-
-  const setTheme = (theme: string) => {
-    setCookie(null, 'useLight', theme, {
-      maxAge: 30 * 24 * 60 * 60,
-      path: '/',
-    });
-    setRefresh(Math.random()); //this will refresh state since cookies doesnt
-  };
+  const [useLight, setUseLight] = useState<boolean>(false);
 
   return (
-    <GeistProvider theme={{ type: useLight }}>
+    <GeistProvider theme={{ type: useLight ? 'light' : 'dark' }}>
       <CssBaseline />
-      <Nav useLight={useLight} setUseLight={setTheme} />
+      <Nav useLight={useLight} setUseLight={setUseLight} />
       <Component {...pageProps} toggleLight />
     </GeistProvider>
   );
