@@ -5,8 +5,16 @@ import { State } from './types';
 import projects from './reducers/projects';
 import stories from './reducers/stories';
 import iterations from './reducers/iterations';
+import settings from './reducers/settings';
 
-const reducer = (state: State = {}, action: AnyAction) => {
+const reducer = (
+  state: State = {
+    settings: {
+      theme: 'dark',
+    },
+  },
+  action: AnyAction
+) => {
   switch (action.type) {
     case HYDRATE:
       // Attention! This will overwrite client state! Real apps should use proper reconciliation.
@@ -23,6 +31,7 @@ const makeStore: MakeStore<State> = (context: Context) =>
       projects,
       stories,
       iterations,
+      settings,
     })
   );
 

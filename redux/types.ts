@@ -2,6 +2,7 @@ export interface State {
   projects?: Project[];
   stories?: Record<string, Record<string, Story[]>>;
   iterations?: Record<number, Set<Iteration>>;
+  settings: Settings;
 }
 
 export interface Project {
@@ -42,4 +43,9 @@ export interface Iteration {
   stories: Story[];
   start: string;
   finish: string;
+}
+
+export interface Settings {
+  theme: string;
+  apiKey?: string;
 }
