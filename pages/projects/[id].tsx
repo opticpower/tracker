@@ -130,8 +130,8 @@ const Projects = (): JSX.Element => {
   return (
     <div
       style={{
-        overflow: 'scroll',
-        overflowX: 'scroll',
+        overflow: 'auto',
+        overflowX: 'auto',
         backgroundColor: palette.accents_1,
         backgroundImage: `url(/images/grid-${type}.png)`,
         height: '100%',
