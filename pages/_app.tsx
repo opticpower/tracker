@@ -4,6 +4,8 @@ import { wrapper } from '../redux/store';
 import { AppProps } from 'next/app';
 import Nav from '../components/Nav';
 
+import { setCookie, parseCookies } from 'nookies';
+
 const OpticTracker: FC<AppProps> = ({ Component, pageProps }): JSX.Element => {
   const [useLight, setUseLight] = useState<boolean>(false);
 

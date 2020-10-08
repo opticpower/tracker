@@ -9,7 +9,6 @@ const NavBar = styled(Row)`
   align-items: center !important;
   height: 50px;
   border-bottom: 0.5px solid;
-  margin-bottom: 15px;
   padding: 0px 15px;
 `;
 
