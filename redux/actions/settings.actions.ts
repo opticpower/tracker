@@ -1,10 +1,10 @@
 import { AnyAction } from 'redux';
 
-export const CHANGE_THEME = 'CHANGE_THEME';
+export const SET_THEME = 'SET_THEME';
 export const SET_API_KEY = 'SET_API_KEY';
 
-export const changeTheme = (theme: string): AnyAction => ({
-  type: CHANGE_THEME,
+export const setTheme = (theme: string): AnyAction => ({
+  type: SET_THEME,
   theme,
 });
 

@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { ButtonDropdown } from '@geist-ui/react';
-import { parseCookies } from 'nookies';
 import { useSelector, useDispatch } from 'react-redux';
 import { State, Iteration } from '../redux/types';
 import { addIterations } from '../redux/actions/iterations.actions';
 import { parseISO, format } from 'date-fns';
+import { getApiKey } from '../redux/selectors/settings.selectors';
 
 interface IterationsParams {
   id: string;
@@ -14,7 +14,7 @@ interface IterationsParams {
 }
 
 const Iterations = ({ id, selectedIteration, addIteration, removeIteration }: IterationsParams): JSX.Element => {
-  const { apiToken } = parseCookies(); //todo: move to redux
+  const apiKey = useSelector(getApiKey);
   const iterations = useSelector((state: State): Iteration[] => {
     const iterations = state.iterations[id] || new Set();
     return Array.from(iterations);
@@ -29,7 +29,7 @@ const Iterations = ({ id, selectedIteration, addIteration, removeIteration }: It
           `https://www.pivotaltracker.com/services/v5/projects/${id}/iterations?limit=20&scope=current_backlog`,
           {
             headers: {
-              'X-TrackerToken': apiToken,
+              'X-TrackerToken': apiKey,
             },
           }
         );

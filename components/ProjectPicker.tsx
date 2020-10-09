@@ -1,19 +1,20 @@
 import { useEffect } from 'react';
 import { ButtonDropdown } from '@geist-ui/react';
-import { parseCookies } from 'nookies';
 import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
 import { State, Project } from '../redux/types';
 import { addProjects } from '../redux/actions/projects.actions';
+import { getApiKey } from '../redux/selectors/settings.selectors';
 
 const ProjectPicker = ({ id }): JSX.Element => {
-  const { apiToken } = parseCookies(); //todo: move to redux
+  const apiKey = useSelector(getApiKey);
+  const router = useRouter();
+
   const projects = useSelector((state: State): Project[] => {
     return state.projects;
   });
-  const router = useRouter();
-  const dispatch = useDispatch();
 
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!projects.length) {
@@ -21,7 +22,7 @@ const ProjectPicker = ({ id }): JSX.Element => {
       const getProjects = async () => {
         const result = await fetch('https://www.pivotaltracker.com/services/v5/projects', {
           headers: {
-            'X-TrackerToken': apiToken,
+            'X-TrackerToken': apiKey,
           },
         });
 

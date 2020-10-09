@@ -2,7 +2,7 @@ export interface State {
   projects?: Project[];
   stories?: Record<string, Record<string, Story[]>>;
   iterations?: Record<number, Set<Iteration>>;
-  settings: Settings;
+  settings?: Settings;
 }
 
 export interface Project {
