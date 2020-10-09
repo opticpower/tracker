@@ -42,7 +42,9 @@ interface Params {
 
 // TODO: move filter container to a separate component
 const FilterContainer = styled.div`
+  padding: 10px 16px;
   & > * {
+    vertical-align: middle;
     margin: 0 4px;
   }
 `;
@@ -206,8 +208,11 @@ const Projects = (): JSX.Element => {
       </FilterContainer>
 
       <Row gap={0.8}>
-        {loading && <Loading />}
-        <Spacer y={0.8} />
+        {loading && (
+          <Col>
+            <Loading />
+          </Col>
+        )}
         {!loading && (
           <DragDropContext onDragEnd={onDragEnd}>
             {states.map((state: string, idx: number) => (
