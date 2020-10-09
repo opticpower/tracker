@@ -43,7 +43,7 @@ interface Params {
 // TODO: move filter container to a separate component
 const FilterContainer = styled.div`
   & > * {
-    margin: 0 8px;
+    margin: 0 4px;
   }
 `;
 

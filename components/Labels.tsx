@@ -6,7 +6,16 @@ interface LabelsParams {
   onClick: (name: string, filter: Label) => void;
 }
 
-const getType = (name: string): 'default' | 'secondary' | 'success' | 'warning' | 'error' | 'dark' | 'lite' => {
+const getType = (
+  name: string
+):
+  | 'default'
+  | 'secondary'
+  | 'success'
+  | 'warning'
+  | 'error'
+  | 'dark'
+  | 'lite' => {
   if (name === 'medium' || name === 'med') {
     return 'warning';
   }
@@ -25,9 +34,14 @@ const Labels = ({ labels = [], onClick }: LabelsParams): JSX.Element => (
   <>
     {labels.map(
       (label: Label): JSX.Element => (
-        <Tag key={label.name} type={getType(label.name)} onClick={(): void => onClick('labels', label)} invert>
+        <Tag
+          key={label.name}
+          type={getType(label.name)}
+          onClick={(): void => onClick('labels', label)}
+          style={{ margin: 2 }}
+          invert
+        >
           {label.name}
-          <Spacer x={0.8} y={0.5} />
         </Tag>
       )
     )}
