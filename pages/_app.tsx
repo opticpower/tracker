@@ -9,7 +9,6 @@ import { setCookie, parseCookies } from 'nookies';
 
 const OpticTracker: FC<AppProps> = ({ Component, pageProps }): JSX.Element => {
   const [useLight, setUseLight] = useState<boolean>(false);
-  // TODO: currently customizing dark theme doesn't work...
   const theme = useLight ? lightTheme : darkTheme;
 
   return (
