@@ -46,6 +46,7 @@ const StyledTag = styled(Tag)`
   }
 `;
 
+// TODO: split out tag filtering tool on top vs card filters, so they can have different visuals.
 const Labels = ({ labels = [], onClick }: LabelsParams): JSX.Element => (
   <>
     {labels
