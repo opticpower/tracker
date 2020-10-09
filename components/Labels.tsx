@@ -1,5 +1,6 @@
 import { Tag } from '@geist-ui/react';
 import { Label } from '../redux/types';
+import styled from 'styled-components';
 
 interface LabelsParams {
   labels?: Label[];
@@ -30,21 +31,38 @@ const getType = (
   return 'default';
 };
 
+const StyledTag = styled(Tag)`
+  font-size: 0.8rem !important;
+  font-weight: 600;
+  padding: 4px !important;
+  height: auto !important;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  &:not(:last-child) {
+    margin-right: 5px;
+  }
+`;
+
 const Labels = ({ labels = [], onClick }: LabelsParams): JSX.Element => (
   <>
-    {labels.map(
-      (label: Label): JSX.Element => (
-        <Tag
-          key={label.name}
-          type={getType(label.name)}
-          onClick={(): void => onClick('labels', label)}
-          style={{ margin: 2 }}
-          invert
-        >
-          {label.name}
-        </Tag>
-      )
-    )}
+    {labels
+      .sort((a, b) => (a.name.length > b.name.length ? 1 : -1)) // shorter in front makes fluid multi-line look better
+      .map(
+        (label: Label): JSX.Element => (
+          <StyledTag
+            key={label.name}
+            type={getType(label.name)}
+            onClick={(): void => onClick('labels', label)}
+            title={label.name}
+            invert
+          >
+            {label.name}
+          </StyledTag>
+        )
+      )}
   </>
 );
 
