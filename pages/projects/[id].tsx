@@ -1,3 +1,4 @@
+import styled from 'styled-components';
 import { useEffect, useState } from 'react';
 import { Spacer, Row, Loading } from '@geist-ui/react';
 import { useRouter } from 'next/router';
@@ -15,6 +16,16 @@ import Owners from '../../components/Owners';
 import Labels from '../../components/Labels';
 import { useAsync } from '../../hooks';
 import { useTheme } from '@geist-ui/react';
+
+const Container = styled.div(props => ({
+  overflow: 'auto',
+  overflowX: 'auto',
+  backgroundColor: props.backgroundcolor,
+  backgroundImage: props.backgroundimage,
+  height: '100%',
+  minHeight: 1024,
+  paddingTop: 15,
+}));
 
 import Column from '../../components/Column';
 
@@ -128,17 +139,7 @@ const Projects = (): JSX.Element => {
   const { palette, type } = useTheme();
 
   return (
-    <div
-      style={{
-        overflow: 'auto',
-        overflowX: 'auto',
-        backgroundColor: palette.accents_1,
-        backgroundImage: `url(/images/grid-${type}.png)`,
-        height: '100%',
-        minHeight: 1024,
-        paddingTop: 15,
-      }}
-    >
+    <Container backgroundcolor={palette.accents_1} backgroundimage={`url(/images/grid-${type}.png)`}>
       <Row gap={0.8}>
         <ProjectPicker id={id} />
         <Iterations
@@ -162,7 +163,7 @@ const Projects = (): JSX.Element => {
           </DragDropContext>
         )}
       </Row>
-    </div>
+    </Container>
   );
 };
 

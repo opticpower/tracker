@@ -1,8 +1,30 @@
+import styled from 'styled-components';
 import { Text, Col } from '@geist-ui/react';
 import { Droppable } from 'react-beautiful-dnd';
 import { Story, Owner, Label, Iteration } from '../redux/types';
 import { useTheme } from '@geist-ui/react';
 import StoryCard from './StoryCard';
+
+const Header = styled(Text)(props => ({
+  color: `${props.color} !important`,
+  textAlign: 'center',
+  textTransform: 'capitalize',
+  fontFamily: 'Georgia, Times New Roman, Times, serif',
+}));
+
+const ColumnContainer = styled(Col)(props => ({
+  borderTop: props.bordertop,
+  backgroundColor: props.backgroundcolor,
+  boxShadow: props.boxshadow,
+  margin: 10,
+  padding: 5,
+  height: '100%',
+}));
+
+const Card = styled.div(() => ({
+  minWidth: 250,
+  minHeight: 50,
+}));
 
 interface ColumnParams {
   idx: number;
@@ -25,41 +47,28 @@ const Column = ({ idx, state, stories, addFilter }: ColumnParams): JSX.Element =
   const { palette } = useTheme();
 
   return (
-    <Col
+    <ColumnContainer
       key={idx}
-      style={{
-        borderTop: `5px solid ${colors[state]}`,
-        backgroundColor: palette.accents_2,
-        boxShadow: `1px 1px 5px 0px ${palette.accents_1}`,
-        margin: 10,
-        padding: 5,
-        height: '100%',
-      }}
+      bordertop={`5px solid ${colors[state]}`}
+      backgroundcolor={palette.accents_2}
+      boxshadow={`1px 1px 5px 0px ${palette.accents_1}`}
     >
-      <Text
-        h5
-        style={{
-          textAlign: 'center',
-          textTransform: 'capitalize',
-          color: palette.accents_6,
-          fontFamily: 'Georgia, Times New Roman, Times, serif',
-        }}
-      >
+      <Header h5 color={palette.accents_6}>
         {state}
-      </Text>
+      </Header>
       <Droppable key={state} droppableId={idx.toString()}>
         {(provided: Droppable.provided) => (
-          <div {...provided.droppableProps} ref={provided.innerRef} style={{ minWidth: 250, minHeight: 50 }}>
+          <Card {...provided.droppableProps} ref={provided.innerRef}>
             {(stories || []).map(
               (story: Story, index: number): JSX.Element => (
                 <StoryCard key={story.id} story={story} index={index} addFilter={addFilter} />
               )
             )}
             {provided.placeholder}
-          </div>
+          </Card>
         )}
       </Droppable>
-    </Col>
+    </ColumnContainer>
   );
 };
 
