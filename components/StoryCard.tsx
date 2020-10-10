@@ -6,8 +6,8 @@ import { Story, Owner, Label, Iteration } from '../redux/types';
 import Owners from './Owners';
 import Labels from './Labels';
 
-const CardContainer = styled(Card)(props => ({
-  borderColor: `${props.bordercolor} !important`,
+const CardContainer = styled(Card)(({ color }) => ({
+  borderColor: `${color} !important`,
 }));
 
 const borderColors = {
@@ -33,7 +33,7 @@ const StoryCard = ({ story, index, addFilter }: StoryCardParams): JSX.Element =>
           {...provided.dragHandleProps}
           ref={provided.innerRef}
         >
-          <CardContainer width="250px" hoverable bordercolor={borderColors[story.story_type] || 'gray'}>
+          <CardContainer width="250px" hoverable color={borderColors[story.story_type] || 'gray'}>
             <Card.Content>
               <Breadcrumbs size="mini">
                 <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>

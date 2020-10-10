@@ -4,20 +4,21 @@ import { Droppable } from 'react-beautiful-dnd';
 import { Story, Owner, Label, Iteration } from '../redux/types';
 import { useTheme } from '@geist-ui/react';
 import StoryCard from './StoryCard';
+import { spacing } from '../styles';
 
-const Header = styled(Text)(props => ({
-  color: `${props.color} !important`,
+const Header = styled(Text)(({ color }) => ({
+  color: `${color} !important`,
   textAlign: 'center',
   textTransform: 'capitalize',
   fontFamily: 'Georgia, Times New Roman, Times, serif',
 }));
 
-const ColumnContainer = styled(Col)(props => ({
-  borderTop: props.bordertop,
-  backgroundColor: props.backgroundcolor,
-  boxShadow: props.boxshadow,
-  margin: 10,
-  padding: 5,
+const ColumnContainer = styled(Col)(({ colors, background, shadow }) => ({
+  borderTop: `5px solid ${colors}`,
+  backgroundColor: background,
+  boxShadow: `1px 1px 5px 0px ${shadow}`,
+  margin: spacing(2),
+  padding: spacing(1),
   height: '100%',
 }));
 
@@ -47,12 +48,7 @@ const Column = ({ idx, state, stories, addFilter }: ColumnParams): JSX.Element =
   const { palette } = useTheme();
 
   return (
-    <ColumnContainer
-      key={idx}
-      bordertop={`5px solid ${colors[state]}`}
-      backgroundcolor={palette.accents_2}
-      boxshadow={`1px 1px 5px 0px ${palette.accents_1}`}
-    >
+    <ColumnContainer key={idx} colors={colors[state]} background={palette.accents_2} shadow={palette.accents_1}>
       <Header h5 color={palette.accents_6}>
         {state}
       </Header>

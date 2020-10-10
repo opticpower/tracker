@@ -16,15 +16,16 @@ import Owners from '../../components/Owners';
 import Labels from '../../components/Labels';
 import { useAsync } from '../../hooks';
 import { useTheme } from '@geist-ui/react';
+import { spacing } from '../../styles';
 
-const Container = styled.div(props => ({
+const Container = styled.div(({ color, image }) => ({
   overflow: 'auto',
   overflowX: 'auto',
-  backgroundColor: props.backgroundcolor,
-  backgroundImage: props.backgroundimage,
+  backgroundColor: color,
+  backgroundImage: `url(/images/grid-${image}.png)`,
   height: '100%',
   minHeight: 1024,
-  paddingTop: 15,
+  paddingTop: spacing(3),
 }));
 
 import Column from '../../components/Column';
@@ -139,7 +140,7 @@ const Projects = (): JSX.Element => {
   const { palette, type } = useTheme();
 
   return (
-    <Container backgroundcolor={palette.accents_1} backgroundimage={`url(/images/grid-${type}.png)`}>
+    <Container color={palette.accents_1} image={type}>
       <Row gap={0.8}>
         <ProjectPicker id={id} />
         <Iterations
