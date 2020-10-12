@@ -8,6 +8,10 @@ import Owners from './Owners';
 import Labels from './Labels';
 import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
 
+const CardContainer = styled(Card)(({ color }) => ({
+  borderColor: `${color} !important`,
+}));
+
 const borderColors = {
   feature: 'gray',
   bug: 'red',
@@ -41,7 +45,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
             {...provided.dragHandleProps}
             ref={provided.innerRef}
           >
-            <Card width="250px" hoverable style={{ borderColor: borderColors[story.story_type] || 'gray' }}>
+            <CardContainer width="250px" hoverable style={{ borderColor: borderColors[story.story_type] || 'gray' }}>
               <Card.Content>
                 <Breadcrumbs size="mini">
                   <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>
@@ -65,7 +69,6 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                     )}
                   </Breadcrumbs.Item>
                 </Breadcrumbs>
-
                 <Spacer x={0.8} />
                 <Text b>{story.name}</Text>
               </Card.Content>
@@ -75,7 +78,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                 <Labels labels={story.labels} onClick={addFilter} />
                 {/* TODO: Add Github, Blockers */}
               </Card.Content>
-            </Card>
+            </CardContainer>
             <Spacer y={1} />
           </div>
         )}

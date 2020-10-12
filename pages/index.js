@@ -1,25 +1,21 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import { Page, Text, Card, Note, Spacer, Input, Button } from '@geist-ui/react';
-import { setCookie, parseCookies } from 'nookies';
 import { useRouter } from 'next/router';
+import { useSelector, useDispatch } from 'react-redux';
+import { getApiKey } from '../redux/selectors/settings.selectors';
+import { setApiKey } from '../redux/actions/settings.actions';
 
 const Home = () => {
-  const [apiToken, setApiToken] = useState('');
-  const cookies = parseCookies();
+  const [key, setKey] = useState('');
   const router = useRouter();
+  const dispatch = useDispatch();
+  const apiKey = useSelector(getApiKey);
 
-  if (Boolean(cookies.apiToken)) {
+  //a client side only redirect since user can enter in api token.
+  if (Boolean(apiKey) && typeof window !== 'undefined') {
     router.push('/projects');
   }
-
-  const letsLogin = () => {
-    setCookie(null, 'apiToken', apiToken, {
-      maxAge: 30 * 24 * 60 * 60,
-      path: '/',
-    });
-    router.push('/projects');
-  };
 
   return (
     <Page>
@@ -36,8 +32,8 @@ const Home = () => {
         <Spacer y={1} />
         Please input your pivotal token below:
         <Spacer y={1} />
-        <Input size="large" placeholder="API Token" onChange={e => setApiToken(e.target.value)} />
-        <Button auto type="secondary" size="medium" onClick={letsLogin}>
+        <Input size="large" placeholder="API Token" onChange={e => setKey(e.target.value)} />
+        <Button auto type="secondary" size="medium" onClick={() => dispatch(setApiKey(key))}>
           Login
         </Button>
       </Card>

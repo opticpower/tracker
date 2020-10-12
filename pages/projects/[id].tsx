@@ -2,39 +2,60 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '@geist-ui/react';
 import { Row, Loading, Col } from '@geist-ui/react';
+import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
-import { parseCookies } from 'nookies';
 import { DragDropContext } from 'react-beautiful-dnd';
+import { NextPage } from 'next';
 
 import ProjectPicker from '../../components/ProjectPicker';
 import IterationPicker from '../../components/IterationPicker';
-import { useSelector, useDispatch } from 'react-redux';
-import { State, Story, Filters, Label, Owner, Iteration, UrlParams } from '../../redux/types';
-import { addStories, moveStory } from '../../redux/actions/stories.actions';
-import { filterStories } from '../../redux/selectors/stories.selectors';
 import { useAsync } from '../../hooks';
-import PivotalHandler, { STORY_STATES } from '../../handlers/PivotalHandler';
 import Owners from '../../components/Owners';
 import Labels from '../../components/Labels';
 import Column from '../../components/Column';
 import EstimateChangeDialog from '../../components/Dialogs/EstimateChangeDialog';
 
-// TODO: move filter container to a separate component
-const FilterContainer = styled.div`
-  padding: 10px 16px;
-  & > * {
-    vertical-align: middle;
-    margin: 0 4px;
-  }
-`;
+import PivotalHandler, { STORY_STATES } from '../../handlers/PivotalHandler';
+import { addStories, moveStory } from '../../redux/actions/stories.actions';
+import { filterStories } from '../../redux/selectors/stories.selectors';
+import { getApiKey } from '../../redux/selectors/settings.selectors';
+import { State, Story, Filters, Label, Owner, Iteration, UrlParams } from '../../redux/types';
+import { redirectIfNoApiKey } from '../../redirects';
+import { spacing } from '../../styles';
+import { wrapper } from '../../redux/store';
 
-const Projects = (): JSX.Element => {
-  const { apiToken } = parseCookies();
+const states = ['unscheduled', 'unstarted', 'started', 'finished', 'delivered', 'rejected', 'accepted'];
+
+interface Params {
+  id?: string;
+}
+
+const Container = styled.div(({ color, image }) => ({
+  overflow: 'auto',
+  overflowX: 'auto',
+  backgroundColor: color,
+  backgroundImage: `url(/images/grid-${image}.png)`,
+  height: '100%',
+  minHeight: 1024,
+  paddingTop: spacing(3),
+}));
+
+const Project: NextPage = (): JSX.Element => {
+  // TODO: move filter container to a separate component
+  const FilterContainer = styled.div`
+    padding: 10px 16px;
+    & > * {
+      vertical-align: middle;
+      margin: 0 4px;
+    }
+  `;
+
   const router = useRouter();
   const { id }: UrlParams = router.query;
   const [selectedStory, setSelectedStory] = useState(null);
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
+  const apiToken = useSelector(getApiKey);
   const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
 
   const addFilter = (name: string, filter: Owner | Label | Iteration): void => {
@@ -127,17 +148,7 @@ const Projects = (): JSX.Element => {
   const { palette, type } = useTheme();
 
   return (
-    <div
-      style={{
-        overflow: 'auto',
-        overflowX: 'auto',
-        backgroundColor: palette.accents_1,
-        backgroundImage: `url(/images/grid-${type}.png)`,
-        height: '100%',
-        minHeight: 1024,
-        paddingTop: 15,
-      }}
-    >
+    <Container color={palette.accents_1} image={type}>
       <FilterContainer>
         <ProjectPicker id={id} />
         <IterationPicker
@@ -170,8 +181,10 @@ const Projects = (): JSX.Element => {
         open={Boolean(selectedStory)}
         onClose={() => setSelectedStory(null)}
       />
-    </div>
+    </Container>
   );
 };
 
-export default Projects;
+export const getServerSideProps = wrapper.getServerSideProps(redirectIfNoApiKey);
+
+export default Project;
