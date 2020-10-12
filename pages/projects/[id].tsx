@@ -24,12 +24,6 @@ import { redirectIfNoApiKey } from '../../redirects';
 import { spacing } from '../../styles';
 import { wrapper } from '../../redux/store';
 
-const states = ['unscheduled', 'unstarted', 'started', 'finished', 'delivered', 'rejected', 'accepted'];
-
-interface Params {
-  id?: string;
-}
-
 const Container = styled.div(({ color, image }) => ({
   overflow: 'auto',
   overflowX: 'auto',
