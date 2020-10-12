@@ -7,15 +7,19 @@ import { useSelector } from 'react-redux';
 import { parseCookies } from 'nookies';
 import { setTheme, setApiKey } from '../redux/actions/settings.actions';
 import { getTheme } from '../redux/selectors/settings.selectors';
+import { lightTheme, darkTheme } from '../themes';
+import { ThemeProvider as SCThemeProvider } from 'styled-components';
 
 const OpticTracker = ({ Component, pageProps }: AppProps): JSX.Element => {
-  const theme = useSelector(getTheme);
-
+  const selectedTheme = useSelector(getTheme);
+  const theme = selectedTheme === 'light' ? lightTheme : darkTheme;
   return (
-    <GeistProvider theme={{ type: theme }}>
-      <CssBaseline />
-      <Nav />
-      <Component {...pageProps} toggleLight />
+    <GeistProvider theme={theme}>
+      <SCThemeProvider theme={theme}>
+        <CssBaseline />
+        <Nav />
+        <Component {...pageProps} toggleLight />
+      </SCThemeProvider>
     </GeistProvider>
   );
 };

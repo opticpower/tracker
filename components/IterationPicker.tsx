@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ButtonDropdown } from '@geist-ui/react';
+import { Select } from '@geist-ui/react';
 import { useSelector, useDispatch } from 'react-redux';
 import { State, Iteration } from '../redux/types';
 import { addIterations } from '../redux/actions/iterations.actions';
@@ -9,8 +9,8 @@ import { getApiKey } from '../redux/selectors/settings.selectors';
 interface IterationsParams {
   id: string;
   selectedIteration?: Iteration;
-  addIteration: (name: string, filter: Iteration) => void;
-  removeIteration: (name: string, filter: Iteration) => void;
+  addIteration: (filter: Iteration) => void;
+  removeIteration: () => void;
 }
 
 const Iterations = ({ id, selectedIteration, addIteration, removeIteration }: IterationsParams): JSX.Element => {
@@ -44,32 +44,30 @@ const Iterations = ({ id, selectedIteration, addIteration, removeIteration }: It
   const formatDate = (date: string): string => format(parseISO(date), 'do MMM yy');
 
   return (
-    <ButtonDropdown>
-      <ButtonDropdown.Item
-        main={!Boolean(selectedIteration)} //todo: add the selected iteration to state.
-        onClick={(): void => {
-          removeIteration('iterations', null);
-        }}
-      >
-        No Iteration
-      </ButtonDropdown.Item>
+    <Select
+      disableMatchWidth
+      width="200px"
+      value={String(selectedIteration?.number || -1)}
+      onChange={val => {
+        const number = Number(val);
+        if (number === -1) {
+          removeIteration();
+        } else {
+          addIteration(iterations.find(it => it.number === number));
+        }
+      }}
+    >
+      <Select.Option value="-1">All Iterations</Select.Option>
       {iterations.map(
-        (iteration: Iteration): JSX.Element => {
+        (iteration: Iteration, index: Number): JSX.Element => {
           return (
-            <ButtonDropdown.Item
-              key={iteration.number}
-              id={String(iteration.number)}
-              main={iteration.number === selectedIteration?.number} //todo: add the selected iteration to state.
-              onClick={(): void => {
-                addIteration('iterations', iteration);
-              }}
-            >
+            <Select.Option key={iteration.number} id={String(iteration.number)} value={String(iteration.number)}>
               {formatDate(iteration.start)} - {formatDate(iteration.finish)}
-            </ButtonDropdown.Item>
+            </Select.Option>
           );
         }
       )}
-    </ButtonDropdown>
+    </Select>
   );
 };
 

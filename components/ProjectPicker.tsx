@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ButtonDropdown } from '@geist-ui/react';
+import { Select } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
 import { State, Project } from '../redux/types';
@@ -35,22 +35,15 @@ const ProjectPicker = ({ id }): JSX.Element => {
   }, []);
 
   return (
-    <ButtonDropdown>
+    <Select disableMatchWidth width="200px" value={`${id}`} onChange={id => router.push(`/projects/${id}`)}>
       {projects.map(project => {
         return (
-          <ButtonDropdown.Item
-            key={project.id}
-            id={project.id}
-            main={project.id.toString() === id}
-            onClick={() => {
-              router.push(`/projects/${project.id}`);
-            }}
-          >
+          <Select.Option key={project.id} id={project.id} value={`${project.id}`}>
             {project.name}
-          </ButtonDropdown.Item>
+          </Select.Option>
         );
       })}
-    </ButtonDropdown>
+    </Select>
   );
 };
 

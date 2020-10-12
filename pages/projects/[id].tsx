@@ -1,13 +1,21 @@
 import { useEffect, useState } from 'react';
-import { Spacer, Row, Loading } from '@geist-ui/react';
+import { Spacer, Row, Loading, Col } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { subDays } from 'date-fns';
 import { DragDropContext } from 'react-beautiful-dnd';
+import styled from 'styled-components';
 
 import ProjectPicker from '../../components/ProjectPicker';
-import Iterations from '../../components/Iterations';
+import IterationPicker from '../../components/IterationPicker';
 import { useSelector, useDispatch } from 'react-redux';
-import { State, Story, Filters, Label, Owner, Iteration } from '../../redux/types';
+import {
+  State,
+  Story,
+  Filters,
+  Label,
+  Owner,
+  Iteration,
+} from '../../redux/types';
 import { addStories, moveStory } from '../../redux/actions/stories.actions';
 import { getApiKey } from '../../redux/selectors/settings.selectors';
 import { filterStories } from '../../redux/selectors/stories.selectors';
@@ -21,13 +29,31 @@ import { redirectIfNoApiKey } from '../../redirects';
 import { NextPage } from 'next';
 import { wrapper } from '../../redux/store';
 
-const states = ['unscheduled', 'unstarted', 'started', 'finished', 'delivered', 'rejected', 'accepted'];
+const states = [
+  'unscheduled',
+  'unstarted',
+  'started',
+  'finished',
+  'delivered',
+  'rejected',
+  'accepted',
+];
 
 interface Params {
   id?: string;
 }
 
 const Project: NextPage = (): JSX.Element => {
+// TODO: move filter container to a separate component
+const FilterContainer = styled.div`
+  padding: 10px 16px;
+  & > * {
+    vertical-align: middle;
+    margin: 0 4px;
+  }
+`;
+
+const Projects = (): JSX.Element => {
   const router = useRouter();
   const { id }: Params = router.query;
   const dispatch = useDispatch();
@@ -45,13 +71,21 @@ const Project: NextPage = (): JSX.Element => {
     setFilters({ ...filters, [name]: Array.from(new Set(array)) });
   };
 
-  const removeFilter = (name: string, filter: Owner | Label | Iteration): void => {
+  const removeFilter = (
+    name: string,
+    filter: Owner | Label | Iteration
+  ): void => {
     if (name === 'iterations') {
       const { iteration: omit, ...newFilters } = filters;
       setFilters({ ...newFilters });
       return;
     }
-    setFilters({ ...filters, [name]: [...filters[name].filter((element: any): boolean => element !== filter)] });
+    setFilters({
+      ...filters,
+      [name]: [
+        ...filters[name].filter((element: any): boolean => element !== filter),
+      ],
+    });
   };
 
   useEffect(() => {
@@ -86,7 +120,10 @@ const Project: NextPage = (): JSX.Element => {
     const {
       source: { droppableId: sourceDroppableId, index: sourceIndex },
       destination,
-      destination: { droppableId: destinationDroppableId, index: destinationIndex },
+      destination: {
+        droppableId: destinationDroppableId,
+        index: destinationIndex,
+      },
       draggableId,
     } = result;
 
@@ -94,18 +131,30 @@ const Project: NextPage = (): JSX.Element => {
       return;
     }
 
-    if (destinationDroppableId === sourceDroppableId && destinationIndex === sourceIndex) {
+    if (
+      destinationDroppableId === sourceDroppableId &&
+      destinationIndex === sourceIndex
+    ) {
       return;
     }
 
     const sourceState = states[sourceDroppableId];
     const destinationState = states[destinationDroppableId];
 
-    dispatch(moveStory({ projectId: id, sourceState, sourceIndex, destinationState, destinationIndex }));
+    dispatch(
+      moveStory({
+        projectId: id,
+        sourceState,
+        sourceIndex,
+        destinationState,
+        destinationIndex,
+      })
+    );
 
     const landingIndex =
       // Calculates the index in between which two stories the dragged story landed.
-      destinationDroppableId === sourceDroppableId && destinationIndex > sourceIndex
+      destinationDroppableId === sourceDroppableId &&
+      destinationIndex > sourceIndex
         ? // Special case when landing further down from the same column the story was taken.
           destinationIndex + 1
         : destinationIndex;
@@ -142,25 +191,34 @@ const Project: NextPage = (): JSX.Element => {
         paddingTop: 15,
       }}
     >
-      <Row gap={0.8}>
+      <FilterContainer>
         <ProjectPicker id={id} />
-        <Iterations
+        <IterationPicker
           id={id}
           selectedIteration={filters.iteration}
-          addIteration={addFilter}
-          removeIteration={removeFilter}
+          addIteration={(val) => addFilter('iterations', val)}
+          removeIteration={() => removeFilter('iterations', null)}
         />
         <Labels labels={filters.labels} onClick={removeFilter} />
         <Owners owners={filters.owners} onClick={removeFilter} />
-      </Row>
+      </FilterContainer>
 
       <Row gap={0.8}>
-        {loading && <Loading />}
-        <Spacer y={0.8} />
+        {loading && (
+          <Col>
+            <Loading />
+          </Col>
+        )}
         {!loading && (
           <DragDropContext onDragEnd={onDragEnd}>
             {states.map((state: string, idx: number) => (
-              <Column key={state} state={state} idx={idx} stories={stories[state]} addFilter={addFilter} />
+              <Column
+                key={state}
+                state={state}
+                idx={idx}
+                stories={stories[state]}
+                addFilter={addFilter}
+              />
             ))}
           </DragDropContext>
         )}
