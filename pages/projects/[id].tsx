@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Spacer, Row, Loading, Col } from '@geist-ui/react';
+import { Row, Loading, Col } from '@geist-ui/react';
 import { useRouter } from 'next/router';
-import { parseCookies } from 'nookies';
 import { subDays } from 'date-fns';
 import { DragDropContext } from 'react-beautiful-dnd';
 import styled from 'styled-components';
@@ -9,15 +8,9 @@ import styled from 'styled-components';
 import ProjectPicker from '../../components/ProjectPicker';
 import IterationPicker from '../../components/IterationPicker';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  State,
-  Story,
-  Filters,
-  Label,
-  Owner,
-  Iteration,
-} from '../../redux/types';
+import { State, Story, Filters, Label, Owner, Iteration } from '../../redux/types';
 import { addStories, moveStory } from '../../redux/actions/stories.actions';
+import { getApiKey } from '../../redux/selectors/settings.selectors';
 import { filterStories } from '../../redux/selectors/stories.selectors';
 import Owners from '../../components/Owners';
 import Labels from '../../components/Labels';
@@ -25,39 +18,32 @@ import { useAsync } from '../../hooks';
 import { useTheme } from '@geist-ui/react';
 
 import Column from '../../components/Column';
+import { redirectIfNoApiKey } from '../../redirects';
+import { NextPage } from 'next';
+import { wrapper } from '../../redux/store';
 
-const states = [
-  'unscheduled',
-  'unstarted',
-  'started',
-  'finished',
-  'delivered',
-  'rejected',
-  'accepted',
-];
+const states = ['unscheduled', 'unstarted', 'started', 'finished', 'delivered', 'rejected', 'accepted'];
 
 interface Params {
   id?: string;
 }
 
-// TODO: move filter container to a separate component
-const FilterContainer = styled.div`
-  padding: 10px 16px;
-  & > * {
-    vertical-align: middle;
-    margin: 0 4px;
-  }
-`;
+const Project: NextPage = (): JSX.Element => {
+  // TODO: move filter container to a separate component
+  const FilterContainer = styled.div`
+    padding: 10px 16px;
+    & > * {
+      vertical-align: middle;
+      margin: 0 4px;
+    }
+  `;
 
-const Projects = (): JSX.Element => {
-  const { apiToken } = parseCookies();
   const router = useRouter();
   const { id }: Params = router.query;
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
-  const stories = useSelector(
-    (state: State): Record<string, Story[]> => filterStories(state, id, filters)
-  );
+  const apiKey = useSelector(getApiKey);
+  const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
 
   const addFilter = (name: string, filter: Owner | Label | Iteration): void => {
     if (name === 'iterations') {
@@ -69,10 +55,7 @@ const Projects = (): JSX.Element => {
     setFilters({ ...filters, [name]: Array.from(new Set(array)) });
   };
 
-  const removeFilter = (
-    name: string,
-    filter: Owner | Label | Iteration
-  ): void => {
+  const removeFilter = (name: string, filter: Owner | Label | Iteration): void => {
     if (name === 'iterations') {
       const { iteration: omit, ...newFilters } = filters;
       setFilters({ ...newFilters });
@@ -80,9 +63,7 @@ const Projects = (): JSX.Element => {
     }
     setFilters({
       ...filters,
-      [name]: [
-        ...filters[name].filter((element: any): boolean => element !== filter),
-      ],
+      [name]: [...filters[name].filter((element: any): boolean => element !== filter)],
     });
   };
 
@@ -101,14 +82,11 @@ const Projects = (): JSX.Element => {
           fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
         }
 
-        const request = await fetch(
-          `https://www.pivotaltracker.com/services/v5/projects/${id}/${fetchString}`,
-          {
-            headers: {
-              'X-TrackerToken': apiToken,
-            },
-          }
-        );
+        const request = await fetch(`https://www.pivotaltracker.com/services/v5/projects/${id}/${fetchString}`, {
+          headers: {
+            'X-TrackerToken': apiKey,
+          },
+        });
         stories = { ...stories, [state]: await request.json() };
       }
 
@@ -121,10 +99,7 @@ const Projects = (): JSX.Element => {
     const {
       source: { droppableId: sourceDroppableId, index: sourceIndex },
       destination,
-      destination: {
-        droppableId: destinationDroppableId,
-        index: destinationIndex,
-      },
+      destination: { droppableId: destinationDroppableId, index: destinationIndex },
       draggableId,
     } = result;
 
@@ -132,10 +107,7 @@ const Projects = (): JSX.Element => {
       return;
     }
 
-    if (
-      destinationDroppableId === sourceDroppableId &&
-      destinationIndex === sourceIndex
-    ) {
+    if (destinationDroppableId === sourceDroppableId && destinationIndex === sourceIndex) {
       return;
     }
 
@@ -154,8 +126,7 @@ const Projects = (): JSX.Element => {
 
     const landingIndex =
       // Calculates the index in between which two stories the dragged story landed.
-      destinationDroppableId === sourceDroppableId &&
-      destinationIndex > sourceIndex
+      destinationDroppableId === sourceDroppableId && destinationIndex > sourceIndex
         ? // Special case when landing further down from the same column the story was taken.
           destinationIndex + 1
         : destinationIndex;
@@ -167,17 +138,14 @@ const Projects = (): JSX.Element => {
       after_id: stories[destinationState][landingIndex - 1]?.id || null,
       // A null after_id means the story was placed last in the list.
     };
-    await fetch(
-      `https://www.pivotaltracker.com/services/v5/projects/${id}/stories/${draggableId}`,
-      {
-        method: 'PUT',
-        headers: {
-          'X-TrackerToken': apiToken,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...payload }),
-      }
-    );
+    await fetch(`https://www.pivotaltracker.com/services/v5/projects/${id}/stories/${draggableId}`, {
+      method: 'PUT',
+      headers: {
+        'X-TrackerToken': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ...payload }),
+    });
   });
 
   const loading = !Boolean(stories && Object.values(stories).length);
@@ -200,7 +168,7 @@ const Projects = (): JSX.Element => {
         <IterationPicker
           id={id}
           selectedIteration={filters.iteration}
-          addIteration={(val) => addFilter('iterations', val)}
+          addIteration={val => addFilter('iterations', val)}
           removeIteration={() => removeFilter('iterations', null)}
         />
         <Labels labels={filters.labels} onClick={removeFilter} />
@@ -216,13 +184,7 @@ const Projects = (): JSX.Element => {
         {!loading && (
           <DragDropContext onDragEnd={onDragEnd}>
             {states.map((state: string, idx: number) => (
-              <Column
-                key={state}
-                state={state}
-                idx={idx}
-                stories={stories[state]}
-                addFilter={addFilter}
-              />
+              <Column key={state} state={state} idx={idx} stories={stories[state]} addFilter={addFilter} />
             ))}
           </DragDropContext>
         )}
@@ -231,4 +193,6 @@ const Projects = (): JSX.Element => {
   );
 };
 
-export default Projects;
+export const getServerSideProps = wrapper.getServerSideProps(redirectIfNoApiKey);
+
+export default Project;

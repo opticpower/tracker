@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 import { Row, Col, Spacer, Select } from '@geist-ui/react';
 import { Sun, Moon } from '@geist-ui/react-icons';
+import { useSelector, useDispatch } from 'react-redux';
+import { setTheme } from '../redux/actions/settings.actions';
+import { getTheme } from '../redux/selectors/settings.selectors';
 
 const darkLogo = '/images/opticDarkLogo.png';
 const lightLogo = '/images/opticLightLogo.png';
@@ -8,7 +11,7 @@ const lightLogo = '/images/opticLightLogo.png';
 const NavBar = styled(Row)`
   align-items: center !important;
   height: 50px;
-  border-bottom: ${(props) => `0.5px solid ${props.theme.palette.border}`};
+  border-bottom: ${props => `0.5px solid ${props.theme.palette.border}`};
   padding: 0px 15px;
 `;
 
@@ -27,28 +30,31 @@ const SelectOption = styled(Select.Option)`
   }
 `;
 
-interface NavParams {
-  setUseLight(useLight: boolean): any;
-  useLight: boolean;
-}
+const Nav = (): JSX.Element => {
+  const theme = useSelector(getTheme);
+  const dispatch = useDispatch();
 
-const Nav = ({ useLight, setUseLight }: NavParams): JSX.Element => {
   return (
     <NavBar>
       <Col>
-        <Logo src={useLight ? darkLogo : lightLogo} alt='OpticPower' />
+        <Logo src={theme === 'light' ? darkLogo : lightLogo} alt="OpticPower" />
       </Col>
       <SelectContainer>
         <Select
-          value={`${Number(useLight)}`}
-          onChange={(val) => setUseLight(!!Number(val))}
+          value={theme}
+          onChange={theme => {
+            if (Array.isArray(theme)) {
+              return dispatch(setTheme(theme[0]));
+            }
+            return dispatch(setTheme(theme));
+          }}
         >
-          <SelectOption value='0'>
+          <SelectOption value="dark">
             <Moon size={16} />
             <Spacer inline x={0.35} />
             Dark Mode
           </SelectOption>
-          <SelectOption value='1'>
+          <SelectOption value="light">
             <Sun size={16} />
             <Spacer inline x={0.35} />
             Light Mode
