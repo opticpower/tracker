@@ -1,33 +1,37 @@
 import { useEffect, useState } from 'react';
-import { Spacer, Row, Loading } from '@geist-ui/react';
+import styled from 'styled-components';
+import { Spacer, Row, Loading, Modal, useModal, Radio, Text } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { parseCookies } from 'nookies';
-import { subDays } from 'date-fns';
 import { DragDropContext } from 'react-beautiful-dnd';
-
-import ProjectPicker from '../../components/ProjectPicker';
-import Iterations from '../../components/Iterations';
+import { useTheme } from '@geist-ui/react';
 import { useSelector, useDispatch } from 'react-redux';
-import { State, Story, Filters, Label, Owner, Iteration } from '../../redux/types';
-import { addStories, moveStory } from '../../redux/actions/stories.actions';
+
+import { State, Story, Filters, Label, Owner, Iteration, UrlParams } from '../../redux/types';
+import { addStories, moveStory, editStory } from '../../redux/actions/stories.actions';
 import { filterStories } from '../../redux/selectors/stories.selectors';
+import { useAsync } from '../../hooks';
+import PivotalHandler, { STORY_STATES } from '../../handlers/PivotalHandler';
 import Owners from '../../components/Owners';
 import Labels from '../../components/Labels';
-import { useAsync } from '../../hooks';
-import { useTheme } from '@geist-ui/react';
-
+import ProjectPicker from '../../components/ProjectPicker';
+import Iterations from '../../components/Iterations';
 import Column from '../../components/Column';
 
-const states = ['unscheduled', 'unstarted', 'started', 'finished', 'delivered', 'rejected', 'accepted'];
-
-interface Params {
-  id?: string;
-}
+const CenteredDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
 
 const Projects = (): JSX.Element => {
   const { apiToken } = parseCookies();
   const router = useRouter();
-  const { id }: Params = router.query;
+  const { id }: UrlParams = router.query;
+  const [selectedEstimate, setSelectedEstimate] = useState(null);
+  const [selectedStory, setSelectedStory] = useState(null);
+  const { setVisible: setIsModalVisible, bindings } = useModal();
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
   const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
@@ -56,36 +60,37 @@ const Projects = (): JSX.Element => {
       return;
     }
     const getStories = async () => {
-      let stories = {};
-
-      //todo: we should do Promise.all for these
-      for (const state of states) {
-        let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners,labels,blockers,reviews,story_type`;
-        if (state === 'Accepted') {
-          const oneWeekAgo = subDays(new Date(), 7);
-          fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
-        }
-
-        const request = await fetch(`https://www.pivotaltracker.com/services/v5/projects/${id}/${fetchString}`, {
-          headers: {
-            'X-TrackerToken': apiToken,
-          },
-        });
-        stories = { ...stories, [state]: await request.json() };
-      }
+      const pivotal = new PivotalHandler();
+      const stories = await pivotal.fetchProjectStories({ apiToken, projectId: id });
 
       dispatch(addStories({ id, stories }));
     };
     getStories();
   }, [id]);
 
+  const [{ isLoading }, changeEstimate] = useAsync(async () => {
+    const newStory: Story = { ...selectedStory, estimate: Number(selectedEstimate) };
+    dispatch(editStory({ projectId: id, story: newStory, storyState: selectedStory?.state }));
+    const pivotal = new PivotalHandler();
+    await pivotal.updateStory({
+      apiToken,
+      projectId: id,
+      storyId: selectedStory?.id,
+      payload: { estimate: Number(selectedEstimate) },
+    });
+
+    setIsModalVisible(false);
+  });
+
+  const estimateChangeHandler = (value: string): void => setSelectedEstimate(value);
+
   const [, onDragEnd] = useAsync(async (result: DragDropContext.result) => {
-    const {
-      source: { droppableId: sourceDroppableId, index: sourceIndex },
-      destination,
-      destination: { droppableId: destinationDroppableId, index: destinationIndex },
-      draggableId,
-    } = result;
+    console.log('result', result);
+    console.log('stories', stories);
+    const { source, destination, draggableId } = result;
+
+    const { droppableId: sourceDroppableId, index: sourceIndex } = source || {};
+    const { droppableId: destinationDroppableId, index: destinationIndex } = destination || {};
 
     if (!destination) {
       return;
@@ -94,9 +99,15 @@ const Projects = (): JSX.Element => {
     if (destinationDroppableId === sourceDroppableId && destinationIndex === sourceIndex) {
       return;
     }
+    const sourceState = STORY_STATES[sourceDroppableId];
 
-    const sourceState = states[sourceDroppableId];
-    const destinationState = states[destinationDroppableId];
+    if (!stories[sourceState][sourceIndex].estimate) {
+      setSelectedStory(stories[sourceState][draggableId]);
+      setIsModalVisible(true);
+      return;
+    }
+
+    const destinationState = STORY_STATES[destinationDroppableId];
 
     dispatch(moveStory({ projectId: id, sourceState, sourceIndex, destinationState, destinationIndex }));
 
@@ -114,14 +125,9 @@ const Projects = (): JSX.Element => {
       after_id: stories[destinationState][landingIndex - 1]?.id || null,
       // A null after_id means the story was placed last in the list.
     };
-    await fetch(`https://www.pivotaltracker.com/services/v5/projects/${id}/stories/${draggableId}`, {
-      method: 'PUT',
-      headers: {
-        'X-TrackerToken': apiToken,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ...payload }),
-    });
+
+    const pivotal = new PivotalHandler();
+    await pivotal.updateStory({ apiToken, projectId: id, storyId: draggableId, payload });
   });
 
   const loading = !Boolean(stories && Object.values(stories).length);
@@ -156,12 +162,43 @@ const Projects = (): JSX.Element => {
         <Spacer y={0.8} />
         {!loading && (
           <DragDropContext onDragEnd={onDragEnd}>
-            {states.map((state: string, idx: number) => (
+            {STORY_STATES.map((state: string, idx: number) => (
               <Column key={state} state={state} idx={idx} stories={stories[state]} addFilter={addFilter} />
             ))}
           </DragDropContext>
         )}
       </Row>
+      <Modal {...bindings}>
+        <Modal.Title>{selectedStory?.name}</Modal.Title>
+        <Modal.Subtitle>Change Story Estimate</Modal.Subtitle>
+        <Modal.Content>
+          <CenteredDiv>
+            <Text h5> Select the amount of effort points of this story.</Text>
+            <Radio.Group value={selectedEstimate} onChange={estimateChangeHandler} useRow>
+              {[...new Array(6)].map((_, index: number) => {
+                const pointValue = index > 3 ? index + 2 * (index - 4) + 1 : index;
+                return (
+                  <Radio key={index} value={String(pointValue)}>
+                    {pointValue}
+                  </Radio>
+                );
+              })}
+            </Radio.Group>
+          </CenteredDiv>
+        </Modal.Content>
+        <Modal.Action passive onClick={() => setIsModalVisible(false)}>
+          Cancel
+        </Modal.Action>
+        <Modal.Action
+          loading={isLoading}
+          onClick={() => {
+            changeEstimate();
+            setSelectedStory(null);
+          }}
+        >
+          Submit
+        </Modal.Action>
+      </Modal>
     </div>
   );
 };

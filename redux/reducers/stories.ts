@@ -1,6 +1,6 @@
 import { Story } from '../types';
 import { AnyAction } from 'redux';
-import { ADD_STORIES, MOVE_STORY } from '../actions/stories.actions';
+import { ADD_STORIES, MOVE_STORY, EDIT_STORY } from '../actions/stories.actions';
 
 const initialState = {};
 
@@ -8,6 +8,18 @@ const reducer = (state: Record<string, Record<string, Story[]>> = initialState, 
   switch (action.type) {
     case ADD_STORIES:
       return { ...state, [action.payload.id]: { ...action.payload.stories } };
+
+    case EDIT_STORY: {
+      const { projectId, story, storyState } = action.payload;
+      const storyStateArr: Story[] = state[projectId][storyState];
+      const storyIndex: number = storyStateArr.findIndex(element => element.id === story.id);
+      const storiesArr: Story[] = [
+        ...storyStateArr.slice(0, storyIndex),
+        story,
+        ...storyStateArr.slice(storyIndex + 1),
+      ];
+      return { ...state, [projectId]: { ...state[projectId], [storyState]: storiesArr } };
+    }
 
     case MOVE_STORY: {
       const { projectId, sourceState, sourceIndex, destinationState, destinationIndex } = action.payload;

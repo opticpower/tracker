@@ -52,7 +52,7 @@ const Column = ({ idx, state, stories, addFilter }: ColumnParams): JSX.Element =
           <div {...provided.droppableProps} ref={provided.innerRef} style={{ minWidth: 250, minHeight: 50 }}>
             {(stories || []).map(
               (story: Story, index: number): JSX.Element => (
-                <StoryCard key={story.id} story={story} index={index} addFilter={addFilter} />
+                <StoryCard key={story.id} state={state} story={story} index={index} addFilter={addFilter} />
               )
             )}
             {provided.placeholder}

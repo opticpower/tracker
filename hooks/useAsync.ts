@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default (asyncFn, initialVal = {}) => {
+export default (asyncFn, initialVal = {}): [{ result: any; isLoading: boolean; error: any }, Function] => {
   const [result, setResult] = useState(initialVal);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState();

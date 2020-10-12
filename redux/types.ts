@@ -43,3 +43,7 @@ export interface Iteration {
   start: string;
   finish: string;
 }
+
+export interface UrlParams {
+  id?: string;
+}
