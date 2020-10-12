@@ -70,7 +70,7 @@ const Project: NextPage = (): JSX.Element => {
       setFilters({ ...filters, iteration: filter });
       return;
     }
-    // @ts-ignore: we know iteration cannot be type Iteration
+    // @ts-ignore: we know filter cannot be type Iteration
     setFilters({ ...filters, [name]: getFilterArray(filters[name], filter) });
   };
 
