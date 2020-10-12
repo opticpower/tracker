@@ -46,9 +46,9 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
   const { apiToken } = parseCookies();
   const router = useRouter();
   const { id }: UrlParams = router.query;
-  // const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedEstimate, setSelectedEstimate] = useState(story.estimate ? String(story.estimate) : '');
-  const { setVisible: setIsModalVisible, bindings } = useModal();
+  // const { setVisible: setIsModalVisible, bindings } = useModal();
 
   const [{ isLoading }, changeEstimate] = useAsync(async () => {
     const newStory: Story = { ...story, estimate: Number(selectedEstimate) };
