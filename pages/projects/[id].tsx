@@ -18,6 +18,14 @@ import { useAsync } from '../../hooks';
 import { useTheme } from '@geist-ui/react';
 import { spacing } from '../../styles';
 
+import Column from '../../components/Column';
+
+const states = ['unscheduled', 'unstarted', 'started', 'finished', 'delivered', 'rejected', 'accepted'];
+
+interface Params {
+  id?: string;
+}
+
 const Container = styled.div(({ color, image }) => ({
   overflow: 'auto',
   overflowX: 'auto',
@@ -27,14 +35,6 @@ const Container = styled.div(({ color, image }) => ({
   minHeight: 1024,
   paddingTop: spacing(3),
 }));
-
-import Column from '../../components/Column';
-
-const states = ['unscheduled', 'unstarted', 'started', 'finished', 'delivered', 'rejected', 'accepted'];
-
-interface Params {
-  id?: string;
-}
 
 // TODO: move filter container to a separate component
 const FilterContainer = styled.div`
