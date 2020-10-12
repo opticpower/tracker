@@ -1,16 +1,14 @@
-import {
-  Text,
-  Spacer,
-  Card,
-  Divider,
-  Badge,
-  Breadcrumbs,
-} from '@geist-ui/react';
+import styled from 'styled-components';
+import { Text, Spacer, Card, Divider, Badge, Breadcrumbs } from '@geist-ui/react';
 import { Draggable } from 'react-beautiful-dnd';
 import { Story, Owner, Label, Iteration } from '../redux/types';
 
 import Owners from './Owners';
 import Labels from './Labels';
+
+const CardContainer = styled(Card)(({ color }) => ({
+  borderColor: `${color} !important`,
+}));
 
 const borderColors = {
   feature: 'gray',
@@ -25,11 +23,7 @@ interface StoryCardParams {
   addFilter: (name: string, filter: Owner | Label | Iteration) => void;
 }
 
-const StoryCard = ({
-  story,
-  index,
-  addFilter,
-}: StoryCardParams): JSX.Element => {
+const StoryCard = ({ story, index, addFilter }: StoryCardParams): JSX.Element => {
   return (
     <Draggable key={story.id} draggableId={story.id.toString()} index={index}>
       {(provided: Draggable.provided) => (
@@ -39,19 +33,15 @@ const StoryCard = ({
           {...provided.dragHandleProps}
           ref={provided.innerRef}
         >
-          <Card
-            width='250px'
-            hoverable
-            style={{ borderColor: borderColors[story.story_type] || 'gray' }}
-          >
+          <CardContainer width="250px" hoverable color={borderColors[story.story_type] || 'gray'}>
             <Card.Content>
-              <Breadcrumbs size='mini'>
+              <Breadcrumbs size="mini">
                 <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>
                 <Breadcrumbs.Item>
                   <a
                     href={`https://www.pivotaltracker.com/story/show/${story.id}`}
-                    target='_blank'
-                    rel='noreferrer nofollow'
+                    target="_blank"
+                    rel="noreferrer nofollow"
                   >
                     {story.id}
                   </a>
@@ -72,7 +62,7 @@ const StoryCard = ({
               <Labels labels={story.labels} onClick={addFilter} />
               {/* TODO: Add Github, Blockers */}
             </Card.Content>
-          </Card>
+          </CardContainer>
           <Spacer y={1} />
         </div>
       )}

@@ -16,6 +16,7 @@ import Owners from '../../components/Owners';
 import Labels from '../../components/Labels';
 import { useAsync } from '../../hooks';
 import { useTheme } from '@geist-ui/react';
+import { spacing } from '../../styles';
 
 import Column from '../../components/Column';
 import { redirectIfNoApiKey } from '../../redirects';
@@ -27,6 +28,16 @@ const states = ['unscheduled', 'unstarted', 'started', 'finished', 'delivered', 
 interface Params {
   id?: string;
 }
+
+const Container = styled.div(({ color, image }) => ({
+  overflow: 'auto',
+  overflowX: 'auto',
+  backgroundColor: color,
+  backgroundImage: `url(/images/grid-${image}.png)`,
+  height: '100%',
+  minHeight: 1024,
+  paddingTop: spacing(3),
+}));
 
 const Project: NextPage = (): JSX.Element => {
   // TODO: move filter container to a separate component
@@ -152,17 +163,7 @@ const Project: NextPage = (): JSX.Element => {
   const { palette, type } = useTheme();
 
   return (
-    <div
-      style={{
-        overflow: 'auto',
-        overflowX: 'auto',
-        backgroundColor: palette.accents_1,
-        backgroundImage: `url(/images/grid-${type}.png)`,
-        height: '100%',
-        minHeight: 1024,
-        paddingTop: 15,
-      }}
-    >
+    <Container color={palette.accents_1} image={type}>
       <FilterContainer>
         <ProjectPicker id={id} />
         <IterationPicker
@@ -189,7 +190,7 @@ const Project: NextPage = (): JSX.Element => {
           </DragDropContext>
         )}
       </Row>
-    </div>
+    </Container>
   );
 };
 
