@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Spacer, Row, Loading, Col } from '@geist-ui/react';
+import { Row, Loading, Col } from '@geist-ui/react';
 import { useRouter } from 'next/router';
-import { parseCookies } from 'nookies';
 import { subDays } from 'date-fns';
 import { DragDropContext } from 'react-beautiful-dnd';
 import styled from 'styled-components';
@@ -11,6 +10,7 @@ import IterationPicker from '../../components/IterationPicker';
 import { useSelector, useDispatch } from 'react-redux';
 import { State, Story, Filters, Label, Owner, Iteration } from '../../redux/types';
 import { addStories, moveStory } from '../../redux/actions/stories.actions';
+import { getApiKey } from '../../redux/selectors/settings.selectors';
 import { filterStories } from '../../redux/selectors/stories.selectors';
 import Owners from '../../components/Owners';
 import Labels from '../../components/Labels';
@@ -19,6 +19,9 @@ import { useTheme } from '@geist-ui/react';
 import { spacing } from '../../styles';
 
 import Column from '../../components/Column';
+import { redirectIfNoApiKey } from '../../redirects';
+import { NextPage } from 'next';
+import { wrapper } from '../../redux/store';
 
 const states = ['unscheduled', 'unstarted', 'started', 'finished', 'delivered', 'rejected', 'accepted'];
 
@@ -36,21 +39,21 @@ const Container = styled.div(({ color, image }) => ({
   paddingTop: spacing(3),
 }));
 
-// TODO: move filter container to a separate component
-const FilterContainer = styled.div`
-  padding: 10px 16px;
-  & > * {
-    vertical-align: middle;
-    margin: 0 4px;
-  }
-`;
+const Project: NextPage = (): JSX.Element => {
+  // TODO: move filter container to a separate component
+  const FilterContainer = styled.div`
+    padding: 10px 16px;
+    & > * {
+      vertical-align: middle;
+      margin: 0 4px;
+    }
+  `;
 
-const Projects = (): JSX.Element => {
-  const { apiToken } = parseCookies();
   const router = useRouter();
   const { id }: Params = router.query;
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
+  const apiKey = useSelector(getApiKey);
   const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
 
   const addFilter = (name: string, filter: Owner | Label | Iteration): void => {
@@ -92,7 +95,7 @@ const Projects = (): JSX.Element => {
 
         const request = await fetch(`https://www.pivotaltracker.com/services/v5/projects/${id}/${fetchString}`, {
           headers: {
-            'X-TrackerToken': apiToken,
+            'X-TrackerToken': apiKey,
           },
         });
         stories = { ...stories, [state]: await request.json() };
@@ -149,7 +152,7 @@ const Projects = (): JSX.Element => {
     await fetch(`https://www.pivotaltracker.com/services/v5/projects/${id}/stories/${draggableId}`, {
       method: 'PUT',
       headers: {
-        'X-TrackerToken': apiToken,
+        'X-TrackerToken': apiKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ ...payload }),
@@ -191,4 +194,6 @@ const Projects = (): JSX.Element => {
   );
 };
 
-export default Projects;
+export const getServerSideProps = wrapper.getServerSideProps(redirectIfNoApiKey);
+
+export default Project;
