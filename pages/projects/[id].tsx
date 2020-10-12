@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Spacer, Row, Loading, Modal, useModal, Radio, Text } from '@geist-ui/react';
+import { useTheme } from '@geist-ui/react';
+import { Row, Loading, Col, Modal, useModal, Radio, Text } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { parseCookies } from 'nookies';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { useTheme } from '@geist-ui/react';
-import { useSelector, useDispatch } from 'react-redux';
 
+import ProjectPicker from '../../components/ProjectPicker';
+import IterationPicker from '../../components/IterationPicker';
+import { useSelector, useDispatch } from 'react-redux';
 import { State, Story, Filters, Label, Owner, Iteration, UrlParams } from '../../redux/types';
 import { addStories, moveStory, editStory } from '../../redux/actions/stories.actions';
 import { filterStories } from '../../redux/selectors/stories.selectors';
@@ -14,8 +16,6 @@ import { useAsync } from '../../hooks';
 import PivotalHandler, { STORY_STATES } from '../../handlers/PivotalHandler';
 import Owners from '../../components/Owners';
 import Labels from '../../components/Labels';
-import ProjectPicker from '../../components/ProjectPicker';
-import Iterations from '../../components/Iterations';
 import Column from '../../components/Column';
 
 const CenteredDiv = styled.div`
@@ -23,6 +23,15 @@ const CenteredDiv = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+`;
+
+// TODO: move filter container to a separate component
+const FilterContainer = styled.div`
+  padding: 10px 16px;
+  & > * {
+    vertical-align: middle;
+    margin: 0 4px;
+  }
 `;
 
 const Projects = (): JSX.Element => {
@@ -52,7 +61,10 @@ const Projects = (): JSX.Element => {
       setFilters({ ...newFilters });
       return;
     }
-    setFilters({ ...filters, [name]: [...filters[name].filter((element: any): boolean => element !== filter)] });
+    setFilters({
+      ...filters,
+      [name]: [...filters[name].filter((element: any): boolean => element !== filter)],
+    });
   };
 
   useEffect(() => {
@@ -85,8 +97,6 @@ const Projects = (): JSX.Element => {
   const estimateChangeHandler = (value: string): void => setSelectedEstimate(value);
 
   const [, onDragEnd] = useAsync(async (result: DragDropContext.result) => {
-    console.log('result', result);
-    console.log('stories', stories);
     const { source, destination, draggableId } = result;
 
     const { droppableId: sourceDroppableId, index: sourceIndex } = source || {};
@@ -109,7 +119,15 @@ const Projects = (): JSX.Element => {
 
     const destinationState = STORY_STATES[destinationDroppableId];
 
-    dispatch(moveStory({ projectId: id, sourceState, sourceIndex, destinationState, destinationIndex }));
+    dispatch(
+      moveStory({
+        projectId: id,
+        sourceState,
+        sourceIndex,
+        destinationState,
+        destinationIndex,
+      })
+    );
 
     const landingIndex =
       // Calculates the index in between which two stories the dragged story landed.
@@ -145,21 +163,24 @@ const Projects = (): JSX.Element => {
         paddingTop: 15,
       }}
     >
-      <Row gap={0.8}>
+      <FilterContainer>
         <ProjectPicker id={id} />
-        <Iterations
+        <IterationPicker
           id={id}
           selectedIteration={filters.iteration}
-          addIteration={addFilter}
-          removeIteration={removeFilter}
+          addIteration={val => addFilter('iterations', val)}
+          removeIteration={() => removeFilter('iterations', null)}
         />
         <Labels labels={filters.labels} onClick={removeFilter} />
         <Owners owners={filters.owners} onClick={removeFilter} />
-      </Row>
+      </FilterContainer>
 
       <Row gap={0.8}>
-        {loading && <Loading />}
-        <Spacer y={0.8} />
+        {loading && (
+          <Col>
+            <Loading />
+          </Col>
+        )}
         {!loading && (
           <DragDropContext onDragEnd={onDragEnd}>
             {STORY_STATES.map((state: string, idx: number) => (

@@ -106,7 +106,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
               <Card.Content>
                 <Owners owners={story.owners} onClick={addFilter} />
                 <Labels labels={story.labels} onClick={addFilter} />
-                Add Github, Blockers
+                {/* TODO: Add Github, Blockers */}
               </Card.Content>
             </Card>
             <Spacer y={1} />
