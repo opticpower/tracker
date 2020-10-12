@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '@geist-ui/react';
-import { Row, Loading, Col, Modal, useModal, Radio, Text } from '@geist-ui/react';
+import { Row, Loading, Col } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { parseCookies } from 'nookies';
 import { DragDropContext } from 'react-beautiful-dnd';
@@ -10,20 +10,14 @@ import ProjectPicker from '../../components/ProjectPicker';
 import IterationPicker from '../../components/IterationPicker';
 import { useSelector, useDispatch } from 'react-redux';
 import { State, Story, Filters, Label, Owner, Iteration, UrlParams } from '../../redux/types';
-import { addStories, moveStory, editStory } from '../../redux/actions/stories.actions';
+import { addStories, moveStory } from '../../redux/actions/stories.actions';
 import { filterStories } from '../../redux/selectors/stories.selectors';
 import { useAsync } from '../../hooks';
 import PivotalHandler, { STORY_STATES } from '../../handlers/PivotalHandler';
 import Owners from '../../components/Owners';
 import Labels from '../../components/Labels';
 import Column from '../../components/Column';
-
-const CenteredDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`;
+import EstimateChangeDialog from '../../components/Dialogs/EstimateChangeDialog';
 
 // TODO: move filter container to a separate component
 const FilterContainer = styled.div`
@@ -38,9 +32,7 @@ const Projects = (): JSX.Element => {
   const { apiToken } = parseCookies();
   const router = useRouter();
   const { id }: UrlParams = router.query;
-  const [selectedEstimate, setSelectedEstimate] = useState(null);
   const [selectedStory, setSelectedStory] = useState(null);
-  const { setVisible: setIsModalVisible, bindings } = useModal();
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
   const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
@@ -80,22 +72,6 @@ const Projects = (): JSX.Element => {
     getStories();
   }, [id]);
 
-  const [{ isLoading }, changeEstimate] = useAsync(async () => {
-    const newStory: Story = { ...selectedStory, estimate: Number(selectedEstimate) };
-    dispatch(editStory({ projectId: id, story: newStory, storyState: selectedStory?.state }));
-    const pivotal = new PivotalHandler();
-    await pivotal.updateStory({
-      apiToken,
-      projectId: id,
-      storyId: selectedStory?.id,
-      payload: { estimate: Number(selectedEstimate) },
-    });
-
-    setIsModalVisible(false);
-  });
-
-  const estimateChangeHandler = (value: string): void => setSelectedEstimate(value);
-
   const [, onDragEnd] = useAsync(async (result: DragDropContext.result) => {
     const { source, destination, draggableId } = result;
 
@@ -112,8 +88,7 @@ const Projects = (): JSX.Element => {
     const sourceState = STORY_STATES[sourceDroppableId];
 
     if (!stories[sourceState][sourceIndex].estimate) {
-      setSelectedStory(stories[sourceState][draggableId]);
-      setIsModalVisible(true);
+      setSelectedStory({ ...stories[sourceState][sourceIndex], state: sourceState });
       return;
     }
 
@@ -189,37 +164,12 @@ const Projects = (): JSX.Element => {
           </DragDropContext>
         )}
       </Row>
-      <Modal {...bindings}>
-        <Modal.Title>{selectedStory?.name}</Modal.Title>
-        <Modal.Subtitle>Change Story Estimate</Modal.Subtitle>
-        <Modal.Content>
-          <CenteredDiv>
-            <Text h5> Select the amount of effort points of this story.</Text>
-            <Radio.Group value={selectedEstimate} onChange={estimateChangeHandler} useRow>
-              {[...new Array(6)].map((_, index: number) => {
-                const pointValue = index > 3 ? index + 2 * (index - 4) + 1 : index;
-                return (
-                  <Radio key={index} value={String(pointValue)}>
-                    {pointValue}
-                  </Radio>
-                );
-              })}
-            </Radio.Group>
-          </CenteredDiv>
-        </Modal.Content>
-        <Modal.Action passive onClick={() => setIsModalVisible(false)}>
-          Cancel
-        </Modal.Action>
-        <Modal.Action
-          loading={isLoading}
-          onClick={() => {
-            changeEstimate();
-            setSelectedStory(null);
-          }}
-        >
-          Submit
-        </Modal.Action>
-      </Modal>
+      <EstimateChangeDialog
+        story={selectedStory}
+        state={selectedStory?.state}
+        open={Boolean(selectedStory)}
+        onClose={() => setSelectedStory(null)}
+      />
     </div>
   );
 };

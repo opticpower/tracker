@@ -1,15 +1,9 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import { Text, Spacer, Card, Divider, Badge, Breadcrumbs, Modal, useModal, Radio } from '@geist-ui/react';
+import { Text, Spacer, Card, Divider, Badge, Breadcrumbs } from '@geist-ui/react';
 import { Draggable } from 'react-beautiful-dnd';
-import { useRouter } from 'next/router';
-import { parseCookies } from 'nookies';
-import { useDispatch } from 'react-redux';
 
-import { Story, Owner, Label, Iteration, UrlParams } from '../redux/types';
-import { editStory } from '../redux/actions/stories.actions';
-import PivotalHandler from '../handlers/PivotalHandler';
-import { useAsync } from '../hooks';
+import { Story, Owner, Label, Iteration } from '../redux/types';
 import Owners from './Owners';
 import Labels from './Labels';
 import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
@@ -27,13 +21,6 @@ const StyledSpan = styled.span`
   color: #3291ff;
 `;
 
-const CenteredDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`;
-
 interface StoryCardParams {
   story: Story;
   index: number;
@@ -42,28 +29,8 @@ interface StoryCardParams {
 }
 
 const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Element => {
-  const dispatch = useDispatch();
-  const { apiToken } = parseCookies();
-  const router = useRouter();
-  const { id }: UrlParams = router.query;
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedEstimate, setSelectedEstimate] = useState(story.estimate ? String(story.estimate) : '');
-  // const { setVisible: setIsModalVisible, bindings } = useModal();
 
-  const [{ isLoading }, changeEstimate] = useAsync(async () => {
-    const newStory: Story = { ...story, estimate: Number(selectedEstimate) };
-    dispatch(editStory({ projectId: id, story: newStory, storyState: state }));
-    const pivotal = new PivotalHandler();
-    await pivotal.updateStory({
-      apiToken,
-      projectId: id,
-      storyId: story.id,
-      payload: { estimate: Number(selectedEstimate) },
-    });
-
-    setIsModalVisible(false);
-  });
-  const estimateChangeHandler = (value: string): void => setSelectedEstimate(value);
   return (
     <>
       <Draggable key={story.id} draggableId={story.id.toString()} index={index}>
@@ -113,7 +80,12 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
           </div>
         )}
       </Draggable>
-      <EstimateChangeDialog story={story} open={isModalVisible} onClose={() => setIsModalVisible(false)} />
+      <EstimateChangeDialog
+        story={story}
+        state={state}
+        open={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+      />
     </>
   );
 };
