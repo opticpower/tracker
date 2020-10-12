@@ -22,6 +22,7 @@ import Column from '../../components/Column';
 import { redirectIfNoApiKey } from '../../redirects';
 import { NextPage } from 'next';
 import { wrapper } from '../../redux/store';
+import StoryModal from '../../components/StoryModal';
 
 const states = ['unscheduled', 'unstarted', 'started', 'finished', 'delivered', 'rejected', 'accepted'];
 
@@ -53,6 +54,7 @@ const Project: NextPage = (): JSX.Element => {
   const { id }: Params = router.query;
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
+  const [selectedStory, setSelectedStory] = useState<Story>();
   const apiKey = useSelector(getApiKey);
   const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
 
@@ -78,6 +80,15 @@ const Project: NextPage = (): JSX.Element => {
     });
   };
 
+  const openStory = (story: Story) => {
+    setSelectedStory(story);
+  };
+
+  const closeStory = () => {
+    //todo: should we save selected story on close or nawh?
+    setSelectedStory(undefined);
+  };
+
   useEffect(() => {
     if (!id) {
       return;
@@ -87,7 +98,7 @@ const Project: NextPage = (): JSX.Element => {
 
       //todo: we should do Promise.all for these
       for (const state of states) {
-        let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners,labels,blockers,reviews,story_type`;
+        let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners,labels,blockers,reviews,story_type,description`;
         if (state === 'Accepted') {
           const oneWeekAgo = subDays(new Date(), 7);
           fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
@@ -164,6 +175,7 @@ const Project: NextPage = (): JSX.Element => {
 
   return (
     <Container color={palette.accents_1} image={type}>
+      <StoryModal isOpen={Boolean(selectedStory)} story={selectedStory} close={closeStory} />
       <FilterContainer>
         <ProjectPicker id={id} />
         <IterationPicker
@@ -185,7 +197,14 @@ const Project: NextPage = (): JSX.Element => {
         {!loading && (
           <DragDropContext onDragEnd={onDragEnd}>
             {states.map((state: string, idx: number) => (
-              <Column key={state} state={state} idx={idx} stories={stories[state]} addFilter={addFilter} />
+              <Column
+                key={state}
+                state={state}
+                idx={idx}
+                stories={stories[state]}
+                addFilter={addFilter}
+                openStory={openStory}
+              />
             ))}
           </DragDropContext>
         )}
