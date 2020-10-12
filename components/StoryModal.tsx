@@ -16,17 +16,15 @@ const StoryModal = ({ story, isOpen, close }: StoryModalParams): JSX.Element => 
   }
 
   return (
-    <div>
-      <Modal open={isOpen} key={story?.id} onClose={close}>
-        <Modal.Title>{story.name}</Modal.Title>
-        <Modal.Subtitle>Not sure here</Modal.Subtitle>
-        <Modal.Content>
-          {story.description}
-          <Owners owners={story.owners} />
-          <Labels labels={story.labels} />
-        </Modal.Content>
-      </Modal>
-    </div>
+    <Modal open={isOpen} key={story?.id} onClose={close}>
+      <Modal.Title>{story.name}</Modal.Title>
+      <Modal.Subtitle>Not sure here</Modal.Subtitle>
+      <Modal.Content>
+        {story.description}
+        <Owners owners={story.owners} />
+        <Labels labels={story.labels} />
+      </Modal.Content>
+    </Modal>
   );
 };
 
