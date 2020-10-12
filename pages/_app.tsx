@@ -4,6 +4,7 @@ import { wrapper } from '../redux/store';
 import { AppProps } from 'next/app';
 import Nav from '../components/Nav';
 import { lightTheme, darkTheme } from '../themes';
+import { ThemeProvider as SCThemeProvider } from 'styled-components';
 
 import { setCookie, parseCookies } from 'nookies';
 
@@ -13,9 +14,11 @@ const OpticTracker: FC<AppProps> = ({ Component, pageProps }): JSX.Element => {
 
   return (
     <GeistProvider theme={theme}>
-      <CssBaseline />
-      <Nav useLight={useLight} setUseLight={setUseLight} />
-      <Component {...pageProps} toggleLight />
+      <SCThemeProvider theme={theme}>
+        <CssBaseline />
+        <Nav useLight={useLight} setUseLight={setUseLight} />
+        <Component {...pageProps} toggleLight />
+      </SCThemeProvider>
     </GeistProvider>
   );
 };

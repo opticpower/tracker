@@ -8,7 +8,7 @@ const lightLogo = '/images/opticLightLogo.png';
 const NavBar = styled(Row)`
   align-items: center !important;
   height: 50px;
-  border-bottom: 0.5px solid;
+  border-bottom: ${(props) => `0.5px solid ${props.theme.palette.border}`};
   padding: 0px 15px;
 `;
 
