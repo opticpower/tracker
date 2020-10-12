@@ -60,7 +60,7 @@ const StoryCard = ({ story, index, addFilter }: StoryCardParams): JSX.Element =>
             <Card.Content>
               <Owners owners={story.owners} onClick={addFilter} />
               <Labels labels={story.labels} onClick={addFilter} />
-              Add Github, Blockers
+              {/* TODO: Add Github, Blockers */}
             </Card.Content>
           </CardContainer>
           <Spacer y={1} />

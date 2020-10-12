@@ -1,13 +1,13 @@
-import styled from 'styled-components';
 import { useEffect, useState } from 'react';
-import { Spacer, Row, Loading } from '@geist-ui/react';
+import { Spacer, Row, Loading, Col } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { parseCookies } from 'nookies';
 import { subDays } from 'date-fns';
 import { DragDropContext } from 'react-beautiful-dnd';
+import styled from 'styled-components';
 
 import ProjectPicker from '../../components/ProjectPicker';
-import Iterations from '../../components/Iterations';
+import IterationPicker from '../../components/IterationPicker';
 import { useSelector, useDispatch } from 'react-redux';
 import { State, Story, Filters, Label, Owner, Iteration } from '../../redux/types';
 import { addStories, moveStory } from '../../redux/actions/stories.actions';
@@ -36,6 +36,15 @@ interface Params {
   id?: string;
 }
 
+// TODO: move filter container to a separate component
+const FilterContainer = styled.div`
+  padding: 10px 16px;
+  & > * {
+    vertical-align: middle;
+    margin: 0 4px;
+  }
+`;
+
 const Projects = (): JSX.Element => {
   const { apiToken } = parseCookies();
   const router = useRouter();
@@ -60,7 +69,10 @@ const Projects = (): JSX.Element => {
       setFilters({ ...newFilters });
       return;
     }
-    setFilters({ ...filters, [name]: [...filters[name].filter((element: any): boolean => element !== filter)] });
+    setFilters({
+      ...filters,
+      [name]: [...filters[name].filter((element: any): boolean => element !== filter)],
+    });
   };
 
   useEffect(() => {
@@ -110,7 +122,15 @@ const Projects = (): JSX.Element => {
     const sourceState = states[sourceDroppableId];
     const destinationState = states[destinationDroppableId];
 
-    dispatch(moveStory({ projectId: id, sourceState, sourceIndex, destinationState, destinationIndex }));
+    dispatch(
+      moveStory({
+        projectId: id,
+        sourceState,
+        sourceIndex,
+        destinationState,
+        destinationIndex,
+      })
+    );
 
     const landingIndex =
       // Calculates the index in between which two stories the dragged story landed.
@@ -141,21 +161,24 @@ const Projects = (): JSX.Element => {
 
   return (
     <Container color={palette.accents_1} image={type}>
-      <Row gap={0.8}>
+      <FilterContainer>
         <ProjectPicker id={id} />
-        <Iterations
+        <IterationPicker
           id={id}
           selectedIteration={filters.iteration}
-          addIteration={addFilter}
-          removeIteration={removeFilter}
+          addIteration={val => addFilter('iterations', val)}
+          removeIteration={() => removeFilter('iterations', null)}
         />
         <Labels labels={filters.labels} onClick={removeFilter} />
         <Owners owners={filters.owners} onClick={removeFilter} />
-      </Row>
+      </FilterContainer>
 
       <Row gap={0.8}>
-        {loading && <Loading />}
-        <Spacer y={0.8} />
+        {loading && (
+          <Col>
+            <Loading />
+          </Col>
+        )}
         {!loading && (
           <DragDropContext onDragEnd={onDragEnd}>
             {states.map((state: string, idx: number) => (

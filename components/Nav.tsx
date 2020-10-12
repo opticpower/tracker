@@ -8,7 +8,7 @@ const lightLogo = '/images/opticLightLogo.png';
 const NavBar = styled(Row)`
   align-items: center !important;
   height: 50px;
-  border-bottom: 0.5px solid;
+  border-bottom: ${(props) => `0.5px solid ${props.theme.palette.border}`};
   padding: 0px 15px;
 `;
 
@@ -20,6 +20,13 @@ const SelectContainer = styled(Col)`
   text-align: right;
 `;
 
+const SelectOption = styled(Select.Option)`
+  & > span {
+    display: flex;
+    align-items: center;
+  }
+`;
+
 interface NavParams {
   setUseLight(useLight: boolean): any;
   useLight: boolean;
@@ -29,18 +36,23 @@ const Nav = ({ useLight, setUseLight }: NavParams): JSX.Element => {
   return (
     <NavBar>
       <Col>
-        <Logo src={useLight ? darkLogo : lightLogo} alt="OpticPower" />
+        <Logo src={useLight ? darkLogo : lightLogo} alt='OpticPower' />
       </Col>
       <SelectContainer>
-        <Select placeholder={useLight ? 'Light Mode' : 'Dark Mode'}>
-          <Select.Option value="Dark Mode" onClick={(): void => setUseLight(false)}>
-            <Moon size={16} /> <Spacer inline x={0.35} />
+        <Select
+          value={`${Number(useLight)}`}
+          onChange={(val) => setUseLight(!!Number(val))}
+        >
+          <SelectOption value='0'>
+            <Moon size={16} />
+            <Spacer inline x={0.35} />
             Dark Mode
-          </Select.Option>
-          <Select.Option value="Light Mode" onClick={(): void => setUseLight(true)}>
-            <Sun size={16} /> <Spacer inline x={0.35} />
+          </SelectOption>
+          <SelectOption value='1'>
+            <Sun size={16} />
+            <Spacer inline x={0.35} />
             Light Mode
-          </Select.Option>
+          </SelectOption>
         </Select>
       </SelectContainer>
     </NavBar>
