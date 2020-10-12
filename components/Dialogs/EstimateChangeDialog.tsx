@@ -1,13 +1,13 @@
 import { Modal } from '@geist-ui/react';
 import { Story } from '../../redux/types';
 
-interface EstimateChangingDialogParams {
+interface EstimateChangeDialogParams {
   story: Story;
   open: boolean;
-  onClose: Function;
+  onClose: () => void;
 }
 
-const EstimateChangingDialog = ({ story, open, onClose }: EstimateChangingDialogParams): JSX.Element => {
+const EstimateChangeDialog = ({ story, open, onClose }: EstimateChangeDialogParams): JSX.Element => {
   return (
     <Modal open={open} onClose={onClose}>
       <Modal.Title>Change Story Estimate</Modal.Title>
@@ -23,4 +23,4 @@ const EstimateChangingDialog = ({ story, open, onClose }: EstimateChangingDialog
   );
 };
 
-export default EstimateChangingDialog;
+export default EstimateChangeDialog;

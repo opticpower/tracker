@@ -12,7 +12,7 @@ import PivotalHandler from '../handlers/PivotalHandler';
 import { useAsync } from '../hooks';
 import Owners from './Owners';
 import Labels from './Labels';
-// import EstimateChangingDialog from './Dialogs/EstimateChangingDialog';
+// import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
 
 const borderColors = {
   feature: 'gray',
@@ -113,7 +113,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
           </div>
         )}
       </Draggable>
-      {/* <EstimateChangingDialog story={story} open={isModalVisible} onClose={() => setIsModalVisible(false)} /> */}
+      {/* <EstimateChangeDialog story={story} open={isModalVisible} onClose={() => setIsModalVisible(false)} /> */}
       <Modal {...bindings}>
         <Modal.Title>{story.name}</Modal.Title>
         <Modal.Subtitle>Change Story Estimate</Modal.Subtitle>
