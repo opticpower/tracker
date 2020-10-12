@@ -12,7 +12,7 @@ import PivotalHandler from '../handlers/PivotalHandler';
 import { useAsync } from '../hooks';
 import Owners from './Owners';
 import Labels from './Labels';
-// import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
+import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
 
 const borderColors = {
   feature: 'gray',
@@ -113,32 +113,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
           </div>
         )}
       </Draggable>
-      {/* <EstimateChangeDialog story={story} open={isModalVisible} onClose={() => setIsModalVisible(false)} /> */}
-      <Modal {...bindings}>
-        <Modal.Title>{story.name}</Modal.Title>
-        <Modal.Subtitle>Change Story Estimate</Modal.Subtitle>
-        <Modal.Content>
-          <CenteredDiv>
-            <Text h5> Select the amount of effort points of this story.</Text>
-            <Radio.Group value={selectedEstimate} onChange={estimateChangeHandler} useRow>
-              {[...new Array(6)].map((_, index: number) => {
-                const pointValue = index > 3 ? index + 2 * (index - 4) + 1 : index;
-                return (
-                  <Radio key={index} value={String(pointValue)}>
-                    {pointValue}
-                  </Radio>
-                );
-              })}
-            </Radio.Group>
-          </CenteredDiv>
-        </Modal.Content>
-        <Modal.Action passive onClick={() => setIsModalVisible(false)}>
-          Cancel
-        </Modal.Action>
-        <Modal.Action loading={isLoading} onClick={() => changeEstimate()}>
-          Submit
-        </Modal.Action>
-      </Modal>
+      <EstimateChangeDialog story={story} open={isModalVisible} onClose={() => setIsModalVisible(false)} />
     </>
   );
 };
