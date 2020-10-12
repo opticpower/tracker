@@ -40,7 +40,7 @@ const Nav = (): JSX.Element => {
         <Logo src={theme === 'light' ? darkLogo : lightLogo} alt="OpticPower" />
       </Col>
       <SelectContainer>
-        <Select value={`${Number(theme === 'light')}`} onChange={setTheme}>
+        <Select value={theme} onChange={theme => dispatch(setTheme(theme))}>
           <SelectOption value="dark">
             <Moon size={16} />
             <Spacer inline x={0.35} />
