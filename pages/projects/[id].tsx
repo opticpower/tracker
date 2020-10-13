@@ -90,8 +90,7 @@ const Project: NextPage = (): JSX.Element => {
       return;
     }
     const getStories = async () => {
-      const pivotal = new PivotalHandler();
-      const stories = await pivotal.fetchProjectStories({ apiKey, projectId: id });
+      const stories = await PivotalHandler.fetchProjectStories({ apiKey, projectId: id });
 
       dispatch(addStories({ id, stories }));
     };
@@ -145,8 +144,7 @@ const Project: NextPage = (): JSX.Element => {
       // A null after_id means the story was placed last in the list.
     };
 
-    const pivotal = new PivotalHandler();
-    await pivotal.updateStory({ apiKey, projectId: id, storyId: draggableId, payload });
+    await PivotalHandler.updateStory({ apiKey, projectId: id, storyId: draggableId, payload });
   });
 
   const loading = !Boolean(stories && Object.values(stories).length);

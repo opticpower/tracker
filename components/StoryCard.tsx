@@ -42,7 +42,7 @@ const StoryCard = ({ story, state, index, addFilter, openStory }: StoryCardParam
   };
   return (
     <>
-      <Draggable key={story.id} draggableId={story.id.toString()} index={index}>
+      <Draggable draggableId={story.id.toString()} index={index}>
         {(provided: Draggable.provided) => (
           <div
             style={{ background: 'green' }}

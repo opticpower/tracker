@@ -23,8 +23,7 @@ const ProjectPicker = ({ id }): JSX.Element => {
       //todo: move this out to an action
 
       const getProjects = async () => {
-        const pivotal = new PivotalHandler();
-        const projects = await pivotal.fetchProjects({ apiKey });
+        const projects = await PivotalHandler.fetchProjects({ apiKey });
 
         dispatch(addProjects(projects));
       };

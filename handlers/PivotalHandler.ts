@@ -5,7 +5,7 @@ const PIVOTAL_API_URL = 'https://www.pivotaltracker.com/services/v5';
 
 class PivotalHandler {
   // Gets all projects for the provided user apiKey.
-  async fetchProjects({ apiKey }) {
+  static async fetchProjects({ apiKey }) {
     const response = await fetch('https://www.pivotaltracker.com/services/v5/projects', {
       headers: {
         'X-TrackerToken': apiKey,
@@ -16,7 +16,7 @@ class PivotalHandler {
   }
 
   // Gets all project stories for the provided user apiKey.
-  async fetchProjectStories({ apiKey, projectId }) {
+  static async fetchProjectStories({ apiKey, projectId }) {
     const stories = await Promise.all(
       STORY_STATES.map(async state => {
         let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners,labels,blockers,reviews,story_type,description`;
@@ -39,7 +39,7 @@ class PivotalHandler {
   }
 
   // Updates a single story.
-  async updateStory({ apiKey, projectId, storyId, payload }) {
+  static async updateStory({ apiKey, projectId, storyId, payload }) {
     await fetch(`${PIVOTAL_API_URL}/projects/${projectId}/stories/${storyId}`, {
       method: 'PUT',
       headers: {
