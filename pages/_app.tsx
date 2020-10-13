@@ -1,14 +1,15 @@
-import React from 'react';
-import { GeistProvider, CssBaseline } from '@geist-ui/react';
-import { wrapper } from '../redux/store';
+import { CssBaseline, GeistProvider } from '@geist-ui/react';
 import { AppProps } from 'next/app';
-import Nav from '../components/Nav';
-import { useSelector } from 'react-redux';
 import { parseCookies } from 'nookies';
-import { setTheme, setApiKey } from '../redux/actions/settings.actions';
-import { getTheme } from '../redux/selectors/settings.selectors';
-import { lightTheme, darkTheme } from '../themes';
+import React from 'react';
+import { useSelector } from 'react-redux';
 import { ThemeProvider as SCThemeProvider } from 'styled-components';
+
+import Nav from '../components/Nav';
+import { setApiKey, setTheme } from '../redux/actions/settings.actions';
+import { getTheme } from '../redux/selectors/settings.selectors';
+import { wrapper } from '../redux/store';
+import { darkTheme, lightTheme } from '../themes';
 
 const OpticTracker = ({ Component, pageProps }: AppProps): JSX.Element => {
   const selectedTheme = useSelector(getTheme);
