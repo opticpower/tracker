@@ -5,6 +5,7 @@ import { Story, Owner, Label, Iteration } from '../redux/types';
 
 import Owners from './Owners';
 import Labels from './Labels';
+import Blockers from './Blockers';
 
 const CardContainer = styled(Card)(({ color }) => ({
   borderColor: `${color} !important`,
@@ -25,6 +26,7 @@ interface StoryCardParams {
 }
 
 const StoryCard = ({ story, index, addFilter, openStory }: StoryCardParams): JSX.Element => {
+  console.log('got story', story);
   return (
     <Draggable key={story.id} draggableId={story.id.toString()} index={index}>
       {(provided: Draggable.provided) => (
@@ -66,7 +68,7 @@ const StoryCard = ({ story, index, addFilter, openStory }: StoryCardParams): JSX
             <Card.Content>
               <Owners owners={story.owners} onClick={addFilter} />
               <Labels labels={story.labels} onClick={addFilter} />
-              {/* TODO: Add Github, Blockers */}
+              <Blockers blockers={story.blockers} />
             </Card.Content>
           </CardContainer>
           <Spacer y={1} />

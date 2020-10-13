@@ -17,6 +17,7 @@ export interface Story {
   estimate: number;
   owners: Owner[];
   labels: Label[];
+  blockers: Blocker[];
   description: string;
 }
 
@@ -29,6 +30,13 @@ export interface Owner {
 export interface Label {
   id: string;
   name: string;
+}
+
+export interface Blocker {
+  id: number;
+  kind: string;
+  story_id: string;
+  description: string;
 }
 
 export interface Filters {

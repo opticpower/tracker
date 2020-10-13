@@ -3,6 +3,7 @@ import { Story } from '../redux/types';
 
 import Owners from './Owners';
 import Labels from './Labels';
+import Blockers from './Blockers';
 
 interface StoryModalParams {
   story: Story;
@@ -22,6 +23,7 @@ const StoryModal = ({ story, isOpen, close }: StoryModalParams): JSX.Element => 
         {story.description}
         <Owners owners={story.owners} />
         <Labels labels={story.labels} />
+        <Blockers blockers={story.blockers} />
       </Modal.Content>
     </Modal>
   );
