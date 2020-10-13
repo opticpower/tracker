@@ -48,7 +48,11 @@ const Column = ({ idx, state, stories, addFilter }: ColumnParams): JSX.Element =
   const { palette } = useTheme();
 
   return (
-    <ColumnContainer key={idx} colors={colors[state]} background={palette.accents_2} shadow={palette.accents_1}>
+    <ColumnContainer
+      key={idx}
+      colors={colors[state]}
+      background={palette.accents_2}
+      shadow={palette.accents_1}>
       <Header h5 color={palette.accents_6}>
         {state}
       </Header>
@@ -57,7 +61,13 @@ const Column = ({ idx, state, stories, addFilter }: ColumnParams): JSX.Element =
           <Card {...provided.droppableProps} ref={provided.innerRef}>
             {(stories || []).map(
               (story: Story, index: number): JSX.Element => (
-                <StoryCard key={story.id} story={story} index={index} addFilter={addFilter} />
+                <StoryCard
+                  key={story.id}
+                  state={state}
+                  story={story}
+                  index={index}
+                  addFilter={addFilter}
+                />
               )
             )}
             {provided.placeholder}

@@ -1,41 +1,28 @@
-import { Col, Loading, Row } from '@geist-ui/react';
-import { useTheme } from '@geist-ui/react';
-import { subDays } from 'date-fns';
-import { NextPage } from 'next';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { DragDropContext } from 'react-beautiful-dnd';
-import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { Row, Loading, Col, useTheme } from '@geist-ui/react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
+import { DragDropContext } from 'react-beautiful-dnd';
+import { NextPage } from 'next';
 
-import Column from '../../components/Column';
-import IterationPicker from '../../components/IterationPicker';
-import Labels from '../../components/Labels';
-import Owners from '../../components/Owners';
 import ProjectPicker from '../../components/ProjectPicker';
+import Owners from '../../components/Owners';
+import Column from '../../components/Column';
+import Labels from '../../components/Labels';
+import IterationPicker from '../../components/IterationPicker';
 import StoryModal from '../../components/StoryModal';
+import EstimateChangeDialog from '../../components/Dialogs/EstimateChangeDialog';
+
 import { useAsync } from '../../hooks';
-import { redirectIfNoApiKey } from '../../redirects';
+import PivotalHandler, { STORY_STATES } from '../../handlers/PivotalHandler';
+import { State, Story, Filters, Label, Owner, Iteration, UrlParams } from '../../redux/types';
 import { addStories, moveStory } from '../../redux/actions/stories.actions';
 import { getApiKey } from '../../redux/selectors/settings.selectors';
 import { filterStories } from '../../redux/selectors/stories.selectors';
 import { wrapper } from '../../redux/store';
-import { Filters, Iteration, Label, Owner, State, Story } from '../../redux/types';
+import { redirectIfNoApiKey } from '../../redirects';
 import { spacing } from '../../styles';
-
-const states = [
-  'unscheduled',
-  'unstarted',
-  'started',
-  'finished',
-  'delivered',
-  'rejected',
-  'accepted'
-];
-
-interface Params {
-  id?: string;
-}
 
 const Container = styled.div(({ color, image }) => ({
   overflow: 'auto',
@@ -44,7 +31,7 @@ const Container = styled.div(({ color, image }) => ({
   backgroundImage: `url(/images/grid-${image}.png)`,
   height: '100%',
   minHeight: 1024,
-  paddingTop: spacing(3)
+  paddingTop: spacing(3),
 }));
 
 const Project: NextPage = (): JSX.Element => {
@@ -58,16 +45,17 @@ const Project: NextPage = (): JSX.Element => {
   `;
 
   const router = useRouter();
-  const { id }: Params = router.query;
+  const { id }: UrlParams = router.query;
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
+  const [unestimatedStory, setUnestimatedStory] = useState<Story>();
   const apiKey = useSelector(getApiKey);
   const stories = useSelector(
     (state: State): Record<string, Story[]> => filterStories(state, id, filters)
   );
 
   const getFilterArray = (filters: Owner[] | Label[] = [], filter: Owner | Label) => {
-    if (filters.find((f) => f.name === filter.name)) {
+    if (filters.find(f => f.name === filter.name)) {
       return filters;
     }
     return [...filters, filter];
@@ -92,7 +80,7 @@ const Project: NextPage = (): JSX.Element => {
     }
     setFilters({
       ...filters,
-      [name]: [...filters[name].filter((element: any): boolean => element !== filter)]
+      [name]: [...filters[name].filter((element: any): boolean => element !== filter)],
     });
   };
 
@@ -101,26 +89,7 @@ const Project: NextPage = (): JSX.Element => {
       return;
     }
     const getStories = async () => {
-      let stories = {};
-
-      //todo: we should do Promise.all for these
-      for (const state of states) {
-        let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners,labels,blockers,reviews,story_type,description`;
-        if (state === 'Accepted') {
-          const oneWeekAgo = subDays(new Date(), 7);
-          fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
-        }
-
-        const request = await fetch(
-          `https://www.pivotaltracker.com/services/v5/projects/${id}/${fetchString}`,
-          {
-            headers: {
-              'X-TrackerToken': apiKey
-            }
-          }
-        );
-        stories = { ...stories, [state]: await request.json() };
-      }
+      const stories = await PivotalHandler.fetchProjectStories({ apiKey, projectId: id });
 
       dispatch(addStories({ id, stories }));
     };
@@ -128,12 +97,10 @@ const Project: NextPage = (): JSX.Element => {
   }, [id]);
 
   const [, onDragEnd] = useAsync(async (result: DragDropContext.result) => {
-    const {
-      source: { droppableId: sourceDroppableId, index: sourceIndex },
-      destination,
-      destination: { droppableId: destinationDroppableId, index: destinationIndex },
-      draggableId
-    } = result;
+    const { source, destination, draggableId } = result;
+
+    const { droppableId: sourceDroppableId, index: sourceIndex } = source || {};
+    const { droppableId: destinationDroppableId, index: destinationIndex } = destination || {};
 
     if (!destination) {
       return;
@@ -142,9 +109,14 @@ const Project: NextPage = (): JSX.Element => {
     if (destinationDroppableId === sourceDroppableId && destinationIndex === sourceIndex) {
       return;
     }
+    const sourceState = STORY_STATES[sourceDroppableId];
 
-    const sourceState = states[sourceDroppableId];
-    const destinationState = states[destinationDroppableId];
+    if (!stories[sourceState][sourceIndex].estimate) {
+      setUnestimatedStory({ ...stories[sourceState][sourceIndex], state: sourceState });
+      return;
+    }
+
+    const destinationState = STORY_STATES[destinationDroppableId];
 
     dispatch(
       moveStory({
@@ -152,7 +124,7 @@ const Project: NextPage = (): JSX.Element => {
         sourceState,
         sourceIndex,
         destinationState,
-        destinationIndex
+        destinationIndex,
       })
     );
 
@@ -167,20 +139,11 @@ const Project: NextPage = (): JSX.Element => {
       current_state: destinationState,
       before_id: stories[destinationState][landingIndex]?.id || null,
       // A null before_id means the story was placed first in the list.
-      after_id: stories[destinationState][landingIndex - 1]?.id || null
+      after_id: stories[destinationState][landingIndex - 1]?.id || null,
       // A null after_id means the story was placed last in the list.
     };
-    await fetch(
-      `https://www.pivotaltracker.com/services/v5/projects/${id}/stories/${draggableId}`,
-      {
-        method: 'PUT',
-        headers: {
-          'X-TrackerToken': apiKey,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ ...payload })
-      }
-    );
+
+    await PivotalHandler.updateStory({ apiKey, projectId: id, storyId: draggableId, payload });
   });
 
   const loading = !(stories && Object.values(stories).length);
@@ -194,7 +157,7 @@ const Project: NextPage = (): JSX.Element => {
         <IterationPicker
           id={id}
           selectedIteration={filters.iteration}
-          addIteration={(val) => addFilter('iterations', val)}
+          addIteration={val => addFilter('iterations', val)}
           removeIteration={() => removeFilter('iterations', null)}
         />
         <Labels labels={filters.labels} onClick={removeFilter} />
@@ -209,12 +172,24 @@ const Project: NextPage = (): JSX.Element => {
         )}
         {!loading && (
           <DragDropContext onDragEnd={onDragEnd}>
-            {states.map((state: string, idx: number) => (
-              <Column key={state} state={state} idx={idx} stories={stories[state]} addFilter={addFilter} />
+            {STORY_STATES.map((state: string, idx: number) => (
+              <Column
+                key={state}
+                state={state}
+                idx={idx}
+                stories={stories[state]}
+                addFilter={addFilter}
+              />
             ))}
           </DragDropContext>
         )}
       </Row>
+      <EstimateChangeDialog
+        story={unestimatedStory}
+        state={unestimatedStory?.state}
+        open={Boolean(unestimatedStory)}
+        onClose={() => setUnestimatedStory(null)}
+      />
     </Container>
   );
 };

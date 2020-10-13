@@ -25,6 +25,7 @@ export interface Story {
   labels: Label[];
   blockers: Blocker[];
   description: string;
+  state?: string;
 }
 
 export interface Owner {
@@ -58,6 +59,10 @@ export interface Iteration {
   stories: Story[];
   start: string;
   finish: string;
+}
+
+export interface UrlParams {
+  id?: string;
 }
 
 export interface Settings {
