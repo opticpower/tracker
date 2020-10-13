@@ -21,9 +21,10 @@ interface StoryCardParams {
   story: Story;
   index: number;
   addFilter: (name: string, filter: Owner | Label | Iteration) => void;
+  openStory: (story: Story) => void;
 }
 
-const StoryCard = ({ story, index, addFilter }: StoryCardParams): JSX.Element => {
+const StoryCard = ({ story, index, addFilter, openStory }: StoryCardParams): JSX.Element => {
   return (
     <Draggable key={story.id} draggableId={story.id.toString()} index={index}>
       {(provided: Draggable.provided) => (
@@ -33,7 +34,12 @@ const StoryCard = ({ story, index, addFilter }: StoryCardParams): JSX.Element =>
           {...provided.dragHandleProps}
           ref={provided.innerRef}
         >
-          <CardContainer width="250px" hoverable color={borderColors[story.story_type] || 'gray'}>
+          <CardContainer
+            width="250px"
+            hoverable
+            color={borderColors[story.story_type] || 'gray'}
+            onClick={() => openStory(story)}
+          >
             <Card.Content>
               <Breadcrumbs size="mini">
                 <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>

@@ -17,6 +17,7 @@ export interface Story {
   estimate: number;
   owners: Owner[];
   labels: Label[];
+  description: string;
 }
 
 export interface Owner {
