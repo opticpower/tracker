@@ -2,7 +2,6 @@ import { Col, Loading, Row } from '@geist-ui/react';
 import { useTheme } from '@geist-ui/react';
 import axios, { AxiosResponse } from 'axios';
 import { subDays } from 'date-fns';
-import { access } from 'fs';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
