@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import { Text, Spacer, Card, Divider, Badge, Breadcrumbs } from '@geist-ui/react';
 import { Draggable } from 'react-beautiful-dnd';
 import { Story, Owner, Label, Iteration } from '../redux/types';
+import { useDispatch } from 'react-redux';
+import { selectStory } from '../redux/actions/selectedStory.actions';
 
 import Owners from './Owners';
 import Labels from './Labels';
@@ -21,10 +23,11 @@ interface StoryCardParams {
   story: Story;
   index: number;
   addFilter: (name: string, filter: Owner | Label | Iteration) => void;
-  openStory: (story: Story) => void;
 }
 
-const StoryCard = ({ story, index, addFilter, openStory }: StoryCardParams): JSX.Element => {
+const StoryCard = ({ story, index, addFilter }: StoryCardParams): JSX.Element => {
+  const dispatch = useDispatch();
+
   return (
     <Draggable key={story.id} draggableId={story.id.toString()} index={index}>
       {(provided: Draggable.provided) => (
@@ -38,7 +41,9 @@ const StoryCard = ({ story, index, addFilter, openStory }: StoryCardParams): JSX
             width="250px"
             hoverable
             color={borderColors[story.story_type] || 'gray'}
-            onClick={() => openStory(story)}
+            onClick={() => {
+              dispatch(selectStory(story));
+            }}
           >
             <Card.Content>
               <Breadcrumbs size="mini">

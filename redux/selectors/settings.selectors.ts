@@ -1,4 +1,4 @@
-import { State, Story } from '../types';
+import { State } from '../types';
 
 export const getApiKey = (state: State): string => {
   return state.settings?.apiKey;
