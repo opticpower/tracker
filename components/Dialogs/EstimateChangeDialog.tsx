@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import { Text, Modal, Radio } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { parseCookies } from 'nookies';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Story, UrlParams } from '../../redux/types';
 import { editStory } from '../../redux/actions/stories.actions';
+import { getApiKey } from '../../redux/selectors/settings.selectors';
 import PivotalHandler from '../../handlers/PivotalHandler';
 import { useAsync } from '../../hooks';
 
@@ -26,7 +27,7 @@ interface EstimateChangeDialogParams {
 
 const EstimateChangeDialog = ({ story, open, state, onClose }: EstimateChangeDialogParams): JSX.Element => {
   const dispatch = useDispatch();
-  const { apiToken } = parseCookies();
+  const apiKey = useSelector(getApiKey);
   const router = useRouter();
   const { id }: UrlParams = router.query;
   const [selectedEstimate, setSelectedEstimate] = useState(story?.estimate ? String(story.estimate) : '');
@@ -36,7 +37,7 @@ const EstimateChangeDialog = ({ story, open, state, onClose }: EstimateChangeDia
     dispatch(editStory({ projectId: id, story: newStory, storyState: state }));
     const pivotal = new PivotalHandler();
     await pivotal.updateStory({
-      apiToken,
+      apiKey,
       projectId: id,
       storyId: story.id,
       payload: { estimate: Number(selectedEstimate) },

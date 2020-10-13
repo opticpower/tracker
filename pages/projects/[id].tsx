@@ -49,7 +49,7 @@ const Project: NextPage = (): JSX.Element => {
   const [selectedStory, setSelectedStory] = useState(null);
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
-  const apiToken = useSelector(getApiKey);
+  const apiKey = useSelector(getApiKey);
   const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
 
   const addFilter = (name: string, filter: Owner | Label | Iteration): void => {
@@ -80,7 +80,7 @@ const Project: NextPage = (): JSX.Element => {
     }
     const getStories = async () => {
       const pivotal = new PivotalHandler();
-      const stories = await pivotal.fetchProjectStories({ apiToken, projectId: id });
+      const stories = await pivotal.fetchProjectStories({ apiKey, projectId: id });
 
       dispatch(addStories({ id, stories }));
     };
@@ -135,7 +135,7 @@ const Project: NextPage = (): JSX.Element => {
     };
 
     const pivotal = new PivotalHandler();
-    await pivotal.updateStory({ apiToken, projectId: id, storyId: draggableId, payload });
+    await pivotal.updateStory({ apiKey, projectId: id, storyId: draggableId, payload });
   });
 
   const loading = !Boolean(stories && Object.values(stories).length);
