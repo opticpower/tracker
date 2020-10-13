@@ -7,6 +7,7 @@ import { selectStory } from '../redux/actions/selectedStory.actions';
 
 import Owners from './Owners';
 import Labels from './Labels';
+import Blockers from './Blockers';
 
 const CardContainer = styled(Card)(({ color }) => ({
   borderColor: `${color} !important`,
@@ -71,7 +72,7 @@ const StoryCard = ({ story, index, addFilter }: StoryCardParams): JSX.Element =>
             <Card.Content>
               <Owners owners={story.owners} onClick={addFilter} />
               <Labels labels={story.labels} onClick={addFilter} />
-              {/* TODO: Add Github, Blockers */}
+              <Blockers blockers={story.blockers} />
             </Card.Content>
           </CardContainer>
           <Spacer y={1} />

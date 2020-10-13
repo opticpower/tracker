@@ -2,6 +2,7 @@ import { Modal } from '@geist-ui/react';
 
 import Owners from './Owners';
 import Labels from './Labels';
+import Blockers from './Blockers';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { getSelectedStory, isStorySelected } from '../redux/selectors/selectedStory.selectors';
@@ -23,6 +24,7 @@ const StoryModal = (): JSX.Element => {
         {story.description}
         <Owners owners={story.owners} />
         <Labels labels={story.labels} />
+        <Blockers blockers={story.blockers} />
       </Modal.Content>
     </Modal>
   );
