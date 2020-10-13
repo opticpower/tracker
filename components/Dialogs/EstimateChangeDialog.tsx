@@ -4,12 +4,12 @@ import { Text, Modal } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 
-import EstimatePicker from './EstimatePicker';
-import { Story, UrlParams } from '../../../redux/types';
-import { editStory } from '../../../redux/actions/stories.actions';
-import { getApiKey } from '../../../redux/selectors/settings.selectors';
-import PivotalHandler from '../../../handlers/PivotalHandler';
-import { useAsync } from '../../../hooks';
+import EstimatePicker from '../EstimatePicker';
+import { Story, UrlParams } from '../../redux/types';
+import { editStory } from '../../redux/actions/stories.actions';
+import { getApiKey } from '../../redux/selectors/settings.selectors';
+import PivotalHandler from '../../handlers/PivotalHandler';
+import { useAsync } from '../../hooks';
 
 const CenteredDiv = styled.div`
   display: flex;
@@ -25,12 +25,19 @@ interface EstimateChangeDialogParams {
   onClose: () => void;
 }
 
-const EstimateChangeDialog = ({ story, open, state, onClose }: EstimateChangeDialogParams): JSX.Element => {
+const EstimateChangeDialog = ({
+  story,
+  open,
+  state,
+  onClose,
+}: EstimateChangeDialogParams): JSX.Element => {
   const dispatch = useDispatch();
   const apiKey = useSelector(getApiKey);
   const router = useRouter();
   const { id }: UrlParams = router.query;
-  const [selectedEstimate, setSelectedEstimate] = useState(story?.estimate ? String(story.estimate) : '');
+  const [selectedEstimate, setSelectedEstimate] = useState(
+    story?.estimate ? String(story.estimate) : ''
+  );
 
   const [{ isLoading }, changeEstimate] = useAsync(async () => {
     const newStory: Story = { ...story, estimate: Number(selectedEstimate) };
