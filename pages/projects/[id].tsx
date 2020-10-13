@@ -1,29 +1,28 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useTheme } from '@geist-ui/react';
-import { Row, Loading, Col } from '@geist-ui/react';
+import { Row, Loading, Col, useTheme } from '@geist-ui/react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { NextPage } from 'next';
 
 import ProjectPicker from '../../components/ProjectPicker';
-import IterationPicker from '../../components/IterationPicker';
-import { useAsync } from '../../hooks';
 import Owners from '../../components/Owners';
-import Labels from '../../components/Labels';
 import Column from '../../components/Column';
+import Labels from '../../components/Labels';
+import IterationPicker from '../../components/IterationPicker';
+import StoryModal from '../../components/StoryModal';
 import EstimateChangeDialog from '../../components/Dialogs/EstimateChangeDialog';
 
+import { useAsync } from '../../hooks';
 import PivotalHandler, { STORY_STATES } from '../../handlers/PivotalHandler';
-import { addStories, moveStory } from '../../redux/actions/stories.actions';
-import { filterStories } from '../../redux/selectors/stories.selectors';
-import { getApiKey } from '../../redux/selectors/settings.selectors';
 import { State, Story, Filters, Label, Owner, Iteration, UrlParams } from '../../redux/types';
+import { addStories, moveStory } from '../../redux/actions/stories.actions';
+import { getApiKey } from '../../redux/selectors/settings.selectors';
+import { filterStories } from '../../redux/selectors/stories.selectors';
+import { wrapper } from '../../redux/store';
 import { redirectIfNoApiKey } from '../../redirects';
 import { spacing } from '../../styles';
-import { wrapper } from '../../redux/store';
-import StoryModal from '../../components/StoryModal';
 
 const Container = styled.div(({ color, image }) => ({
   overflow: 'auto',
@@ -49,19 +48,28 @@ const Project: NextPage = (): JSX.Element => {
   const { id }: UrlParams = router.query;
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
-  const [selectedStory, setSelectedStory] = useState<Story>();
   const [unestimatedStory, setUnestimatedStory] = useState<Story>();
   const apiKey = useSelector(getApiKey);
-  const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
+  const stories = useSelector(
+    (state: State): Record<string, Story[]> => filterStories(state, id, filters)
+  );
+
+  const getFilterArray = (filters: Owner[] | Label[] = [], filter: Owner | Label) => {
+    if (filters.find((f) => f.name === filter.name)) {
+      return filters;
+    }
+    return [...filters, filter];
+  };
 
   const addFilter = (name: string, filter: Owner | Label | Iteration): void => {
     if (name === 'iterations') {
+      //todo: we should change this check to a type check and uses classes so we don't have to do this.
       // @ts-ignore: we know iteration can only be Iteration type
       setFilters({ ...filters, iteration: filter });
       return;
     }
-    const array = [...(filters[name] || []), filter];
-    setFilters({ ...filters, [name]: Array.from(new Set(array)) });
+    // @ts-ignore: we know filter cannot be type Iteration
+    setFilters({ ...filters, [name]: getFilterArray(filters[name], filter) });
   };
 
   const removeFilter = (name: string, filter: Owner | Label | Iteration): void => {
@@ -74,15 +82,6 @@ const Project: NextPage = (): JSX.Element => {
       ...filters,
       [name]: [...filters[name].filter((element: any): boolean => element !== filter)],
     });
-  };
-
-  const openStory = (story: Story) => {
-    setSelectedStory(story);
-  };
-
-  const closeStory = () => {
-    //todo: should we save selected story on close or nawh?
-    setSelectedStory(undefined);
   };
 
   useEffect(() => {
@@ -147,18 +146,18 @@ const Project: NextPage = (): JSX.Element => {
     await PivotalHandler.updateStory({ apiKey, projectId: id, storyId: draggableId, payload });
   });
 
-  const loading = !Boolean(stories && Object.values(stories).length);
+  const loading = !(stories && Object.values(stories).length);
   const { palette, type } = useTheme();
 
   return (
     <Container color={palette.accents_1} image={type}>
-      <StoryModal isOpen={Boolean(selectedStory)} story={selectedStory} close={closeStory} />
+      <StoryModal />
       <FilterContainer>
         <ProjectPicker id={id} />
         <IterationPicker
           id={id}
           selectedIteration={filters.iteration}
-          addIteration={val => addFilter('iterations', val)}
+          addIteration={(val) => addFilter('iterations', val)}
           removeIteration={() => removeFilter('iterations', null)}
         />
         <Labels labels={filters.labels} onClick={removeFilter} />
@@ -180,7 +179,6 @@ const Project: NextPage = (): JSX.Element => {
                 idx={idx}
                 stories={stories[state]}
                 addFilter={addFilter}
-                openStory={openStory}
               />
             ))}
           </DragDropContext>

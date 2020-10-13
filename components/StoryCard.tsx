@@ -4,9 +4,12 @@ import { Text, Spacer, Card, Divider, Badge, Breadcrumbs } from '@geist-ui/react
 import { Draggable } from 'react-beautiful-dnd';
 
 import { Story, Owner, Label, Iteration } from '../redux/types';
+import { useDispatch } from 'react-redux';
+import { selectStory } from '../redux/actions/selectedStory.actions';
 import Owners from './Owners';
 import Labels from './Labels';
 import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
+import Blockers from './Blockers';
 
 const CardContainer = styled(Card)(({ color }) => ({
   borderColor: `${color} !important`,
@@ -30,10 +33,10 @@ interface StoryCardParams {
   index: number;
   state: string;
   addFilter: (name: string, filter: Owner | Label | Iteration) => void;
-  openStory: (story: Story) => void;
 }
 
-const StoryCard = ({ story, state, index, addFilter, openStory }: StoryCardParams): JSX.Element => {
+const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Element => {
+  const dispatch = useDispatch();
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const openEstimationModal = (e): void => {
@@ -48,14 +51,12 @@ const StoryCard = ({ story, state, index, addFilter, openStory }: StoryCardParam
             style={{ background: 'green' }}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            ref={provided.innerRef}
-          >
+            ref={provided.innerRef}>
             <CardContainer
               width="250px"
               hoverable
               style={{ borderColor: borderColors[story.story_type] || 'gray' }}
-              onClick={() => openStory(story)}
-            >
+              onClick={() => dispatch(selectStory(story))}>
               <Card.Content>
                 <Breadcrumbs size="mini">
                   <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>
@@ -63,19 +64,24 @@ const StoryCard = ({ story, state, index, addFilter, openStory }: StoryCardParam
                     <a
                       href={`https://www.pivotaltracker.com/story/show/${story.id}`}
                       target="_blank"
-                      rel="noreferrer nofollow"
-                    >
+                      rel="noreferrer nofollow">
                       {story.id}
                     </a>
                   </Breadcrumbs.Item>
                   <Breadcrumbs.Item>
                     {Number.isInteger(story.estimate) ? (
                       <>
-                        <Badge onClick={(e): void => openEstimationModal(e)}>{story.estimate}</Badge>
-                        <StyledSpan onClick={(e): void => openEstimationModal(e)}>change</StyledSpan>
+                        <Badge onClick={(e): void => openEstimationModal(e)}>
+                          {story.estimate}
+                        </Badge>
+                        <StyledSpan onClick={(e): void => openEstimationModal(e)}>
+                          change
+                        </StyledSpan>
                       </>
                     ) : (
-                      <StyledSpan onClick={(e): void => openEstimationModal(e)}>estimate</StyledSpan>
+                      <StyledSpan onClick={(e): void => openEstimationModal(e)}>
+                        estimate
+                      </StyledSpan>
                     )}
                   </Breadcrumbs.Item>
                 </Breadcrumbs>
@@ -86,7 +92,8 @@ const StoryCard = ({ story, state, index, addFilter, openStory }: StoryCardParam
               <Card.Content>
                 <Owners owners={story.owners} onClick={addFilter} />
                 <Labels labels={story.labels} onClick={addFilter} />
-                {/* TODO: Add Github, Blockers */}
+                <Spacer y={0.5} />
+                <Blockers blockers={story.blockers} />
               </Card.Content>
             </CardContainer>
             <Spacer y={1} />
