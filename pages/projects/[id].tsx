@@ -50,6 +50,7 @@ const Project: NextPage = (): JSX.Element => {
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
   const [selectedStory, setSelectedStory] = useState<Story>();
+  const [unestimatedStory, setUnestimatedStory] = useState<Story>();
   const apiKey = useSelector(getApiKey);
   const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
 
@@ -113,7 +114,7 @@ const Project: NextPage = (): JSX.Element => {
     const sourceState = STORY_STATES[sourceDroppableId];
 
     if (!stories[sourceState][sourceIndex].estimate) {
-      setSelectedStory({ ...stories[sourceState][sourceIndex], state: sourceState });
+      setUnestimatedStory({ ...stories[sourceState][sourceIndex], state: sourceState });
       return;
     }
 
@@ -188,10 +189,10 @@ const Project: NextPage = (): JSX.Element => {
         )}
       </Row>
       <EstimateChangeDialog
-        story={selectedStory}
-        state={selectedStory?.state}
-        open={Boolean(selectedStory)}
-        onClose={() => setSelectedStory(null)}
+        story={unestimatedStory}
+        state={unestimatedStory?.state}
+        open={Boolean(unestimatedStory)}
+        onClose={() => setUnestimatedStory(null)}
       />
     </Container>
   );

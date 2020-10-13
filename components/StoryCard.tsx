@@ -36,6 +36,10 @@ interface StoryCardParams {
 const StoryCard = ({ story, state, index, addFilter, openStory }: StoryCardParams): JSX.Element => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  const openEstimationModal = (e): void => {
+    e.stopPropagation();
+    setIsModalVisible(true);
+  };
   return (
     <>
       <Draggable key={story.id} draggableId={story.id.toString()} index={index}>
@@ -67,11 +71,11 @@ const StoryCard = ({ story, state, index, addFilter, openStory }: StoryCardParam
                   <Breadcrumbs.Item>
                     {Number.isInteger(story.estimate) ? (
                       <>
-                        <Badge onClick={() => setIsModalVisible(true)}>{story.estimate}</Badge>
-                        <StyledSpan onClick={() => setIsModalVisible(true)}>change</StyledSpan>
+                        <Badge onClick={(e): void => openEstimationModal(e)}>{story.estimate}</Badge>
+                        <StyledSpan onClick={(e): void => openEstimationModal(e)}>change</StyledSpan>
                       </>
                     ) : (
-                      <StyledSpan onClick={() => setIsModalVisible(true)}>estimate</StyledSpan>
+                      <StyledSpan onClick={(e): void => openEstimationModal(e)}>estimate</StyledSpan>
                     )}
                   </Breadcrumbs.Item>
                 </Breadcrumbs>

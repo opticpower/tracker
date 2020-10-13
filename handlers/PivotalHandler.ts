@@ -19,7 +19,7 @@ class PivotalHandler {
   async fetchProjectStories({ apiKey, projectId }) {
     const stories = await Promise.all(
       STORY_STATES.map(async state => {
-        let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners,labels,blockers,reviews,story_type`;
+        let fetchString = `stories?limit=500&with_state=${state}&fields=name,estimate,owners,labels,blockers,reviews,story_type,description`;
         if (state === 'Accepted') {
           const oneWeekAgo = subDays(new Date(), 7);
           fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
