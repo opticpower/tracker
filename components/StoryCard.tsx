@@ -26,7 +26,6 @@ interface StoryCardParams {
 }
 
 const StoryCard = ({ story, index, addFilter, openStory }: StoryCardParams): JSX.Element => {
-  console.log('got story', story);
   return (
     <Draggable key={story.id} draggableId={story.id.toString()} index={index}>
       {(provided: Draggable.provided) => (
