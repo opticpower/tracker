@@ -4,7 +4,10 @@ import { ADD_STORIES, MOVE_STORY, EDIT_STORY } from '../actions/stories.actions'
 
 const initialState = {};
 
-const reducer = (state: Record<string, Record<string, Story[]>> = initialState, action: AnyAction) => {
+const reducer = (
+  state: Record<string, Record<string, Story[]>> = initialState,
+  action: AnyAction
+) => {
   switch (action.type) {
     case ADD_STORIES:
       return { ...state, [action.payload.id]: { ...action.payload.stories } };
@@ -22,7 +25,13 @@ const reducer = (state: Record<string, Record<string, Story[]>> = initialState, 
     }
 
     case MOVE_STORY: {
-      const { projectId, sourceState, sourceIndex, destinationState, destinationIndex } = action.payload;
+      const {
+        projectId,
+        sourceState,
+        sourceIndex,
+        destinationState,
+        destinationIndex,
+      } = action.payload;
       const story: Story = state[projectId][sourceState][sourceIndex];
       const sourceArr: Story[] = state[projectId][sourceState].filter(item => item.id !== story.id);
 
@@ -32,7 +41,11 @@ const reducer = (state: Record<string, Record<string, Story[]>> = initialState, 
           ...state,
           [projectId]: {
             ...state[projectId],
-            [sourceState]: [...sourceArr.slice(0, destinationIndex), story, ...sourceArr.slice(destinationIndex)],
+            [sourceState]: [
+              ...sourceArr.slice(0, destinationIndex),
+              story,
+              ...sourceArr.slice(destinationIndex),
+            ],
           },
         };
       }
@@ -43,7 +56,11 @@ const reducer = (state: Record<string, Record<string, Story[]>> = initialState, 
         [projectId]: {
           ...state[projectId],
           [sourceState]: sourceArr,
-          [destinationState]: [...draggedArr.slice(0, destinationIndex), story, ...draggedArr.slice(destinationIndex)],
+          [destinationState]: [
+            ...draggedArr.slice(0, destinationIndex),
+            story,
+            ...draggedArr.slice(destinationIndex),
+          ],
         },
       };
     }

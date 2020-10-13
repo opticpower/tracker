@@ -1,6 +1,14 @@
 import { subDays } from 'date-fns';
 
-export const STORY_STATES = ['unscheduled', 'unstarted', 'started', 'finished', 'delivered', 'rejected', 'accepted'];
+export const STORY_STATES = [
+  'unscheduled',
+  'unstarted',
+  'started',
+  'finished',
+  'delivered',
+  'rejected',
+  'accepted',
+];
 const PIVOTAL_API_URL = 'https://www.pivotaltracker.com/services/v5';
 
 class PivotalHandler {
@@ -25,15 +33,21 @@ class PivotalHandler {
           fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
         }
 
-        const request = await fetch(`https://www.pivotaltracker.com/services/v5/projects/${projectId}/${fetchString}`, {
-          headers: {
-            'X-TrackerToken': apiKey,
-          },
-        });
+        const request = await fetch(
+          `https://www.pivotaltracker.com/services/v5/projects/${projectId}/${fetchString}`,
+          {
+            headers: {
+              'X-TrackerToken': apiKey,
+            },
+          }
+        );
         return { [state]: await request.json() };
       })
     );
-    const normalizedStories = stories.reduce((acc, stateObject) => ({ ...acc, ...stateObject }), {});
+    const normalizedStories = stories.reduce(
+      (acc, stateObject) => ({ ...acc, ...stateObject }),
+      {}
+    );
 
     return normalizedStories;
   }

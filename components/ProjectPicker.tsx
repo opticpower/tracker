@@ -32,7 +32,11 @@ const ProjectPicker = ({ id }): JSX.Element => {
   }, []);
 
   return (
-    <Select disableMatchWidth width="200px" value={`${id}`} onChange={id => router.push(`/projects/${id}`)}>
+    <Select
+      disableMatchWidth
+      width="200px"
+      value={`${id}`}
+      onChange={id => router.push(`/projects/${id}`)}>
       {projects.map(project => {
         return (
           <Select.Option key={project.id} id={project.id} value={`${project.id}`}>

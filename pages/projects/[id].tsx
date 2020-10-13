@@ -55,7 +55,7 @@ const Project: NextPage = (): JSX.Element => {
   );
 
   const getFilterArray = (filters: Owner[] | Label[] = [], filter: Owner | Label) => {
-    if (filters.find((f) => f.name === filter.name)) {
+    if (filters.find(f => f.name === filter.name)) {
       return filters;
     }
     return [...filters, filter];
@@ -157,7 +157,7 @@ const Project: NextPage = (): JSX.Element => {
         <IterationPicker
           id={id}
           selectedIteration={filters.iteration}
-          addIteration={(val) => addFilter('iterations', val)}
+          addIteration={val => addFilter('iterations', val)}
           removeIteration={() => removeFilter('iterations', null)}
         />
         <Labels labels={filters.labels} onClick={removeFilter} />
