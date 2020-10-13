@@ -1,30 +1,37 @@
-import { useEffect, useState } from 'react';
-import { Row, Loading, Col } from '@geist-ui/react';
-import { useRouter } from 'next/router';
+import { Col, Loading, Row } from '@geist-ui/react';
+import { useTheme } from '@geist-ui/react';
 import { subDays } from 'date-fns';
+import { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import ProjectPicker from '../../components/ProjectPicker';
+import Column from '../../components/Column';
 import IterationPicker from '../../components/IterationPicker';
-import { useSelector, useDispatch } from 'react-redux';
-import { State, Story, Filters, Label, Owner, Iteration } from '../../redux/types';
+import Labels from '../../components/Labels';
+import Owners from '../../components/Owners';
+import ProjectPicker from '../../components/ProjectPicker';
+import StoryModal from '../../components/StoryModal';
+import { useAsync } from '../../hooks';
+import { redirectIfNoApiKey } from '../../redirects';
 import { addStories, moveStory } from '../../redux/actions/stories.actions';
 import { getApiKey } from '../../redux/selectors/settings.selectors';
 import { filterStories } from '../../redux/selectors/stories.selectors';
-import Owners from '../../components/Owners';
-import Labels from '../../components/Labels';
-import { useAsync } from '../../hooks';
-import { useTheme } from '@geist-ui/react';
+import { wrapper } from '../../redux/store';
+import { Filters, Iteration, Label, Owner, State, Story } from '../../redux/types';
 import { spacing } from '../../styles';
 
-import Column from '../../components/Column';
-import { redirectIfNoApiKey } from '../../redirects';
-import { NextPage } from 'next';
-import { wrapper } from '../../redux/store';
-import StoryModal from '../../components/StoryModal';
-
-const states = ['unscheduled', 'unstarted', 'started', 'finished', 'delivered', 'rejected', 'accepted'];
+const states = [
+  'unscheduled',
+  'unstarted',
+  'started',
+  'finished',
+  'delivered',
+  'rejected',
+  'accepted'
+];
 
 interface Params {
   id?: string;
@@ -37,7 +44,7 @@ const Container = styled.div(({ color, image }) => ({
   backgroundImage: `url(/images/grid-${image}.png)`,
   height: '100%',
   minHeight: 1024,
-  paddingTop: spacing(3),
+  paddingTop: spacing(3)
 }));
 
 const Project: NextPage = (): JSX.Element => {
@@ -55,10 +62,12 @@ const Project: NextPage = (): JSX.Element => {
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
   const apiKey = useSelector(getApiKey);
-  const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
+  const stories = useSelector(
+    (state: State): Record<string, Story[]> => filterStories(state, id, filters)
+  );
 
   const getFilterArray = (filters: Owner[] | Label[] = [], filter: Owner | Label) => {
-    if (filters.find(f => f.name === filter.name)) {
+    if (filters.find((f) => f.name === filter.name)) {
       return filters;
     }
     return [...filters, filter];
@@ -83,7 +92,7 @@ const Project: NextPage = (): JSX.Element => {
     }
     setFilters({
       ...filters,
-      [name]: [...filters[name].filter((element: any): boolean => element !== filter)],
+      [name]: [...filters[name].filter((element: any): boolean => element !== filter)]
     });
   };
 
@@ -102,11 +111,14 @@ const Project: NextPage = (): JSX.Element => {
           fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
         }
 
-        const request = await fetch(`https://www.pivotaltracker.com/services/v5/projects/${id}/${fetchString}`, {
-          headers: {
-            'X-TrackerToken': apiKey,
-          },
-        });
+        const request = await fetch(
+          `https://www.pivotaltracker.com/services/v5/projects/${id}/${fetchString}`,
+          {
+            headers: {
+              'X-TrackerToken': apiKey
+            }
+          }
+        );
         stories = { ...stories, [state]: await request.json() };
       }
 
@@ -120,7 +132,7 @@ const Project: NextPage = (): JSX.Element => {
       source: { droppableId: sourceDroppableId, index: sourceIndex },
       destination,
       destination: { droppableId: destinationDroppableId, index: destinationIndex },
-      draggableId,
+      draggableId
     } = result;
 
     if (!destination) {
@@ -140,7 +152,7 @@ const Project: NextPage = (): JSX.Element => {
         sourceState,
         sourceIndex,
         destinationState,
-        destinationIndex,
+        destinationIndex
       })
     );
 
@@ -155,20 +167,23 @@ const Project: NextPage = (): JSX.Element => {
       current_state: destinationState,
       before_id: stories[destinationState][landingIndex]?.id || null,
       // A null before_id means the story was placed first in the list.
-      after_id: stories[destinationState][landingIndex - 1]?.id || null,
+      after_id: stories[destinationState][landingIndex - 1]?.id || null
       // A null after_id means the story was placed last in the list.
     };
-    await fetch(`https://www.pivotaltracker.com/services/v5/projects/${id}/stories/${draggableId}`, {
-      method: 'PUT',
-      headers: {
-        'X-TrackerToken': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ...payload }),
-    });
+    await fetch(
+      `https://www.pivotaltracker.com/services/v5/projects/${id}/stories/${draggableId}`,
+      {
+        method: 'PUT',
+        headers: {
+          'X-TrackerToken': apiKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ...payload })
+      }
+    );
   });
 
-  const loading = !Boolean(stories && Object.values(stories).length);
+  const loading = !(stories && Object.values(stories).length);
   const { palette, type } = useTheme();
 
   return (
@@ -179,7 +194,7 @@ const Project: NextPage = (): JSX.Element => {
         <IterationPicker
           id={id}
           selectedIteration={filters.iteration}
-          addIteration={val => addFilter('iterations', val)}
+          addIteration={(val) => addFilter('iterations', val)}
           removeIteration={() => removeFilter('iterations', null)}
         />
         <Labels labels={filters.labels} onClick={removeFilter} />
