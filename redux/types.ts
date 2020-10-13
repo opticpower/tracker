@@ -18,6 +18,7 @@ export interface Story {
   owners: Owner[];
   labels: Label[];
   description: string;
+  state?: string;
 }
 
 export interface Owner {
