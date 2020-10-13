@@ -23,6 +23,7 @@ import { State, Story, Filters, Label, Owner, Iteration, UrlParams } from '../..
 import { redirectIfNoApiKey } from '../../redirects';
 import { spacing } from '../../styles';
 import { wrapper } from '../../redux/store';
+import StoryModal from '../../components/StoryModal';
 
 const Container = styled.div(({ color, image }) => ({
   overflow: 'auto',
@@ -46,9 +47,9 @@ const Project: NextPage = (): JSX.Element => {
 
   const router = useRouter();
   const { id }: UrlParams = router.query;
-  const [selectedStory, setSelectedStory] = useState(null);
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
+  const [selectedStory, setSelectedStory] = useState<Story>();
   const apiKey = useSelector(getApiKey);
   const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
 
@@ -72,6 +73,15 @@ const Project: NextPage = (): JSX.Element => {
       ...filters,
       [name]: [...filters[name].filter((element: any): boolean => element !== filter)],
     });
+  };
+
+  const openStory = (story: Story) => {
+    setSelectedStory(story);
+  };
+
+  const closeStory = () => {
+    //todo: should we save selected story on close or nawh?
+    setSelectedStory(undefined);
   };
 
   useEffect(() => {
@@ -143,6 +153,7 @@ const Project: NextPage = (): JSX.Element => {
 
   return (
     <Container color={palette.accents_1} image={type}>
+      <StoryModal isOpen={Boolean(selectedStory)} story={selectedStory} close={closeStory} />
       <FilterContainer>
         <ProjectPicker id={id} />
         <IterationPicker
@@ -164,7 +175,14 @@ const Project: NextPage = (): JSX.Element => {
         {!loading && (
           <DragDropContext onDragEnd={onDragEnd}>
             {STORY_STATES.map((state: string, idx: number) => (
-              <Column key={state} state={state} idx={idx} stories={stories[state]} addFilter={addFilter} />
+              <Column
+                key={state}
+                state={state}
+                idx={idx}
+                stories={stories[state]}
+                addFilter={addFilter}
+                openStory={openStory}
+              />
             ))}
           </DragDropContext>
         )}

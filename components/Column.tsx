@@ -32,6 +32,7 @@ interface ColumnParams {
   state: string;
   stories: Story[];
   addFilter: (name: string, filter: Owner | Label | Iteration) => void;
+  openStory: (story: Story) => void;
 }
 
 const colors = {
@@ -44,7 +45,7 @@ const colors = {
   accepted: '#7cd651',
 };
 
-const Column = ({ idx, state, stories, addFilter }: ColumnParams): JSX.Element => {
+const Column = ({ idx, state, stories, addFilter, openStory }: ColumnParams): JSX.Element => {
   const { palette } = useTheme();
 
   return (
@@ -57,7 +58,14 @@ const Column = ({ idx, state, stories, addFilter }: ColumnParams): JSX.Element =
           <Card {...provided.droppableProps} ref={provided.innerRef}>
             {(stories || []).map(
               (story: Story, index: number): JSX.Element => (
-                <StoryCard key={story.id} state={state} story={story} index={index} addFilter={addFilter} />
+                <StoryCard
+                  key={story.id}
+                  state={state}
+                  story={story}
+                  index={index}
+                  addFilter={addFilter}
+                  openStory={openStory}
+                />
               )
             )}
             {provided.placeholder}

@@ -30,9 +30,10 @@ interface StoryCardParams {
   index: number;
   state: string;
   addFilter: (name: string, filter: Owner | Label | Iteration) => void;
+  openStory: (story: Story) => void;
 }
 
-const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Element => {
+const StoryCard = ({ story, state, index, addFilter, openStory }: StoryCardParams): JSX.Element => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   return (
@@ -45,7 +46,12 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
             {...provided.dragHandleProps}
             ref={provided.innerRef}
           >
-            <CardContainer width="250px" hoverable style={{ borderColor: borderColors[story.story_type] || 'gray' }}>
+            <CardContainer
+              width="250px"
+              hoverable
+              style={{ borderColor: borderColors[story.story_type] || 'gray' }}
+              onClick={() => openStory(story)}
+            >
               <Card.Content>
                 <Breadcrumbs size="mini">
                   <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>
