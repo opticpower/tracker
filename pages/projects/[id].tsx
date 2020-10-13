@@ -58,14 +58,22 @@ const Project: NextPage = (): JSX.Element => {
   const apiKey = useSelector(getApiKey);
   const stories = useSelector((state: State): Record<string, Story[]> => filterStories(state, id, filters));
 
+  const getFilterArray = (filters: Owner[] | Label[] = [], filter: Owner | Label) => {
+    if (filters.find(f => f.name === filter.name)) {
+      return filters;
+    }
+    return [...filters, filter];
+  };
+
   const addFilter = (name: string, filter: Owner | Label | Iteration): void => {
     if (name === 'iterations') {
+      //todo: we should change this check to a type check and uses classes so we don't have to do this.
       // @ts-ignore: we know iteration can only be Iteration type
       setFilters({ ...filters, iteration: filter });
       return;
     }
-    const array = [...(filters[name] || []), filter];
-    setFilters({ ...filters, [name]: Array.from(new Set(array)) });
+    // @ts-ignore: we know filter cannot be type Iteration
+    setFilters({ ...filters, [name]: getFilterArray(filters[name], filter) });
   };
 
   const removeFilter = (name: string, filter: Owner | Label | Iteration): void => {
