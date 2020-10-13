@@ -12,6 +12,7 @@
     "dependencies": {
         "@geist-ui/react": "^2.0.1",
         "@geist-ui/react-icons": "^1.0.0",
+        "axios": "^0.20.0",
         "date-fns": "^2.15.0",
         "next": "9.5.5",
         "next-redux-wrapper": "^6.0.2",
