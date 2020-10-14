@@ -24,6 +24,7 @@ export interface Story {
   owners: Owner[];
   labels: Label[];
   blockers: Blocker[];
+  comments: Comment[];
   description: string;
   state?: string;
 }
@@ -44,6 +45,13 @@ export interface Blocker {
   kind: string;
   story_id: string;
   description: string;
+}
+
+export interface Comment {
+  id: number;
+  person: Owner;
+  text: string;
+  created_at: string;
 }
 
 export interface Filters {
