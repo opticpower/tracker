@@ -24,7 +24,6 @@ const AddComment = ({ story }: AddCommentParams): JSX.Element => {
   const addComment = async () => {
     setLoading(true);
     await PivotalHandler.addComment({ apiKey, projectId: id, storyId: story.id, text: comment });
-    //todo: we should fetch and update that one story;
     const newStory = await PivotalHandler.fetchStory({
       apiKey,
       projectId: id,
@@ -36,7 +35,12 @@ const AddComment = ({ story }: AddCommentParams): JSX.Element => {
   };
   return (
     <>
-      <Textarea width="100%" placeholder="Add Comment" onChange={e => setComment(e.target.value)} />
+      <Textarea
+        width="100%"
+        placeholder="Add Comment"
+        value={comment}
+        onChange={e => setComment(e.target.value)}
+      />
       <Button
         disabled={!comment}
         type="success"
