@@ -1,6 +1,9 @@
+import { Page, Spacer, Text } from '@geist-ui/react';
 import Head from 'next/head';
-import { Page, Text, Spacer } from '@geist-ui/react';
+
 import ProjectPicker from '../components/ProjectPicker';
+import { redirectIfNoApiKey } from '../redirects';
+import { wrapper } from '../redux/store';
 
 const Projects = () => {
   return (
@@ -15,5 +18,7 @@ const Projects = () => {
     </Page>
   );
 };
+
+export const getServerSideProps = wrapper.getServerSideProps(redirectIfNoApiKey);
 
 export default Projects;

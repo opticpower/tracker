@@ -2,11 +2,18 @@ export interface State {
   projects?: Project[];
   stories?: Record<string, Record<string, Story[]>>;
   iterations?: Record<number, Set<Iteration>>;
+  settings?: Settings;
+  selectedStory?: SelectedStory;
 }
 
 export interface Project {
   id: string;
   name: string;
+}
+
+export interface SelectedStory {
+  story?: Story;
+  selected: boolean;
 }
 
 export interface Story {
@@ -16,6 +23,9 @@ export interface Story {
   estimate: number;
   owners: Owner[];
   labels: Label[];
+  blockers: Blocker[];
+  description: string;
+  state?: string;
 }
 
 export interface Owner {
@@ -27,6 +37,13 @@ export interface Owner {
 export interface Label {
   id: string;
   name: string;
+}
+
+export interface Blocker {
+  id: number;
+  kind: string;
+  story_id: string;
+  description: string;
 }
 
 export interface Filters {
@@ -42,4 +59,13 @@ export interface Iteration {
   stories: Story[];
   start: string;
   finish: string;
+}
+
+export interface UrlParams {
+  id?: string;
+}
+
+export interface Settings {
+  theme: string;
+  apiKey?: string;
 }

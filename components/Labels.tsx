@@ -4,19 +4,10 @@ import styled from 'styled-components';
 
 interface LabelsParams {
   labels?: Label[];
-  onClick: (name: string, filter: Label) => void;
+  onClick?: (name: string, filter: Label) => void;
 }
 
-const getType = (
-  name: string
-):
-  | 'default'
-  | 'secondary'
-  | 'success'
-  | 'warning'
-  | 'error'
-  | 'dark'
-  | 'lite' => {
+const getType = (name: string): 'default' | 'secondary' | 'success' | 'warning' | 'error' | 'dark' | 'lite' => {
   if (name === 'medium' || name === 'med') {
     return 'warning';
   }
@@ -56,7 +47,7 @@ const Labels = ({ labels = [], onClick }: LabelsParams): JSX.Element => (
           <StyledTag
             key={label.name}
             type={getType(label.name)}
-            onClick={(): void => onClick('labels', label)}
+            onClick={(): void => onClick && onClick('labels', label)}
             title={label.name}
             invert
           >
