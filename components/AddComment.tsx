@@ -23,7 +23,6 @@ const AddComment = ({ story }: AddCommentParams): JSX.Element => {
 
   const addComment = async () => {
     setLoading(true);
-    console.log('setting comment to ', comment);
     await PivotalHandler.addComment({ apiKey, projectId: id, storyId: story.id, text: comment });
     //todo: we should fetch and update that one story;
     const newStory = await PivotalHandler.fetchStory({
