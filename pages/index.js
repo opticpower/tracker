@@ -4,8 +4,10 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { redirectIfApiKeyExists } from '../redirects';
 import { setApiKey } from '../redux/actions/settings.actions';
 import { getApiKey } from '../redux/selectors/settings.selectors';
+import { wrapper } from '../redux/store';
 
 const Home = () => {
   const [key, setKey] = useState('');
@@ -42,5 +44,7 @@ const Home = () => {
     </Page>
   );
 };
+
+export const getServerSideProps = wrapper.getServerSideProps(redirectIfApiKeyExists);
 
 export default Home;
