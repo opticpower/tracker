@@ -25,7 +25,7 @@ const StoryModal = (): JSX.Element => {
         <Owners owners={story.owners} />
         <Labels labels={story.labels} />
         <Blockers blockers={story.blockers} />
-        <Comments comments={story.comments} />
+        <Comments story={story} />
       </Modal.Content>
     </Modal>
   );
