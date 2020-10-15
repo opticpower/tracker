@@ -13,20 +13,25 @@ const StoryModal = (): JSX.Element => {
   const isOpen = useSelector(isStorySelected);
   const story = useSelector(getSelectedStory);
 
-  if (!isOpen) {
-    return <></>;
-  }
-
   return (
-    <Modal open={isOpen} key={story?.id} width="60%" onClose={() => dispatch(deselectStory())}>
-      <Modal.Title>{story.name}</Modal.Title>
-      <Modal.Content>
-        {story.description}
-        <Owners owners={story.owners} />
-        <Labels labels={story.labels} />
-        <Blockers blockers={story.blockers} />
-        <Comments comments={story.comments} />
-      </Modal.Content>
+    <Modal
+      open={isOpen}
+      width="60%"
+      onClose={() => {
+        dispatch(deselectStory());
+      }}>
+      {story && (
+        <>
+          <Modal.Title>{story.name}</Modal.Title>
+          <Modal.Content>
+            {story.description}
+            <Owners owners={story.owners} />
+            <Labels labels={story.labels} />
+            <Blockers blockers={story.blockers} />
+            <Comments comments={story.comments} />
+          </Modal.Content>
+        </>
+      )}
     </Modal>
   );
 };
