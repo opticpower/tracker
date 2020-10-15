@@ -1,6 +1,6 @@
 import { Badge, Breadcrumbs, Card, Divider, Spacer } from '@geist-ui/react';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -63,11 +63,11 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [name, setName] = useState<string>(story.name);
-  let escape = false; // we can't use setState for this as the dispatch of this takes an extra tick.
+  const escape = useRef(false); // we can't use setState for this as the dispatch of this takes an extra tick.
 
-  const saveName = async e => {
-    if (!name || escape) {
-      escape = false;
+  const saveName = async () => {
+    if (!name || escape.current) {
+      escape.current = false;
       if (story.id === 'new') {
         dispatch(clearNewStory(id));
       } else {
@@ -152,7 +152,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   onKeyDown={e => {
                     if (e.key === 'Enter' || e.key === 'Escape') {
                       if (e.key === 'Escape') {
-                        escape = true;
+                        escape.current = true;
                       }
 
                       e.preventDefault();
