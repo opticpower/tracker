@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import PivotalHandler from '../handlers/PivotalHandler';
+import { useAsync } from '../hooks';
 import { editStory } from '../redux/actions/stories.actions';
 import { getApiKey } from '../redux/selectors/settings.selectors';
 import { Story, UrlParams } from '../redux/types';
-import { useAsync } from '../hooks';
 
 interface AddCommentParams {
   story: Story;
