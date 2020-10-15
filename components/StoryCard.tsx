@@ -36,6 +36,7 @@ const Title = styled.textarea`
   font-weight: 500;
   overflow: hidden;
   resize: none;
+  background: none;
 `;
 
 interface StoryCardParams {
