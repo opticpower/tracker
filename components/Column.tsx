@@ -1,10 +1,11 @@
-import styled from 'styled-components';
-import { Text, Col } from '@geist-ui/react';
-import { Droppable } from 'react-beautiful-dnd';
-import { Story, Owner, Label, Iteration } from '../redux/types';
+import { Col, Text } from '@geist-ui/react';
 import { useTheme } from '@geist-ui/react';
-import StoryCard from './StoryCard';
+import { Droppable } from 'react-beautiful-dnd';
+import styled from 'styled-components';
+
+import { Iteration, Label, Owner, Story } from '../redux/types';
 import { spacing } from '../styles';
+import StoryCard from './StoryCard';
 
 const Header = styled(Text)(({ color }) => ({
   color: `${color} !important`,
@@ -45,7 +46,7 @@ const colors = {
 };
 
 const Column = ({ idx, state, stories, addFilter }: ColumnParams): JSX.Element => {
-  const { palette } = useTheme();
+  const { type, palette } = useTheme();
 
   return (
     <ColumnContainer
@@ -53,7 +54,7 @@ const Column = ({ idx, state, stories, addFilter }: ColumnParams): JSX.Element =
       colors={colors[state]}
       background={palette.accents_2}
       shadow={palette.accents_1}>
-      <Header h5 color={palette.accents_6}>
+      <Header h5 color={type === 'light' ? palette.accents_6 : palette.accents_7}>
         {state}
       </Header>
       <Droppable key={state} droppableId={idx.toString()}>

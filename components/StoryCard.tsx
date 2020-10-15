@@ -18,12 +18,19 @@ const CardContainer = styled(Card)(({ color }) => ({
   borderColor: `${color} !important`,
 }));
 
-const borderColors = {
+const typeColors = {
   feature: 'gray',
   bug: 'red',
   chore: 'green',
   release: 'blue',
 };
+
+const StoryType = styled(Breadcrumbs.Item)(({ color }) => ({
+  backgroundColor: color,
+  color: 'white',
+  padding: '3px',
+  fontWeight: '600',
+}));
 
 const StyledSpan = styled.span`
   margin-left: 4px;
@@ -81,16 +88,15 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
             <CardContainer
               width="250px"
               hoverable
-              style={{ borderColor: borderColors[story.story_type] || 'gray' }}
               onClick={e => {
-                if (e.target.nodeName === 'TEXTAREA') {
+                if (['A', 'SPAN', 'TEXTAREA'].includes(e.target.nodeName)) {
                   return;
                 }
                 dispatch(selectStory(story));
               }}>
               <Card.Content>
                 <Breadcrumbs size="mini">
-                  <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>
+                  <StoryType color={typeColors[story.story_type]}>{story.story_type}</StoryType>
                   <Breadcrumbs.Item>
                     <a
                       href={`https://www.pivotaltracker.com/story/show/${story.id}`}
