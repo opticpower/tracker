@@ -1,5 +1,6 @@
 import { Divider, Spacer, Text } from '@geist-ui/react';
 import { formatRelative, parseISO } from 'date-fns';
+import Markdown from 'react-markdown';
 
 import { Comment } from '../redux/types';
 import Person from './Person';
@@ -28,7 +29,7 @@ const Comments = ({ comments = [] }: CommentsParams): JSX.Element => {
             <Spacer y={1} />
             <Text small>{formatRelative(parseISO(comment.created_at), new Date())}</Text>
             <Spacer y={1} />
-            {comment.text}
+            <Markdown>{comment.text}</Markdown>
             <Divider />
           </>
         )

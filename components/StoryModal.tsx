@@ -1,4 +1,5 @@
 import { Modal } from '@geist-ui/react';
+import Markdown from 'react-markdown';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { deselectStory } from '../redux/actions/selectedStory.actions';
@@ -21,7 +22,7 @@ const StoryModal = (): JSX.Element => {
     <Modal open={isOpen} key={story?.id} width="60%" onClose={() => dispatch(deselectStory())}>
       <Modal.Title>{story.name}</Modal.Title>
       <Modal.Content>
-        {story.description}
+        <Markdown>{story.description}</Markdown>
         <Owners owners={story.owners} />
         <Labels labels={story.labels} />
         <Blockers blockers={story.blockers} />
