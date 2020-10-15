@@ -33,7 +33,7 @@ class PivotalHandler {
     const stories = await Promise.all(
       STORY_STATES.map(async state => {
         let fetchString = `stories?limit=500&with_state=${state}&${STORY_FIELDS}`;
-        if (state === 'Accepted') {
+        if (state === 'accepted') {
           const oneWeekAgo = subDays(new Date(), 7);
           fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
         }
