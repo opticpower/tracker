@@ -1,13 +1,13 @@
 import { Badge, Breadcrumbs, Card, Divider, Spacer } from '@geist-ui/react';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import PivotalHandler from '../handlers/PivotalHandler';
 import { selectStory } from '../redux/actions/selectedStory.actions';
-import { clearNewStory, savedNewStory } from '../redux/actions/stories.actions';
+import { clearNewStory, editStory, savedNewStory } from '../redux/actions/stories.actions';
 import { getApiKey } from '../redux/selectors/settings.selectors';
 import { Iteration, Label, Owner, Story, UrlParams } from '../redux/types';
 import Blockers from './Blockers';
@@ -62,11 +62,17 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
   const { id }: UrlParams = router.query;
 
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [name, setName] = useState(story.name);
+  const [name, setName] = useState<string>(story.name);
+  const escape = useRef(false); // we can't use setState for this as the dispatch of this takes an extra tick.
 
   const saveName = async () => {
-    if (!name) {
-      dispatch(clearNewStory(id));
+    if (!name || escape.current) {
+      escape.current = false;
+      if (story.id === 'new') {
+        dispatch(clearNewStory(id));
+      } else {
+        setName(story.name);
+      }
       return;
     }
 
@@ -80,6 +86,8 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
 
       if (story.id === 'new') {
         dispatch(savedNewStory(id, newStory));
+      } else {
+        dispatch(editStory({ projectId: id, story: newStory, storyState: story.current_state }));
       }
     }
   };
@@ -141,11 +149,14 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   placeholder="Please, call me something!"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  onKeyPress={e => {
-                    if (e.key === 'Enter') {
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === 'Escape') {
+                      if (e.key === 'Escape') {
+                        escape.current = true;
+                      }
+
                       e.preventDefault();
                       e.target.blur();
-                      saveName();
                     }
                   }}
                   onBlur={saveName}

@@ -3,6 +3,7 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
+import { GlobalHotKeys } from 'react-hotkeys';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -152,7 +153,16 @@ const Project: NextPage = (): JSX.Element => {
     <Container color={palette.accents_1} image={type}>
       <StoryModal />
       <FilterContainer>
-        <Button onClick={() => dispatch(newStory(id))}>New Story</Button>
+        <GlobalHotKeys
+          keyMap={{ NEW_STORY: 'n' }}
+          handlers={{
+            NEW_STORY: e => {
+              e.preventDefault();
+              dispatch(newStory(id));
+            },
+          }}
+        />
+        <Button onClick={() => dispatch(newStory(id))}>New Story (n)</Button>
         <ProjectPicker id={id} />
         <IterationPicker
           id={id}
