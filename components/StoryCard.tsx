@@ -31,9 +31,11 @@ const StyledSpan = styled.span`
   color: #3291ff;
 `;
 
-const Title = styled.input`
+const Title = styled.textarea`
   border: none;
   font-weight: 500;
+  overflow: hidden;
+  resize: none;
 `;
 
 interface StoryCardParams {
@@ -80,7 +82,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
               hoverable
               style={{ borderColor: borderColors[story.story_type] || 'gray' }}
               onClick={e => {
-                if (e.target.nodeName === 'INPUT') {
+                if (e.target.nodeName === 'TEXTAREA') {
                   return;
                 }
                 dispatch(selectStory(story));
