@@ -1,27 +1,26 @@
-import { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { Row, Loading, Col, useTheme } from '@geist-ui/react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useRouter } from 'next/router';
-import { DragDropContext } from 'react-beautiful-dnd';
+import { Col, Loading, Row, useTheme } from '@geist-ui/react';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { DragDropContext } from 'react-beautiful-dnd';
+import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
 
-import ProjectPicker from '../../components/ProjectPicker';
-import Owners from '../../components/Owners';
 import Column from '../../components/Column';
-import Labels from '../../components/Labels';
-import IterationPicker from '../../components/IterationPicker';
-import StoryModal from '../../components/StoryModal';
 import EstimateChangeDialog from '../../components/Dialogs/EstimateChangeDialog';
-
-import { useAsync } from '../../hooks';
+import IterationPicker from '../../components/IterationPicker';
+import Labels from '../../components/Labels';
+import Owners from '../../components/Owners';
+import ProjectPicker from '../../components/ProjectPicker';
+import StoryModal from '../../components/StoryModal';
 import PivotalHandler, { STORY_STATES } from '../../handlers/PivotalHandler';
-import { State, Story, Filters, Label, Owner, Iteration, UrlParams } from '../../redux/types';
+import { useAsync } from '../../hooks';
+import { redirectIfNoApiKey } from '../../redirects';
 import { addStories, moveStory } from '../../redux/actions/stories.actions';
 import { getApiKey } from '../../redux/selectors/settings.selectors';
 import { filterStories } from '../../redux/selectors/stories.selectors';
 import { wrapper } from '../../redux/store';
-import { redirectIfNoApiKey } from '../../redirects';
+import { Filters, Iteration, Label, Owner, State, Story, UrlParams } from '../../redux/types';
 import { spacing } from '../../styles';
 
 const Container = styled.div(({ color, image }) => ({
@@ -161,7 +160,7 @@ const Project: NextPage = (): JSX.Element => {
           removeIteration={() => removeFilter('iterations', null)}
         />
         <Labels labels={filters.labels} onClick={removeFilter} />
-        <Owners owners={filters.owners} onClick={removeFilter} />
+        <Owners owners={filters.owners} onClick={removeFilter} display="inline-block" />
       </FilterContainer>
 
       <Row gap={0.8}>

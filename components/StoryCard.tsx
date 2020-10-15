@@ -1,15 +1,15 @@
+import { Badge, Breadcrumbs, Card, Divider, Spacer, Text } from '@geist-ui/react';
 import { useState } from 'react';
-import styled from 'styled-components';
-import { Text, Spacer, Card, Divider, Badge, Breadcrumbs } from '@geist-ui/react';
 import { Draggable } from 'react-beautiful-dnd';
-
-import { Story, Owner, Label, Iteration } from '../redux/types';
 import { useDispatch } from 'react-redux';
+import styled from 'styled-components';
+
 import { selectStory } from '../redux/actions/selectedStory.actions';
-import Owners from './Owners';
-import Labels from './Labels';
-import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
+import { Iteration, Label, Owner, Story } from '../redux/types';
 import Blockers from './Blockers';
+import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
+import Labels from './Labels';
+import Owners from './Owners';
 
 const CardContainer = styled(Card)(({ color }) => ({
   borderColor: `${color} !important`,
@@ -88,13 +88,23 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                 <Spacer x={0.8} />
                 <Text b>{story.name}</Text>
               </Card.Content>
-              <Divider y={0} />
-              <Card.Content>
-                <Owners owners={story.owners} onClick={addFilter} />
-                <Labels labels={story.labels} onClick={addFilter} />
-                <Spacer y={0.5} />
-                <Blockers blockers={story.blockers} />
-              </Card.Content>
+              {Boolean(
+                story?.owners?.length || story?.labels?.length || story?.blockers?.length
+              ) && (
+                <>
+                  <Divider y={0} />
+                  <Card.Content>
+                    <Owners owners={story.owners} onClick={addFilter} />
+                    <Labels labels={story.labels} onClick={addFilter} />
+                    {Boolean(story?.blockers?.length) && (
+                      <>
+                        <Spacer y={0.5} />
+                        <Blockers blockers={story.blockers} />
+                      </>
+                    )}
+                  </Card.Content>
+                </>
+              )}
             </CardContainer>
             <Spacer y={1} />
           </div>
