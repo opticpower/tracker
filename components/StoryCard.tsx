@@ -70,15 +70,17 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
       return;
     }
 
-    const newStory = await PivotalHandler.updateStory({
-      apiKey: apiKey,
-      projectId: id,
-      storyId: story.id,
-      payload: { name },
-    });
+    if (story.name !== name) {
+      const newStory = await PivotalHandler.updateStory({
+        apiKey: apiKey,
+        projectId: id,
+        storyId: story.id,
+        payload: { name },
+      });
 
-    if (story.id === 'new') {
-      dispatch(savedNewStory(id, newStory));
+      if (story.id === 'new') {
+        dispatch(savedNewStory(id, newStory));
+      }
     }
   };
 
