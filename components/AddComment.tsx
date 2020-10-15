@@ -7,13 +7,13 @@ import PivotalHandler from '../handlers/PivotalHandler';
 import { editStory } from '../redux/actions/stories.actions';
 import { getApiKey } from '../redux/selectors/settings.selectors';
 import { Story, UrlParams } from '../redux/types';
+import { useAsync } from '../hooks';
 
 interface AddCommentParams {
   story: Story;
 }
 
 const AddComment = ({ story }: AddCommentParams): JSX.Element => {
-  const [loading, setLoading] = useState<boolean>(false);
   const [comment, setComment] = useState<string>();
   const apiKey = useSelector(getApiKey);
 
@@ -21,8 +21,7 @@ const AddComment = ({ story }: AddCommentParams): JSX.Element => {
   const dispatch = useDispatch();
   const { id }: UrlParams = router.query;
 
-  const addComment = async () => {
-    setLoading(true);
+  const [{ isLoading }, addComment] = useAsync(async () => {
     await PivotalHandler.addComment({ apiKey, projectId: id, storyId: story.id, text: comment });
     const newStory = await PivotalHandler.fetchStory({
       apiKey,
@@ -31,8 +30,8 @@ const AddComment = ({ story }: AddCommentParams): JSX.Element => {
     });
     dispatch(editStory({ projectId: id, story: newStory, storyState: newStory.current_state }));
     setComment('');
-    setLoading(false);
-  };
+  });
+
   return (
     <>
       <Textarea
@@ -45,8 +44,8 @@ const AddComment = ({ story }: AddCommentParams): JSX.Element => {
         disabled={!comment}
         type="success"
         size="small"
-        loading={loading}
-        onClick={addComment}>
+        loading={isLoading}
+        onClick={() => addComment}>
         Add
       </Button>
     </>
