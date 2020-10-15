@@ -45,7 +45,7 @@ const AddComment = ({ story }: AddCommentParams): JSX.Element => {
         type="success"
         size="small"
         loading={isLoading}
-        onClick={() => addComment}>
+        onClick={() => addComment()}>
         Add
       </Button>
     </>
