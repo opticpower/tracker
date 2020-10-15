@@ -1,13 +1,16 @@
 import { Tag } from '@geist-ui/react';
-import { Label } from '../redux/types';
 import styled from 'styled-components';
+
+import { Label } from '../redux/types';
 
 interface LabelsParams {
   labels?: Label[];
   onClick?: (name: string, filter: Label) => void;
 }
 
-const getType = (name: string): 'default' | 'secondary' | 'success' | 'warning' | 'error' | 'dark' | 'lite' => {
+const getType = (
+  name: string
+): 'default' | 'secondary' | 'success' | 'warning' | 'error' | 'dark' | 'lite' => {
   if (name === 'medium' || name === 'med') {
     return 'warning';
   }
@@ -49,8 +52,7 @@ const Labels = ({ labels = [], onClick }: LabelsParams): JSX.Element => (
             type={getType(label.name)}
             onClick={(): void => onClick && onClick('labels', label)}
             title={label.name}
-            invert
-          >
+            invert>
             {label.name}
           </StyledTag>
         )
