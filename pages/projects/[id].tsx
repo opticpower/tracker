@@ -162,7 +162,7 @@ const Project: NextPage = (): JSX.Element => {
             },
           }}
         />
-        <Button onClick={() => dispatch(newStory(id))}>New Story</Button>
+        <Button onClick={() => dispatch(newStory(id))}>New Story (n)</Button>
         <ProjectPicker id={id} />
         <IterationPicker
           id={id}
