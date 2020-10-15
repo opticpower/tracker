@@ -1,11 +1,14 @@
-import { Badge, Breadcrumbs, Card, Divider, Spacer, Text } from '@geist-ui/react';
+import { Badge, Breadcrumbs, Card, Divider, Spacer } from '@geist-ui/react';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
+import PivotalHandler from '../handlers/PivotalHandler';
 import { selectStory } from '../redux/actions/selectedStory.actions';
-import { Iteration, Label, Owner, Story } from '../redux/types';
+import { getApiKey } from '../redux/selectors/settings.selectors';
+import { Iteration, Label, Owner, Story, UrlParams } from '../redux/types';
 import Blockers from './Blockers';
 import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
 import Labels from './Labels';
@@ -28,6 +31,11 @@ const StyledSpan = styled.span`
   color: #3291ff;
 `;
 
+const Title = styled.input`
+  border: none;
+  font-weight: 500;
+`;
+
 interface StoryCardParams {
   story: Story;
   index: number;
@@ -37,7 +45,22 @@ interface StoryCardParams {
 
 const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Element => {
   const dispatch = useDispatch();
+  const apiKey = useSelector(getApiKey);
+
+  const router = useRouter();
+  const { id }: UrlParams = router.query;
+
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [name, setName] = useState(story.name);
+
+  const saveName = () => {
+    PivotalHandler.updateStory({
+      apiKey: apiKey,
+      projectId: id,
+      storyId: story.id,
+      payload: { name },
+    });
+  };
 
   const openEstimationModal = (e): void => {
     e.stopPropagation();
@@ -56,7 +79,12 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
               width="250px"
               hoverable
               style={{ borderColor: borderColors[story.story_type] || 'gray' }}
-              onClick={() => dispatch(selectStory(story))}>
+              onClick={e => {
+                if (e.target.nodeName === 'INPUT') {
+                  return;
+                }
+                dispatch(selectStory(story));
+              }}>
               <Card.Content>
                 <Breadcrumbs size="mini">
                   <Breadcrumbs.Item>{story.story_type}</Breadcrumbs.Item>
@@ -86,7 +114,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   </Breadcrumbs.Item>
                 </Breadcrumbs>
                 <Spacer x={0.8} />
-                <Text b>{story.name}</Text>
+                <Title value={name} onChange={e => setName(e.target.value)} onBlur={saveName} />
               </Card.Content>
               {Boolean(
                 story?.owners?.length || story?.labels?.length || story?.blockers?.length
