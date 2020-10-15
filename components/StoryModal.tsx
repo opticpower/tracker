@@ -14,19 +14,15 @@ const StoryModal = (): JSX.Element => {
   const isOpen = useSelector(isStorySelected);
   const story = useSelector(getSelectedStory);
 
-  if (!isOpen) {
-    return <></>;
-  }
-
   return (
     <Modal open={isOpen} key={story?.id} width="60%" onClose={() => dispatch(deselectStory())}>
-      <Modal.Title>{story.name}</Modal.Title>
+      <Modal.Title>{story?.name}</Modal.Title>
       <Modal.Content>
-        <Markdown>{story.description}</Markdown>
-        <Owners owners={story.owners} />
-        <Labels labels={story.labels} />
-        <Blockers blockers={story.blockers} />
-        <Comments comments={story.comments} />
+        <Markdown>{story?.description}</Markdown>
+        <Owners owners={story?.owners} />
+        <Labels labels={story?.labels} />
+        <Blockers blockers={story?.blockers} />
+        <Comments story={story} />
       </Modal.Content>
     </Modal>
   );
