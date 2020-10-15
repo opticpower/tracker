@@ -62,11 +62,17 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
   const { id }: UrlParams = router.query;
 
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [name, setName] = useState(story.name);
+  const [name, setName] = useState<string>(story.name);
+  let escape = false; // we can't use setState for this as the dispatch of this takes an extra tick.
 
-  const saveName = async () => {
-    if (!name) {
-      dispatch(clearNewStory(id));
+  const saveName = async e => {
+    if (!name || escape) {
+      escape = false;
+      if (story.id === 'new') {
+        dispatch(clearNewStory(id));
+      } else {
+        setName(story.name);
+      }
       return;
     }
 
@@ -145,14 +151,8 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   onChange={e => setName(e.target.value)}
                   onKeyDown={e => {
                     if (e.key === 'Enter' || e.key === 'Escape') {
-                      if (e.key === 'Enter') {
-                        saveName();
-                      } else {
-                        if (story.id === 'new') {
-                          dispatch(clearNewStory(id));
-                        } else {
-                          setName(story.name);
-                        }
+                      if (e.key === 'Escape') {
+                        escape = true;
                       }
 
                       e.preventDefault();
