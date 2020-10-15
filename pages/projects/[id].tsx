@@ -160,7 +160,7 @@ const Project: NextPage = (): JSX.Element => {
           removeIteration={() => removeFilter('iterations', null)}
         />
         <Labels labels={filters.labels} onClick={removeFilter} />
-        <Owners owners={filters.owners} onClick={removeFilter} />
+        <Owners owners={filters.owners} onClick={removeFilter} display="inline-block" />
       </FilterContainer>
 
       <Row gap={0.8}>
