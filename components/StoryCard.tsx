@@ -7,7 +7,7 @@ import styled from 'styled-components';
 
 import PivotalHandler from '../handlers/PivotalHandler';
 import { selectStory } from '../redux/actions/selectedStory.actions';
-import { clearNewStory, savedNewStory } from '../redux/actions/stories.actions';
+import { clearNewStory, editStory, savedNewStory } from '../redux/actions/stories.actions';
 import { getApiKey } from '../redux/selectors/settings.selectors';
 import { Iteration, Label, Owner, Story, UrlParams } from '../redux/types';
 import Blockers from './Blockers';
@@ -80,6 +80,8 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
 
       if (story.id === 'new') {
         dispatch(savedNewStory(id, newStory));
+      } else {
+        dispatch(editStory({ projectId: id, story: newStory, storyState: story.current_state }));
       }
     }
   };
@@ -141,11 +143,20 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   placeholder="Please, call me something!"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  onKeyPress={e => {
-                    if (e.key === 'Enter') {
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === 'Escape') {
+                      if (e.key === 'Enter') {
+                        saveName();
+                      } else {
+                        if (story.id === 'new') {
+                          dispatch(clearNewStory(id));
+                        } else {
+                          setName(story.name);
+                        }
+                      }
+
                       e.preventDefault();
                       e.target.blur();
-                      saveName();
                     }
                   }}
                   onBlur={saveName}
