@@ -142,7 +142,11 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   value={name}
                   onChange={e => setName(e.target.value)}
                   onKeyPress={e => {
-                    if (e.key === 'Enter') e.preventDefault();
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      e.target.blur();
+                      saveName();
+                    }
                   }}
                   onBlur={saveName}
                 />
