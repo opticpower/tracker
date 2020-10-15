@@ -58,8 +58,20 @@ class PivotalHandler {
   }
 
   // Updates a single story.
-  static async updateStory({ apiKey, projectId, storyId, payload }): Promise<void> {
-    await fetch(`${PIVOTAL_API_URL}/projects/${projectId}/stories/${storyId}`, {
+  static async updateStory({ apiKey, projectId, storyId, payload }): Promise<Story> {
+    if (!payload?.id) {
+      const response = await fetch(`${PIVOTAL_API_URL}/projects/${projectId}/stories`, {
+        method: 'POST',
+        headers: {
+          'X-TrackerToken': apiKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...payload }),
+      });
+      return response.json();
+    }
+
+    const response = await fetch(`${PIVOTAL_API_URL}/projects/${projectId}/stories/${storyId}`, {
       method: 'PUT',
       headers: {
         'X-TrackerToken': apiKey,
@@ -67,6 +79,7 @@ class PivotalHandler {
       },
       body: JSON.stringify({ ...payload }),
     });
+    return response.json();
   }
 
   /** Fetches a single story */

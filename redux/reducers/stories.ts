@@ -1,6 +1,14 @@
-import { Story } from '../types';
 import { AnyAction } from 'redux';
-import { ADD_STORIES, MOVE_STORY, EDIT_STORY } from '../actions/stories.actions';
+
+import {
+  ADD_STORIES,
+  CLEAR_NEW_STORY,
+  EDIT_STORY,
+  MOVE_STORY,
+  NEW_STORY,
+  SAVED_NEW_STORY,
+} from '../actions/stories.actions';
+import { Story } from '../types';
 
 const initialState = {};
 
@@ -9,9 +17,46 @@ const reducer = (
   action: AnyAction
 ) => {
   switch (action.type) {
-    case ADD_STORIES:
-      return { ...state, [action.payload.id]: { ...action.payload.stories } };
+    case NEW_STORY: {
+      const newStory = {
+        id: 'new',
+        story_type: 'feature',
+        comments: [],
+        labels: [],
+      };
 
+      return {
+        ...state,
+        [action.projectId]: {
+          ...state[action.projectId],
+          unscheduled: [newStory, ...state[action.projectId].unscheduled],
+        },
+      };
+    }
+    case SAVED_NEW_STORY: {
+      return {
+        ...state,
+        [action.projectId]: {
+          ...state[action.projectId],
+          unscheduled: [
+            action.story,
+            ...state[action.projectId].unscheduled.filter(story => story.id !== 'new'),
+          ],
+        },
+      };
+    }
+    case CLEAR_NEW_STORY: {
+      return {
+        ...state,
+        [action.projectId]: {
+          ...state[action.projectId],
+          unscheduled: [...state[action.projectId].unscheduled.filter(story => story.id !== 'new')],
+        },
+      };
+    }
+    case ADD_STORIES: {
+      return { ...state, [action.payload.id]: { ...action.payload.stories } };
+    }
     case EDIT_STORY: {
       const { projectId, story, storyState } = action.payload;
       const storyStateArr: Story[] = state[projectId][storyState];
