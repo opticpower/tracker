@@ -141,6 +141,9 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   placeholder="Please, call me something!"
                   value={name}
                   onChange={e => setName(e.target.value)}
+                  onKeyPress={e => {
+                    if (e.key === 'Enter') e.preventDefault();
+                  }}
                   onBlur={saveName}
                 />
               </Card.Content>
