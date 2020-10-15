@@ -7,6 +7,7 @@ import styled from 'styled-components';
 
 import PivotalHandler from '../handlers/PivotalHandler';
 import { selectStory } from '../redux/actions/selectedStory.actions';
+import { clearNewStory, savedNewStory } from '../redux/actions/stories.actions';
 import { getApiKey } from '../redux/selectors/settings.selectors';
 import { Iteration, Label, Owner, Story, UrlParams } from '../redux/types';
 import Blockers from './Blockers';
@@ -63,13 +64,24 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [name, setName] = useState(story.name);
 
-  const saveName = () => {
-    PivotalHandler.updateStory({
-      apiKey: apiKey,
-      projectId: id,
-      storyId: story.id,
-      payload: { name },
-    });
+  const saveName = async () => {
+    if (!name) {
+      dispatch(clearNewStory(id));
+      return;
+    }
+
+    if (story.name !== name) {
+      const newStory = await PivotalHandler.updateStory({
+        apiKey: apiKey,
+        projectId: id,
+        storyId: story.id,
+        payload: { name },
+      });
+
+      if (story.id === 'new') {
+        dispatch(savedNewStory(id, newStory));
+      }
+    }
   };
 
   const openEstimationModal = (e): void => {
@@ -123,7 +135,14 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   </Breadcrumbs.Item>
                 </Breadcrumbs>
                 <Spacer x={0.8} />
-                <Title value={name} onChange={e => setName(e.target.value)} onBlur={saveName} />
+                <Title
+                  //eslint-disable-next-line jsx-a11y/no-autofocus
+                  autoFocus={!name}
+                  placeholder="Please, call me something!"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  onBlur={saveName}
+                />
               </Card.Content>
               {Boolean(
                 story?.owners?.length || story?.labels?.length || story?.blockers?.length

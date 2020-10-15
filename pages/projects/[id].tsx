@@ -1,4 +1,4 @@
-import { Col, Loading, Row, useTheme } from '@geist-ui/react';
+import { Button, Col, Loading, Row, useTheme } from '@geist-ui/react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -16,7 +16,7 @@ import StoryModal from '../../components/StoryModal';
 import PivotalHandler, { STORY_STATES } from '../../handlers/PivotalHandler';
 import { useAsync } from '../../hooks';
 import { redirectIfNoApiKey } from '../../redirects';
-import { addStories, moveStory } from '../../redux/actions/stories.actions';
+import { addStories, moveStory, newStory } from '../../redux/actions/stories.actions';
 import { getApiKey } from '../../redux/selectors/settings.selectors';
 import { filterStories } from '../../redux/selectors/stories.selectors';
 import { wrapper } from '../../redux/store';
@@ -152,6 +152,7 @@ const Project: NextPage = (): JSX.Element => {
     <Container color={palette.accents_1} image={type}>
       <StoryModal />
       <FilterContainer>
+        <Button onClick={() => dispatch(newStory(id))}>New Story</Button>
         <ProjectPicker id={id} />
         <IterationPicker
           id={id}
