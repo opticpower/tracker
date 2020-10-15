@@ -26,7 +26,7 @@ export interface Story {
   blockers: Blocker[];
   comments: Comment[];
   description: string;
-  state?: string;
+  current_state?: string;
 }
 
 export interface Owner {

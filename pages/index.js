@@ -36,7 +36,7 @@ const Home = () => {
         <Spacer y={1} />
         Please input your pivotal token below:
         <Spacer y={1} />
-        <Input size="large" placeholder="API Token" onChange={(e) => setKey(e.target.value)} />
+        <Input size="large" placeholder="API Token" onChange={e => setKey(e.target.value)} />
         <Button auto type="secondary" size="medium" onClick={() => dispatch(setApiKey(key))}>
           Login
         </Button>
