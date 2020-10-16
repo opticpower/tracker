@@ -57,7 +57,6 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
       };
     }
 
-    //todo: do all the addStories and stuff.
     case ADD_STORIES: {
       const storiesByState = action.stories.reduce(
         (stories: Record<string, string[]>, story: Story) => {

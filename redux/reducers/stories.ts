@@ -34,7 +34,6 @@ const reducer = (state: StoriesState = initialState, action: AnyAction) => {
           ...state.byId,
           pending,
         },
-        //todo: I should probably slice this state out into its own reducer (byProject);
         byProject: byProjectReducer(state.byProject, actionWithProjectId),
       };
     }

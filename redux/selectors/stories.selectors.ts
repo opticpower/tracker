@@ -49,14 +49,13 @@ export const filterStories = (
   }
 
   //now map all these stories.
-  const stories = Object.keys(storyIdsByState).reduce((total, state) => {
-    total[state] = storyIdsByState[state].map(
-      (storyId: string): Story => {
-        return byId[storyId];
-      }
-    );
-    return total;
-  }, {});
+  const stories = Object.keys(storyIdsByState).reduce(
+    (total, state) => ({
+      ...total,
+      [state]: storyIdsByState[state].map((storyId: string): Story => byId[storyId]),
+    }),
+    {}
+  );
 
   return stories;
 };
