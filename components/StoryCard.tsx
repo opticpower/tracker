@@ -174,9 +174,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   onBlur={saveName}
                 />
               </Card.Content>
-              {Boolean(
-                story?.owners?.length || story?.labels?.length || story?.blockers?.length
-              ) && (
+              {Boolean(story?.owners?.length || story?.labels?.length) && (
                 <>
                   <Divider y={0} />
                   <Card.Content>
