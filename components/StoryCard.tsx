@@ -42,12 +42,16 @@ const StyledSpan = styled.span`
 `;
 
 const Title = styled.textarea`
+  width: 100%;
   border: none;
   font-weight: 500;
   overflow: hidden;
   resize: none;
   background: none;
 `;
+
+// Used to override Card.Content's default 16pt padding
+const contentStyle = { padding: '12pt' };
 
 interface StoryCardParams {
   story: Story;
@@ -108,7 +112,6 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
             {...provided.dragHandleProps}
             ref={provided.innerRef}>
             <CardContainer
-              width="250px"
               hoverable
               onClick={e => {
                 if (['A', 'SPAN', 'TEXTAREA'].includes(e.target.nodeName)) {
@@ -116,7 +119,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                 }
                 dispatch(selectStory(story));
               }}>
-              <Card.Content>
+              <Card.Content style={contentStyle}>
                 {Boolean(story?.blockers?.length) && (
                   <div
                     style={{
