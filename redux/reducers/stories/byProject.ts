@@ -85,7 +85,6 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
     }
 
     case MOVE_STORY: {
-      console.log('got move story', action);
       const { projectId, sourceState, sourceIndex, destinationState, destinationIndex } = action;
       const storyId: string = state[projectId].storyIdsByState[sourceState][sourceIndex];
       const sourceWithoutStory: string[] = state[projectId].storyIdsByState[sourceState].filter(

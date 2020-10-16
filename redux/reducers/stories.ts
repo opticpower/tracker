@@ -17,7 +17,6 @@ const initialState = {
 };
 
 const reducer = (state: StoriesState = initialState, action: AnyAction) => {
-  console.log('got action', action, state);
   const actionWithProjectId = { ...action, projectId: state.selectedProjectId };
 
   switch (action.type) {
