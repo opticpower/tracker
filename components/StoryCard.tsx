@@ -9,7 +9,8 @@ import PivotalHandler from '../handlers/PivotalHandler';
 import { selectStory } from '../redux/actions/selectedStory.actions';
 import { clearNewStory, editStory, savedNewStory } from '../redux/actions/stories.actions';
 import { getApiKey } from '../redux/selectors/settings.selectors';
-import { Iteration, Label, Owner, Story, UrlParams } from '../redux/types';
+import { getSelectedProjectId } from '../redux/selectors/stories.selectors';
+import { Iteration, Label, Owner, Story } from '../redux/types';
 import Blockers from './Blockers';
 import BlockersQuickView from './BlockersQuickView';
 import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
@@ -59,9 +60,7 @@ interface StoryCardParams {
 const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Element => {
   const dispatch = useDispatch();
   const apiKey = useSelector(getApiKey);
-
-  const router = useRouter();
-  const { id }: UrlParams = router.query;
+  const projectId = useSelector(getSelectedProjectId);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [name, setName] = useState<string>(story.name);
@@ -71,7 +70,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
     if (!name || escape.current) {
       escape.current = false;
       if (story.id === 'new') {
-        dispatch(clearNewStory(id));
+        dispatch(clearNewStory(projectId));
       } else {
         setName(story.name);
       }
@@ -81,13 +80,13 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
     if (story.name !== name) {
       const newStory = await PivotalHandler.updateStory({
         apiKey: apiKey,
-        projectId: id,
+        projectId,
         storyId: story.id,
         payload: { name },
       });
 
       if (story.id === 'new') {
-        dispatch(savedNewStory(id, newStory));
+        dispatch(savedNewStory(projectId, newStory));
       } else {
         dispatch(editStory(newStory));
       }
