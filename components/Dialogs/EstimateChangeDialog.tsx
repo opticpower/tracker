@@ -4,10 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import PivotalHandler from '../../handlers/PivotalHandler';
-import { useAsync } from '../../hooks';
+import { usePivotal } from '../../hooks';
 import { editStory } from '../../redux/actions/stories.actions';
-import { getApiKey } from '../../redux/selectors/settings.selectors';
-import { getSelectedProjectId } from '../../redux/selectors/stories.selectors';
 import { Story } from '../../redux/types';
 import EstimatePicker from '../EstimatePicker';
 
@@ -32,16 +30,14 @@ const EstimateChangeDialog = ({
   onClose,
 }: EstimateChangeDialogParams): JSX.Element => {
   const dispatch = useDispatch();
-  const apiKey = useSelector(getApiKey);
-  const projectId = useSelector(getSelectedProjectId);
   const [selectedEstimate, setSelectedEstimate] = useState(
     story?.estimate ? String(story.estimate) : ''
   );
 
-  const [{ isLoading }, changeEstimate] = useAsync(async () => {
+  const [{ isLoading }, changeEstimate] = usePivotal(async ({ apiKey, projectId }) => {
     const newStory = await PivotalHandler.updateStory({
       apiKey,
-      projectId: projectId,
+      projectId,
       storyId: story.id,
       payload: { estimate: Number(selectedEstimate) },
     });

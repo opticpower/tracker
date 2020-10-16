@@ -10,7 +10,6 @@ export const SAVED_NEW_STORY = 'SAVED_NEW_STORY';
 export const CLEAR_NEW_STORY = 'CLEAR_NEW_STORY';
 
 interface MoveStories {
-  projectId: string;
   sourceState: string;
   sourceIndex: number;
   destinationState: string;

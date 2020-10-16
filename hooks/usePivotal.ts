@@ -7,10 +7,7 @@ import { getSelectedProjectId } from '../redux/selectors/stories.selectors';
 const usePivotal = (
   asyncFn,
   initialVal = {}
-): [
-  { result: any; isLoading: boolean; error: any },
-  (apiKey: string, projectId: string) => void
-] => {
+): [{ result: any; isLoading: boolean; error: any }, () => void] => {
   const [result, setResult] = useState(initialVal);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState();

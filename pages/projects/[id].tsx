@@ -121,7 +121,6 @@ const Project: NextPage = (): JSX.Element => {
 
     dispatch(
       moveStory({
-        projectId: id,
         sourceState,
         sourceIndex,
         destinationState,
