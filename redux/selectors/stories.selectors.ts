@@ -1,5 +1,9 @@
 import { State, Story } from '../types';
 
+export const getSelectedProjectId = (state: State): string => {
+  return state.stories.selectedProjectId;
+};
+
 export const filterStories = (
   state: State,
   projectId: string,

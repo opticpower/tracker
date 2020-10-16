@@ -89,7 +89,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
       if (story.id === 'new') {
         dispatch(savedNewStory(id, newStory));
       } else {
-        dispatch(editStory({ projectId: id, story: newStory, storyState: story.current_state }));
+        dispatch(editStory(newStory));
       }
     }
   };

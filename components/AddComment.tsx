@@ -28,7 +28,7 @@ const AddComment = ({ story }: AddCommentParams): JSX.Element => {
       projectId: id,
       storyId: story.id,
     });
-    dispatch(editStory({ projectId: id, story: newStory, storyState: newStory.current_state }));
+    dispatch(editStory(newStory));
     setComment('');
   });
 

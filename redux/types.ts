@@ -3,6 +3,12 @@ export interface State {
   stories?: StoriesState;
   iterations?: Record<number, Set<Iteration>>;
   settings?: Settings;
+  selectedStory: SelectedStory;
+}
+
+export interface SelectedStory {
+  storyId?: string;
+  selected: boolean;
 }
 
 export interface StoriesState {
