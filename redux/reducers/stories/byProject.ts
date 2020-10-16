@@ -76,56 +76,59 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
       };
     }
     case EDIT_STORY: {
-      if (action.story.state !== action.oldStory.state) {
-        //todo: the story has moved on the server, we should remove it from the previous bucket,
-        //otherwise, the story is fine.
-      }
+      //   if (action.story.state !== action.oldStory.state) {
+      //     //todo: the story has moved on the server, we should remove it from the previous bucket,
+      //     //otherwise, the story is fine.
+      //   }
 
       return state;
     }
 
-    //     case MOVE_STORY: {
-    //       const {
-    //         projectId,
-    //         sourceState,
-    //         sourceIndex,
-    //         destinationState,
-    //         destinationIndex,
-    //       } = action.payload;
-    //       const story: Story = state[projectId][sourceState][sourceIndex];
-    //       const sourceArr: Story[] = state[projectId][sourceState].filter(item => item.id !== story.id);
+    case MOVE_STORY: {
+      console.log('got move story', action);
+      const { projectId, sourceState, sourceIndex, destinationState, destinationIndex } = action;
+      const storyId: string = state[projectId].storyIdsByState[sourceState][sourceIndex];
+      const sourceWithoutStory: string[] = state[projectId].storyIdsByState[sourceState].filter(
+        (id: string): boolean => id !== storyId
+      );
 
-    //       if (sourceState === destinationState) {
-    //         // If we are moving the story order in the same column, just reorganize the same array.
-    //         return {
-    //           ...state,
-    //           [projectId]: {
-    //             ...state[projectId],
-    //             [sourceState]: [
-    //               ...sourceArr.slice(0, destinationIndex),
-    //               story,
-    //               ...sourceArr.slice(destinationIndex),
-    //             ],
-    //           },
-    //         };
-    //       }
-    //       const draggedArr: Story[] = state[projectId][destinationState];
-    //       // If the story is dragged between columns, we need to adjust both states items.
-    //       return {
-    //         ...state,
-    //         [projectId]: {
-    //           ...state[projectId],
-    //           [sourceState]: sourceArr,
-    //           [destinationState]: [
-    //             ...draggedArr.slice(0, destinationIndex),
-    //             story,
-    //             ...draggedArr.slice(destinationIndex),
-    //           ],
-    //         },
-    //       };
-    //     }
-    //     default:
-    //       return state;
+      if (sourceState === destinationState) {
+        // If we are moving the story order in the same column, just reorganize the same array.
+        return {
+          ...state,
+          [projectId]: {
+            ...state[projectId],
+            storyIdsByState: {
+              ...state[projectId].storyIdsByState,
+              [sourceState]: [
+                ...sourceWithoutStory.slice(0, destinationIndex),
+                storyId,
+                ...sourceWithoutStory.slice(destinationIndex),
+              ],
+            },
+          },
+        };
+      }
+      const destinationStateList: string[] = state[projectId].storyIdsByState[destinationState];
+      // If the story is dragged between columns, we need to adjust both states items.
+      return {
+        ...state,
+        [projectId]: {
+          ...state[projectId],
+          storyIdsByState: {
+            ...state[projectId].storyIdsByState,
+            [sourceState]: sourceWithoutStory,
+            [destinationState]: [
+              ...destinationStateList.slice(0, destinationIndex),
+              storyId,
+              ...destinationStateList.slice(destinationIndex),
+            ],
+          },
+        },
+      };
+    }
+    default:
+      return state;
   }
 };
 

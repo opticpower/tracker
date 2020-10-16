@@ -46,5 +46,5 @@ export const editStory = (story: Story): AnyAction => ({
 
 export const moveStory = (payload: MoveStories): AnyAction => ({
   type: MOVE_STORY,
-  payload,
+  ...payload,
 });

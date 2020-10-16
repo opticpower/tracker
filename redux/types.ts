@@ -9,7 +9,7 @@ export interface StoriesState {
   byId: Record<string, Story>;
   byProject: Record<string, StoriesByProject>;
   selectedStoryId?: string;
-  seletedProjectId?: string;
+  selectedProjectId?: string;
 }
 
 export interface StoriesByProject {
