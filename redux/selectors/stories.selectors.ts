@@ -38,6 +38,8 @@ export const filterStories = (state: State, id: string, filters: any): Record<st
 
 // TODO: refactor redux state into normalized object mapped by ID to improve this perf
 export const getStory = (state: State, projectId: string, storyId: string): Story => {
+  if (!storyId) return null;
+
   return (
     state.stories[projectId] &&
     Object.values(state.stories[projectId])

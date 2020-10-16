@@ -111,7 +111,19 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                 if (['A', 'SPAN', 'TEXTAREA'].includes(e.target.nodeName)) {
                   return;
                 }
-                router.push(`/projects/${id}?story=${story.id}`);
+                router.push(
+                  {
+                    pathname: `/projects/[id]`,
+                    query: {
+                      id,
+                      story: story.id,
+                    },
+                  },
+                  undefined,
+                  {
+                    shallow: true,
+                  }
+                );
               }}>
               <Card.Content>
                 <Breadcrumbs size="mini">

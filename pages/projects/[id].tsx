@@ -1,7 +1,7 @@
 import { Button, Col, Loading, Row, useTheme } from '@geist-ui/react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { GlobalHotKeys } from 'react-hotkeys';
 import { useDispatch, useSelector } from 'react-redux';
@@ -34,6 +34,13 @@ const Container = styled.div(({ color, image }) => ({
   paddingTop: spacing(3),
 }));
 
+const getFilterArray = (filters: Owner[] | Label[] = [], filter: Owner | Label) => {
+  if (filters.find(f => f.name === filter.name)) {
+    return filters;
+  }
+  return [...filters, filter];
+};
+
 const Project: NextPage = (): JSX.Element => {
   // TODO: move filter container to a separate component
   const FilterContainer = styled.div`
@@ -55,23 +62,19 @@ const Project: NextPage = (): JSX.Element => {
   );
   const selectedStory = useSelector((state: State): Story => getStory(state, id, selectedStoryId));
 
-  const getFilterArray = (filters: Owner[] | Label[] = [], filter: Owner | Label) => {
-    if (filters.find(f => f.name === filter.name)) {
-      return filters;
-    }
-    return [...filters, filter];
-  };
-
-  const addFilter = (name: string, filter: Owner | Label | Iteration): void => {
-    if (name === 'iterations') {
-      //todo: we should change this check to a type check and uses classes so we don't have to do this.
-      // @ts-ignore: we know iteration can only be Iteration type
-      setFilters({ ...filters, iteration: filter });
-      return;
-    }
-    // @ts-ignore: we know filter cannot be type Iteration
-    setFilters({ ...filters, [name]: getFilterArray(filters[name], filter) });
-  };
+  const addFilter = useCallback(
+    (name: string, filter: Owner | Label | Iteration): void => {
+      if (name === 'iterations') {
+        //todo: we should change this check to a type check and uses classes so we don't have to do this.
+        // @ts-ignore: we know iteration can only be Iteration type
+        setFilters({ ...filters, iteration: filter });
+        return;
+      }
+      // @ts-ignore: we know filter cannot be type Iteration
+      setFilters({ ...filters, [name]: getFilterArray(filters[name], filter) });
+    },
+    [filters, setFilters]
+  );
 
   const removeFilter = (name: string, filter: Owner | Label | Iteration): void => {
     if (name === 'iterations') {
@@ -147,7 +150,7 @@ const Project: NextPage = (): JSX.Element => {
     await PivotalHandler.updateStory({ apiKey, projectId: id, storyId: draggableId, payload });
   });
 
-  const loading = !(stories && Object.values(stories).length);
+  const loading = !(stories && Object.keys(stories).length);
   const { palette, type } = useTheme();
 
   return (
@@ -155,7 +158,7 @@ const Project: NextPage = (): JSX.Element => {
       <StoryModal
         story={selectedStory}
         onClose={() => {
-          router.push(`/projects/${id}`);
+          router.push(`/projects/${id}`, undefined, { shallow: true });
         }}
       />
       <FilterContainer>
