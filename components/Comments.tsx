@@ -33,7 +33,7 @@ const Comments = ({ story }: CommentsParams): JSX.Element => {
   if (!comments.length) {
     return (
       <>
-        <Divider>No Comments</Divider>
+        <Text h6>No Comments</Text>
         <AddComment story={story} />
       </>
     );
