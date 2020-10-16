@@ -9,11 +9,6 @@ export const NEW_STORY = 'NEW_STORY';
 export const SAVED_NEW_STORY = 'SAVED_NEW_STORY';
 export const CLEAR_NEW_STORY = 'CLEAR_NEW_STORY';
 
-interface AddStories {
-  id: string;
-  stories: Record<string, Story[]>;
-}
-
 interface EditStory {
   projectId: string;
   storyState: string;
@@ -44,9 +39,10 @@ export const clearNewStory = (projectId: string): AnyAction => ({
   projectId,
 });
 
-export const addStories = (payload: AddStories): AnyAction => ({
+export const addStories = (projectId: string, stories: Story[]): AnyAction => ({
   type: ADD_STORIES,
-  payload,
+  projectId,
+  stories,
 });
 
 export const editStory = (payload: EditStory): AnyAction => ({

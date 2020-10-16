@@ -8,18 +8,21 @@ import {
   NEW_STORY,
   SAVED_NEW_STORY,
 } from '../actions/stories.actions';
-import { Story } from '../types';
+import { StoriesState, Story } from '../types';
+import byProjectReducer from './stories/byProject';
 
-const initialState = {};
+const initialState = {
+  byId: {},
+  byProject: {},
+};
 
-const reducer = (
-  state: Record<string, Record<string, Story[]>> = initialState,
-  action: AnyAction
-) => {
+const reducer = (state: StoriesState = initialState, action: AnyAction) => {
+  console.log('got action', action);
+  const actionWithProjectId = { ...action, projectId: state.seletedProjectId };
   switch (action.type) {
     case NEW_STORY: {
-      const newStory = {
-        id: 'new',
+      const pending = {
+        id: 'pending',
         story_type: 'feature',
         comments: [],
         labels: [],
@@ -27,88 +30,105 @@ const reducer = (
 
       return {
         ...state,
-        [action.projectId]: {
-          ...state[action.projectId],
-          unscheduled: [newStory, ...state[action.projectId].unscheduled],
+        byId: {
+          ...state.byId,
+          pending,
         },
+        //todo: I should probably slice this state out into its own reducer (byProject);
+        byProject: byProjectReducer(state.byProject, actionWithProjectId),
       };
     }
     case SAVED_NEW_STORY: {
+      //clears the the story new story as well as adds a new story into state.
+      const { pending, ...byId } = state.byId;
+
       return {
         ...state,
-        [action.projectId]: {
-          ...state[action.projectId],
-          unscheduled: [
-            action.story,
-            ...state[action.projectId].unscheduled.filter(story => story.id !== 'new'),
-          ],
+        byId: {
+          ...byId,
+          [action.story.id]: action.story,
         },
+        byProject: byProjectReducer(state.byProject, actionWithProjectId),
       };
     }
     case CLEAR_NEW_STORY: {
+      //clears the the story new story from state as well as adds a new story into state.
+      const { pending, ...byId } = state.byId;
+
       return {
         ...state,
-        [action.projectId]: {
-          ...state[action.projectId],
-          unscheduled: [...state[action.projectId].unscheduled.filter(story => story.id !== 'new')],
+        byId: {
+          ...byId,
         },
+        byProject: byProjectReducer(state.byProject, actionWithProjectId),
       };
     }
+
     case ADD_STORIES: {
-      return { ...state, [action.payload.id]: { ...action.payload.stories } };
-    }
-    case EDIT_STORY: {
-      const { projectId, story, storyState } = action.payload;
-      const storyStateArr: Story[] = state[projectId][storyState];
-      const storyIndex: number = storyStateArr.findIndex(element => element.id === story.id);
-      const storiesArr: Story[] = [
-        ...storyStateArr.slice(0, storyIndex),
-        story,
-        ...storyStateArr.slice(storyIndex + 1),
-      ];
-      return { ...state, [projectId]: { ...state[projectId], [storyState]: storiesArr } };
-    }
-
-    case MOVE_STORY: {
-      const {
-        projectId,
-        sourceState,
-        sourceIndex,
-        destinationState,
-        destinationIndex,
-      } = action.payload;
-      const story: Story = state[projectId][sourceState][sourceIndex];
-      const sourceArr: Story[] = state[projectId][sourceState].filter(item => item.id !== story.id);
-
-      if (sourceState === destinationState) {
-        // If we are moving the story order in the same column, just reorganize the same array.
-        return {
-          ...state,
-          [projectId]: {
-            ...state[projectId],
-            [sourceState]: [
-              ...sourceArr.slice(0, destinationIndex),
-              story,
-              ...sourceArr.slice(destinationIndex),
-            ],
-          },
-        };
-      }
-      const draggedArr: Story[] = state[projectId][destinationState];
-      // If the story is dragged between columns, we need to adjust both states items.
       return {
-        ...state,
-        [projectId]: {
-          ...state[projectId],
-          [sourceState]: sourceArr,
-          [destinationState]: [
-            ...draggedArr.slice(0, destinationIndex),
-            story,
-            ...draggedArr.slice(destinationIndex),
-          ],
+        byId: {
+          ...state.byId,
+          ...action.stories.reduce((storiesById: Record<string, Story>, story: Story) => {
+            storiesById[story.id] = story;
+            return storiesById;
+          }, {}),
         },
+        byProject: byProjectReducer(state.byProject, action),
+        selectedProjectId: action.projectId,
       };
     }
+    // case EDIT_STORY: {
+    //   const { projectId, story, storyState } = action.payload;
+    //   const storyStateArr: Story[] = state[projectId][storyState];
+    //   const storyIndex: number = storyStateArr.findIndex(element => element.id === story.id);
+    //   const storiesArr: Story[] = [
+    //     ...storyStateArr.slice(0, storyIndex),
+    //     story,
+    //     ...storyStateArr.slice(storyIndex + 1),
+    //   ];
+    //   return { ...state, [projectId]: { ...state[projectId], [storyState]: storiesArr } };
+    // }
+
+    // case MOVE_STORY: {
+    //   const {
+    //     projectId,
+    //     sourceState,
+    //     sourceIndex,
+    //     destinationState,
+    //     destinationIndex,
+    //   } = action.payload;
+    //   const story: Story = state[projectId][sourceState][sourceIndex];
+    //   const sourceArr: Story[] = state[projectId][sourceState].filter(item => item.id !== story.id);
+
+    //   if (sourceState === destinationState) {
+    //     // If we are moving the story order in the same column, just reorganize the same array.
+    //     return {
+    //       ...state,
+    //       [projectId]: {
+    //         ...state[projectId],
+    //         [sourceState]: [
+    //           ...sourceArr.slice(0, destinationIndex),
+    //           story,
+    //           ...sourceArr.slice(destinationIndex),
+    //         ],
+    //       },
+    //     };
+    //   }
+    //   const draggedArr: Story[] = state[projectId][destinationState];
+    //   // If the story is dragged between columns, we need to adjust both states items.
+    //   return {
+    //     ...state,
+    //     [projectId]: {
+    //       ...state[projectId],
+    //       [sourceState]: sourceArr,
+    //       [destinationState]: [
+    //         ...draggedArr.slice(0, destinationIndex),
+    //         story,
+    //         ...draggedArr.slice(destinationIndex),
+    //       ],
+    //     },
+    //   };
+    // }
     default:
       return state;
   }
