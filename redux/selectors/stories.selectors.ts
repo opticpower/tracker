@@ -1,6 +1,6 @@
 import { State, Story } from '../types';
 
-export const filterStories = (state: State, id: string, filters: {}): Record<string, Story[]> => {
+export const filterStories = (state: State, id: string, filters: any): Record<string, Story[]> => {
   let stories = state.stories[id];
 
   /** Filtering is AND based filtering **/
@@ -10,7 +10,9 @@ export const filterStories = (state: State, id: string, filters: {}): Record<str
       const filteredStories = {};
 
       for (const status of Object.keys(stories)) {
-        filteredStories[status] = stories[status].filter((story: Story): boolean => selectedStories.includes(story.id));
+        filteredStories[status] = stories[status].filter((story: Story): boolean =>
+          selectedStories.includes(story.id)
+        );
       }
       stories = { ...filteredStories };
       continue;
@@ -32,4 +34,14 @@ export const filterStories = (state: State, id: string, filters: {}): Record<str
   }
 
   return stories;
+};
+
+// TODO: refactor redux state into normalized object mapped by ID to improve this perf
+export const getStory = (state: State, projectId: string, storyId: string): Story => {
+  return (
+    state.stories[projectId] &&
+    Object.values(state.stories[projectId])
+      .flat()
+      .find(story => String(story.id) === storyId)
+  );
 };

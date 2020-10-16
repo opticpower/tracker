@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import PivotalHandler from '../handlers/PivotalHandler';
-import { selectStory } from '../redux/actions/selectedStory.actions';
 import { clearNewStory, editStory, savedNewStory } from '../redux/actions/stories.actions';
 import { getApiKey } from '../redux/selectors/settings.selectors';
 import { Iteration, Label, Owner, Story, UrlParams } from '../redux/types';
@@ -112,7 +111,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                 if (['A', 'SPAN', 'TEXTAREA'].includes(e.target.nodeName)) {
                   return;
                 }
-                dispatch(selectStory(story));
+                router.push(`/projects/${id}?story=${story.id}`);
               }}>
               <Card.Content>
                 <Breadcrumbs size="mini">

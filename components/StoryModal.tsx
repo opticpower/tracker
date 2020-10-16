@@ -1,10 +1,8 @@
 import { Divider, Modal, Text } from '@geist-ui/react';
 import Markdown from 'react-markdown';
-import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import { deselectStory } from '../redux/actions/selectedStory.actions';
-import { getSelectedStory, isStorySelected } from '../redux/selectors/selectedStory.selectors';
+import { Story } from '../redux/types';
 import Blockers from './Blockers';
 import Comments from './Comments';
 import Labels from './Labels';
@@ -25,13 +23,14 @@ const Section = ({ title, children }): JSX.Element => (
   </SectionContainer>
 );
 
-const StoryModal = (): JSX.Element => {
-  const dispatch = useDispatch();
-  const isOpen = useSelector(isStorySelected);
-  const story = useSelector(getSelectedStory);
+interface StoryModalParams {
+  story?: Story;
+  onClose?: () => void;
+}
 
+const StoryModal = ({ story = null, onClose }: StoryModalParams): JSX.Element => {
   return (
-    <Modal open={isOpen} key={story?.id} width="60%" onClose={() => dispatch(deselectStory())}>
+    <Modal open={Boolean(story)} key={story?.id} width="60%" onClose={onClose}>
       <Modal.Title>{story?.name}</Modal.Title>
       <Modal.Content>
         <Section title="Description">

@@ -19,7 +19,7 @@ import { useAsync } from '../../hooks';
 import { redirectIfNoApiKey } from '../../redirects';
 import { addStories, moveStory, newStory } from '../../redux/actions/stories.actions';
 import { getApiKey } from '../../redux/selectors/settings.selectors';
-import { filterStories } from '../../redux/selectors/stories.selectors';
+import { filterStories, getStory } from '../../redux/selectors/stories.selectors';
 import { wrapper } from '../../redux/store';
 import { Filters, Iteration, Label, Owner, State, Story, UrlParams } from '../../redux/types';
 import { spacing } from '../../styles';
@@ -45,7 +45,7 @@ const Project: NextPage = (): JSX.Element => {
   `;
 
   const router = useRouter();
-  const { id }: UrlParams = router.query;
+  const { id, story: selectedStoryId }: UrlParams = router.query;
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
   const [unestimatedStory, setUnestimatedStory] = useState<Story>();
@@ -53,6 +53,7 @@ const Project: NextPage = (): JSX.Element => {
   const stories = useSelector(
     (state: State): Record<string, Story[]> => filterStories(state, id, filters)
   );
+  const selectedStory = useSelector((state: State): Story => getStory(state, id, selectedStoryId));
 
   const getFilterArray = (filters: Owner[] | Label[] = [], filter: Owner | Label) => {
     if (filters.find(f => f.name === filter.name)) {
@@ -151,7 +152,12 @@ const Project: NextPage = (): JSX.Element => {
 
   return (
     <Container color={palette.accents_1} image={type}>
-      <StoryModal />
+      <StoryModal
+        story={selectedStory}
+        onClose={() => {
+          router.push(`/projects/${id}`);
+        }}
+      />
       <FilterContainer>
         <GlobalHotKeys
           keyMap={{ NEW_STORY: 'n' }}

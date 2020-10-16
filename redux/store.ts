@@ -1,12 +1,12 @@
 // store.ts
-import { createStore, AnyAction, combineReducers } from 'redux';
-import { MakeStore, createWrapper, Context } from 'next-redux-wrapper';
-import { State } from './types';
-import projects from './reducers/projects';
-import stories from './reducers/stories';
+import { Context, createWrapper, MakeStore } from 'next-redux-wrapper';
+import { AnyAction, combineReducers, createStore } from 'redux';
+
 import iterations from './reducers/iterations';
+import projects from './reducers/projects';
 import settings from './reducers/settings';
-import selectedStory from './reducers/selectedStory';
+import stories from './reducers/stories';
+import { State } from './types';
 
 const makeStore: MakeStore<State> = (context: Context) =>
   createStore(
@@ -15,7 +15,6 @@ const makeStore: MakeStore<State> = (context: Context) =>
       stories,
       iterations,
       settings,
-      selectedStory,
     })
   );
 
