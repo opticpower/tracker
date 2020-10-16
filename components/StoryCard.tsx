@@ -11,11 +11,13 @@ import { clearNewStory, editStory, savedNewStory } from '../redux/actions/storie
 import { getApiKey } from '../redux/selectors/settings.selectors';
 import { Iteration, Label, Owner, Story, UrlParams } from '../redux/types';
 import Blockers from './Blockers';
+import BlockersQuickView from './BlockersQuickView';
 import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
 import Labels from './Labels';
 import Owners from './Owners';
 
 const CardContainer = styled(Card)(({ color }) => ({
+  position: 'relative',
   borderColor: `${color} !important`,
 }));
 
@@ -115,6 +117,16 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                 dispatch(selectStory(story));
               }}>
               <Card.Content>
+                {Boolean(story?.blockers?.length) && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: -8,
+                      left: -8,
+                    }}>
+                    <BlockersQuickView blockers={story.blockers} />
+                  </div>
+                )}
                 <Breadcrumbs size="mini">
                   <StoryType color={typeColors[story.story_type]}>{story.story_type}</StoryType>
                   <Breadcrumbs.Item>
@@ -162,20 +174,12 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   onBlur={saveName}
                 />
               </Card.Content>
-              {Boolean(
-                story?.owners?.length || story?.labels?.length || story?.blockers?.length
-              ) && (
+              {Boolean(story?.owners?.length || story?.labels?.length) && (
                 <>
                   <Divider y={0} />
                   <Card.Content>
                     <Owners owners={story.owners} onClick={addFilter} />
                     <Labels labels={story.labels} onClick={addFilter} />
-                    {Boolean(story?.blockers?.length) && (
-                      <>
-                        <Spacer y={0.5} />
-                        <Blockers blockers={story.blockers} />
-                      </>
-                    )}
                   </Card.Content>
                 </>
               )}

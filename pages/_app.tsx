@@ -1,4 +1,5 @@
 import { CssBaseline, GeistProvider } from '@geist-ui/react';
+import { useTheme } from '@geist-ui/react';
 import { AppProps } from 'next/app';
 import { parseCookies } from 'nookies';
 import React from 'react';
@@ -16,7 +17,7 @@ const OpticTracker = ({ Component, pageProps }: AppProps): JSX.Element => {
   const theme = selectedTheme === 'light' ? lightTheme : darkTheme;
   return (
     <GeistProvider theme={theme}>
-      <SCThemeProvider theme={theme}>
+      <SCThemeProvider theme={() => useTheme()}>
         <CssBaseline />
         <Nav />
         <Component {...pageProps} toggleLight />
