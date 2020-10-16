@@ -8,13 +8,4 @@ export const STORY_STATES = [
   'accepted',
 ];
 
-//anyone know a nifty way to convert the above array into the bottom structure?
-export const STORIES_BY_STATE = {
-  unscheduled: [],
-  unstarted: [],
-  started: [],
-  finished: [],
-  delivered: [],
-  rejected: [],
-  accepted: [],
-};
+export const STORIES_BY_STATE = STORY_STATES.reduce((acc, state) => ({ ...acc, [state]: [] }), {});
