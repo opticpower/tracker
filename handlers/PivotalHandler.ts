@@ -22,8 +22,7 @@ class PivotalHandler {
 
   // Gets all project stories for the provided user apiKey.
   static async fetchProjectStories({ apiKey, projectId }): Promise<Story[]> {
-    //todo: this may not be the best way to organize fetched stories - it may be better to sort on states rather then organize here.
-
+    //todo: change to one request using GET-REquest Aggrigator (https://www.pivotaltracker.com/help/api/#Using_the_GET_Request_Aggregator)
     const stories = await Promise.all(
       STORY_STATES.map(
         async (state: string): Promise<Story[]> => {
