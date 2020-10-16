@@ -1,7 +1,7 @@
 import { Badge, Breadcrumbs, Card, Divider, Spacer } from '@geist-ui/react';
 import { useRef, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
 import PivotalHandler from '../handlers/PivotalHandler';
