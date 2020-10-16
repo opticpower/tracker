@@ -65,7 +65,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
   const [_, saveName] = usePivotal(async ({ apiKey, projectId }) => {
     if (!name || escape.current) {
       escape.current = false;
-      if (story.id === 'new') {
+      if (story.id === 'pending') {
         dispatch(clearNewStory(projectId));
       } else {
         setName(story.name);
@@ -81,7 +81,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
         payload: { name },
       });
 
-      if (story.id === 'new') {
+      if (story.id === 'pending') {
         dispatch(savedNewStory(projectId, newStory));
       } else {
         dispatch(editStory(newStory));
