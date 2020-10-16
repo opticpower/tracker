@@ -77,17 +77,19 @@ const reducer = (state: StoriesState = initialState, action: AnyAction) => {
         selectedProjectId: action.projectId,
       };
     }
-    // case EDIT_STORY: {
-    //   const { projectId, story, storyState } = action.payload;
-    //   const storyStateArr: Story[] = state[projectId][storyState];
-    //   const storyIndex: number = storyStateArr.findIndex(element => element.id === story.id);
-    //   const storiesArr: Story[] = [
-    //     ...storyStateArr.slice(0, storyIndex),
-    //     story,
-    //     ...storyStateArr.slice(storyIndex + 1),
-    //   ];
-    //   return { ...state, [projectId]: { ...state[projectId], [storyState]: storiesArr } };
-    // }
+    case EDIT_STORY: {
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [action.story.id]: action.story,
+        },
+        byProject: byProjectReducer(state.byProject, {
+          ...actionWithProjectId,
+          oldStory: state.byId[action.story.id],
+        }),
+      };
+    }
 
     // case MOVE_STORY: {
     //   const {

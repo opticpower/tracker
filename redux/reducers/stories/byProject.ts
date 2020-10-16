@@ -75,17 +75,14 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
         },
       };
     }
-    //     case EDIT_STORY: {
-    //       const { projectId, story, storyState } = action.payload;
-    //       const storyStateArr: Story[] = state[projectId][storyState];
-    //       const storyIndex: number = storyStateArr.findIndex(element => element.id === story.id);
-    //       const storiesArr: Story[] = [
-    //         ...storyStateArr.slice(0, storyIndex),
-    //         story,
-    //         ...storyStateArr.slice(storyIndex + 1),
-    //       ];
-    //       return { ...state, [projectId]: { ...state[projectId], [storyState]: storiesArr } };
-    //     }
+    case EDIT_STORY: {
+      if (action.story.state !== action.oldStory.state) {
+        //todo: the story has moved on the server, we should remove it from the previous bucket,
+        //otherwise, the story is fine.
+      }
+
+      return state;
+    }
 
     //     case MOVE_STORY: {
     //       const {
