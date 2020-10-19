@@ -15,9 +15,10 @@ import { darkTheme, lightTheme } from '../themes';
 const OpticTracker = ({ Component, pageProps }: AppProps): JSX.Element => {
   const selectedTheme = useSelector(getTheme);
   const theme = selectedTheme === 'light' ? lightTheme : darkTheme;
+  const scTheme = useTheme();
   return (
     <GeistProvider theme={theme}>
-      <SCThemeProvider theme={() => useTheme()}>
+      <SCThemeProvider theme={scTheme}>
         <CssBaseline />
         <Nav />
         <Component {...pageProps} toggleLight />
