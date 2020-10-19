@@ -1,9 +1,26 @@
 export interface State {
   projects?: Project[];
-  stories?: Record<string, Record<string, Story[]>>;
+  stories?: StoriesState;
   iterations?: Record<number, Set<Iteration>>;
   settings?: Settings;
-  selectedStory?: SelectedStory;
+  selectedStory: SelectedStory;
+}
+
+export interface SelectedStory {
+  storyId?: string;
+  selected: boolean;
+}
+
+export interface StoriesState {
+  byId: Record<string, Story>;
+  byProject: Record<string, StoriesByProject>;
+  selectedStoryId?: string;
+  selectedProjectId?: string;
+}
+
+export interface StoriesByProject {
+  storyIdsByState: Record<string, string[]>;
+  // storyIdsByMilestone: Record<string, string[]>;
 }
 
 export interface Project {

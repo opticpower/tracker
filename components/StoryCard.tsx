@@ -1,15 +1,14 @@
 import { Badge, Breadcrumbs, Card, Divider, Spacer } from '@geist-ui/react';
-import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
 import PivotalHandler from '../handlers/PivotalHandler';
+import { usePivotal } from '../hooks';
 import { selectStory } from '../redux/actions/selectedStory.actions';
 import { clearNewStory, editStory, savedNewStory } from '../redux/actions/stories.actions';
-import { getApiKey } from '../redux/selectors/settings.selectors';
-import { Iteration, Label, Owner, Story, UrlParams } from '../redux/types';
+import { Iteration, Label, Owner, Story } from '../redux/types';
 import Blockers from './Blockers';
 import BlockersQuickView from './BlockersQuickView';
 import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
@@ -64,20 +63,16 @@ interface StoryCardParams {
 
 const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Element => {
   const dispatch = useDispatch();
-  const apiKey = useSelector(getApiKey);
-
-  const router = useRouter();
-  const { id }: UrlParams = router.query;
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [name, setName] = useState<string>(story.name);
   const escape = useRef(false); // we can't use setState for this as the dispatch of this takes an extra tick.
 
-  const saveName = async () => {
+  const [_, saveName] = usePivotal(async ({ apiKey, projectId }) => {
     if (!name || escape.current) {
       escape.current = false;
-      if (story.id === 'new') {
-        dispatch(clearNewStory(id));
+      if (story.id === 'pending') {
+        dispatch(clearNewStory(projectId));
       } else {
         setName(story.name);
       }
@@ -86,19 +81,19 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
 
     if (story.name !== name) {
       const newStory = await PivotalHandler.updateStory({
-        apiKey: apiKey,
-        projectId: id,
+        apiKey,
+        projectId,
         storyId: story.id,
         payload: { name },
       });
 
-      if (story.id === 'new') {
-        dispatch(savedNewStory(id, newStory));
+      if (story.id === 'pending') {
+        dispatch(savedNewStory(projectId, newStory));
       } else {
-        dispatch(editStory({ projectId: id, story: newStory, storyState: story.current_state }));
+        dispatch(editStory(newStory));
       }
     }
-  };
+  });
 
   const openEstimationModal = (e): void => {
     e.stopPropagation();

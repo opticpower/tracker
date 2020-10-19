@@ -14,7 +14,8 @@ import Labels from '../../components/Labels';
 import Owners from '../../components/Owners';
 import ProjectPicker from '../../components/ProjectPicker';
 import StoryModal from '../../components/StoryModal';
-import PivotalHandler, { STORY_STATES } from '../../handlers/PivotalHandler';
+import { STORY_STATES } from '../../constants';
+import PivotalHandler from '../../handlers/PivotalHandler';
 import { useAsync } from '../../hooks';
 import { redirectIfNoApiKey } from '../../redirects';
 import { addStories, moveStory, newStory } from '../../redux/actions/stories.actions';
@@ -91,7 +92,7 @@ const Project: NextPage = (): JSX.Element => {
     const getStories = async () => {
       const stories = await PivotalHandler.fetchProjectStories({ apiKey, projectId: id });
 
-      dispatch(addStories({ id, stories }));
+      dispatch(addStories(id, stories));
     };
     getStories();
   }, [id]);
@@ -120,7 +121,6 @@ const Project: NextPage = (): JSX.Element => {
 
     dispatch(
       moveStory({
-        projectId: id,
         sourceState,
         sourceIndex,
         destinationState,

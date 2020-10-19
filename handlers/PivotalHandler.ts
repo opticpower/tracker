@@ -1,16 +1,8 @@
 import { subDays } from 'date-fns';
 
+import { STORY_STATES } from '../constants';
 import { Project, Story } from '../redux/types';
 
-export const STORY_STATES = [
-  'unscheduled',
-  'unstarted',
-  'started',
-  'finished',
-  'delivered',
-  'rejected',
-  'accepted',
-];
 const PIVOTAL_API_URL = 'https://www.pivotaltracker.com/services/v5';
 
 const STORY_FIELDS =
@@ -29,32 +21,31 @@ class PivotalHandler {
   }
 
   // Gets all project stories for the provided user apiKey.
-  static async fetchProjectStories({ apiKey, projectId }): Promise<Record<string, Story[]>> {
+  static async fetchProjectStories({ apiKey, projectId }): Promise<Story[]> {
+    //todo: change to one request using GET-REquest Aggrigator (https://www.pivotaltracker.com/help/api/#Using_the_GET_Request_Aggregator)
     const stories = await Promise.all(
-      STORY_STATES.map(async state => {
-        let fetchString = `stories?limit=500&with_state=${state}&${STORY_FIELDS}`;
-        if (state === 'accepted') {
-          const oneWeekAgo = subDays(new Date(), 7);
-          fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
-        }
-
-        const request = await fetch(
-          `https://www.pivotaltracker.com/services/v5/projects/${projectId}/${fetchString}`,
-          {
-            headers: {
-              'X-TrackerToken': apiKey,
-            },
+      STORY_STATES.map(
+        async (state: string): Promise<Story[]> => {
+          let fetchString = `stories?limit=500&with_state=${state}&${STORY_FIELDS}`;
+          if (state === 'accepted') {
+            const oneWeekAgo = subDays(new Date(), 7);
+            fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
           }
-        );
-        return { [state]: await request.json() };
-      })
-    );
-    const normalizedStories = stories.reduce(
-      (acc, stateObject) => ({ ...acc, ...stateObject }),
-      {}
+
+          const request = await fetch(
+            `https://www.pivotaltracker.com/services/v5/projects/${projectId}/${fetchString}`,
+            {
+              headers: {
+                'X-TrackerToken': apiKey,
+              },
+            }
+          );
+          return request.json();
+        }
+      )
     );
 
-    return normalizedStories;
+    return stories.flat();
   }
 
   // Updates a single story.

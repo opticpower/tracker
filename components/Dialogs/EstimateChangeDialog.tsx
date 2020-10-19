@@ -1,15 +1,13 @@
+import { Modal, Text } from '@geist-ui/react';
 import { useState } from 'react';
-import styled from 'styled-components';
-import { Text, Modal } from '@geist-ui/react';
-import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
 
-import EstimatePicker from '../EstimatePicker';
-import { Story, UrlParams } from '../../redux/types';
-import { editStory } from '../../redux/actions/stories.actions';
-import { getApiKey } from '../../redux/selectors/settings.selectors';
 import PivotalHandler from '../../handlers/PivotalHandler';
-import { useAsync } from '../../hooks';
+import { usePivotal } from '../../hooks';
+import { editStory } from '../../redux/actions/stories.actions';
+import { Story } from '../../redux/types';
+import EstimatePicker from '../EstimatePicker';
 
 const CenteredDiv = styled.div`
   display: flex;
@@ -32,22 +30,19 @@ const EstimateChangeDialog = ({
   onClose,
 }: EstimateChangeDialogParams): JSX.Element => {
   const dispatch = useDispatch();
-  const apiKey = useSelector(getApiKey);
-  const router = useRouter();
-  const { id }: UrlParams = router.query;
   const [selectedEstimate, setSelectedEstimate] = useState(
     story?.estimate ? String(story.estimate) : ''
   );
 
-  const [{ isLoading }, changeEstimate] = useAsync(async () => {
-    const newStory: Story = { ...story, estimate: Number(selectedEstimate) };
-    dispatch(editStory({ projectId: id, story: newStory, storyState: state }));
-    await PivotalHandler.updateStory({
+  const [{ isLoading }, changeEstimate] = usePivotal(async ({ apiKey, projectId }) => {
+    const newStory = await PivotalHandler.updateStory({
       apiKey,
-      projectId: id,
+      projectId,
       storyId: story.id,
       payload: { estimate: Number(selectedEstimate) },
     });
+
+    dispatch(editStory(newStory));
 
     onClose();
   });
