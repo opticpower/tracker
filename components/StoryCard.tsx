@@ -9,11 +9,12 @@ import { usePivotal } from '../hooks';
 import { selectStory } from '../redux/actions/selectedStory.actions';
 import { clearNewStory, editStory, savedNewStory } from '../redux/actions/stories.actions';
 import { Iteration, Label, Owner, Story } from '../redux/types';
-import Blockers from './Blockers';
 import BlockersQuickView from './BlockersQuickView';
 import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
 import Labels from './Labels';
 import Owners from './Owners';
+
+const UNESTIMATED_STORY_TYPES = ['bug', 'chore'];
 
 const CardContainer = styled(Card)(({ color }) => ({
   position: 'relative',
@@ -132,22 +133,24 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                       {story.id}
                     </a>
                   </Breadcrumbs.Item>
-                  <Breadcrumbs.Item>
-                    {Number.isInteger(story.estimate) ? (
-                      <>
-                        <Badge onClick={(e): void => openEstimationModal(e)}>
-                          {story.estimate}
-                        </Badge>
+                  {!UNESTIMATED_STORY_TYPES.includes(story.story_type) && (
+                    <Breadcrumbs.Item>
+                      {Number.isInteger(story.estimate) ? (
+                        <>
+                          <Badge onClick={(e): void => openEstimationModal(e)}>
+                            {story.estimate}
+                          </Badge>
+                          <StyledSpan onClick={(e): void => openEstimationModal(e)}>
+                            change
+                          </StyledSpan>
+                        </>
+                      ) : (
                         <StyledSpan onClick={(e): void => openEstimationModal(e)}>
-                          change
+                          estimate
                         </StyledSpan>
-                      </>
-                    ) : (
-                      <StyledSpan onClick={(e): void => openEstimationModal(e)}>
-                        estimate
-                      </StyledSpan>
-                    )}
-                  </Breadcrumbs.Item>
+                      )}
+                    </Breadcrumbs.Item>
+                  )}
                 </Breadcrumbs>
                 <Spacer x={0.8} />
                 <Title
