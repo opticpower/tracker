@@ -51,7 +51,9 @@ const Title = styled.textarea`
 `;
 
 // Used to override Card.Content's default 16pt padding
-const contentStyle = { padding: '12pt' };
+const CardContent = styled(Card.Content)`
+  padding: 0 !important;
+`;
 
 interface StoryCardParams {
   story: Story;
@@ -119,7 +121,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                 }
                 dispatch(selectStory(story));
               }}>
-              <Card.Content style={contentStyle}>
+              <CardContent>
                 {Boolean(story?.blockers?.length) && (
                   <div
                     style={{
@@ -176,14 +178,15 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   }}
                   onBlur={saveName}
                 />
-              </Card.Content>
+              </CardContent>
               {Boolean(story?.owners?.length || story?.labels?.length) && (
                 <>
                   <Divider y={0} />
-                  <Card.Content>
+                  <Spacer y={0.5} />
+                  <CardContent>
                     <Owners owners={story.owners} onClick={addFilter} />
                     <Labels labels={story.labels} onClick={addFilter} />
-                  </Card.Content>
+                  </CardContent>
                 </>
               )}
             </CardContainer>
