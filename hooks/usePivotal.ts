@@ -10,7 +10,7 @@ const usePivotal = (
 ): [{ result: any; isLoading: boolean; error: any }, (...args) => void] => {
   const apiKey = useSelector(getApiKey);
   const projectId = useSelector(getSelectedProjectId);
-  return useAsync(() => asyncFn(apiKey, projectId), initialVal);
+  return useAsync(() => asyncFn({ apiKey, projectId }), initialVal);
 };
 
 export default usePivotal;
