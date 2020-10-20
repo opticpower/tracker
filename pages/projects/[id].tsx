@@ -24,6 +24,7 @@ import { filterStories } from '../../redux/selectors/stories.selectors';
 import { wrapper } from '../../redux/store';
 import { Filters, Iteration, Label, Owner, State, Story, UrlParams } from '../../redux/types';
 import { spacing } from '../../styles';
+import { getStoryPayload } from '../../utils/story';
 
 const Container = styled.div(({ color, image }) => ({
   overflow: 'auto',
@@ -135,15 +136,12 @@ const Project: NextPage = (): JSX.Element => {
           destinationIndex + 1
         : destinationIndex;
 
-    const payload = {
-      current_state: destinationState,
-      before_id: stories[destinationState][landingIndex]?.id || null,
-      // A null before_id means the story was placed first in the list.
-      after_id: stories[destinationState][landingIndex - 1]?.id || null,
-      // A null after_id means the story was placed last in the list.
-    };
-
-    await PivotalHandler.updateStory({ apiKey, projectId: id, storyId: draggableId, payload });
+    await PivotalHandler.updateStory({
+      apiKey,
+      projectId: id,
+      storyId: draggableId,
+      payload: getStoryPayload(stories, destinationState, landingIndex),
+    });
   });
 
   const loading = !(stories && Object.values(stories).length);
