@@ -10,7 +10,7 @@ import { editStory } from '../../redux/actions/stories.actions';
 import { Story } from '../../redux/types';
 import EstimatePicker from '../EstimatePicker';
 
-const ESTIMATE_REMOVAL_SUPPORTED_STAES = ['unstarted', 'unscheduled'];
+const ESTIMATE_NOT_REQUIRED_STATES = ['unstarted', 'unscheduled'];
 
 const CenteredDiv = styled.div`
   display: flex;
@@ -69,7 +69,7 @@ const EstimateChangeDialog = ({
         <CenteredDiv>
           <Text h5> Select the amount of effort points of this story.</Text>
           <EstimatePicker value={selectedEstimate} onChange={estimateChangeHandler} />
-          {ESTIMATE_REMOVAL_SUPPORTED_STAES.includes(story?.current_state) &&
+          {ESTIMATE_NOT_REQUIRED_STATES.includes(story?.current_state) &&
             Number.isInteger(story?.estimate) && (
               <StyledSpan onClick={() => setSelectedEstimate('')}>
                 <ZeroConfig size={16} />
