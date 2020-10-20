@@ -1,5 +1,6 @@
-import { Fragment } from 'react';
 import { Note, Spacer } from '@geist-ui/react';
+import { Fragment } from 'react';
+
 import { Blocker } from '../redux/types';
 
 interface BlockersParams {
