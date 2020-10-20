@@ -1,6 +1,7 @@
 import { Modal, Text } from '@geist-ui/react';
+import { ZeroConfig } from '@geist-ui/react-icons';
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
 import PivotalHandler from '../../handlers/PivotalHandler';
@@ -9,11 +10,25 @@ import { editStory } from '../../redux/actions/stories.actions';
 import { Story } from '../../redux/types';
 import EstimatePicker from '../EstimatePicker';
 
+const ESTIMATE_NOT_REQUIRED_STATES = ['unstarted', 'unscheduled'];
+
 const CenteredDiv = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+`;
+
+const StyledSpan = styled.span`
+  cursor: pointer;
+  width: 165px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  :hover {
+    text-decoration: underline;
+  }
 `;
 
 interface EstimateChangeDialogParams {
@@ -26,7 +41,6 @@ interface EstimateChangeDialogParams {
 const EstimateChangeDialog = ({
   story,
   open,
-  state,
   onClose,
 }: EstimateChangeDialogParams): JSX.Element => {
   const dispatch = useDispatch();
@@ -39,7 +53,7 @@ const EstimateChangeDialog = ({
       apiKey,
       projectId,
       storyId: story.id,
-      payload: { estimate: Number(selectedEstimate) },
+      payload: { estimate: selectedEstimate ? Number(selectedEstimate) : null },
     });
 
     dispatch(editStory(newStory));
@@ -55,6 +69,13 @@ const EstimateChangeDialog = ({
         <CenteredDiv>
           <Text h5> Select the amount of effort points of this story.</Text>
           <EstimatePicker value={selectedEstimate} onChange={estimateChangeHandler} />
+          {ESTIMATE_NOT_REQUIRED_STATES.includes(story?.current_state) &&
+            Number.isInteger(story?.estimate) && (
+              <StyledSpan onClick={() => setSelectedEstimate('')}>
+                <ZeroConfig size={16} />
+                Set to Unestimated
+              </StyledSpan>
+            )}
         </CenteredDiv>
       </Modal.Content>
       <Modal.Action passive onClick={() => onClose()}>

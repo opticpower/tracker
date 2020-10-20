@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
 import { Select } from '@geist-ui/react';
-import { useSelector, useDispatch } from 'react-redux';
-import { State, Iteration } from '../redux/types';
+import { format, parseISO } from 'date-fns';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
 import { addIterations } from '../redux/actions/iterations.actions';
-import { parseISO, format } from 'date-fns';
 import { getApiKey } from '../redux/selectors/settings.selectors';
+import { Iteration, State } from '../redux/types';
 
 interface IterationsParams {
   id: string;
@@ -13,7 +14,12 @@ interface IterationsParams {
   removeIteration: () => void;
 }
 
-const Iterations = ({ id, selectedIteration, addIteration, removeIteration }: IterationsParams): JSX.Element => {
+const Iterations = ({
+  id,
+  selectedIteration,
+  addIteration,
+  removeIteration,
+}: IterationsParams): JSX.Element => {
   const apiKey = useSelector(getApiKey);
   const iterations = useSelector((state: State): Iteration[] => {
     const iterations = state.iterations[id] || new Set();
@@ -55,13 +61,15 @@ const Iterations = ({ id, selectedIteration, addIteration, removeIteration }: It
         } else {
           addIteration(iterations.find(it => it.number === number));
         }
-      }}
-    >
+      }}>
       <Select.Option value="-1">All Iterations</Select.Option>
       {iterations.map(
-        (iteration: Iteration, index: Number): JSX.Element => {
+        (iteration: Iteration): JSX.Element => {
           return (
-            <Select.Option key={iteration.number} id={String(iteration.number)} value={String(iteration.number)}>
+            <Select.Option
+              key={iteration.number}
+              id={String(iteration.number)}
+              value={String(iteration.number)}>
               {formatDate(iteration.start)} - {formatDate(iteration.finish)}
             </Select.Option>
           );
