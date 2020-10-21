@@ -22,8 +22,6 @@ const MarkdownEditor = ({
   const modifiedDark = { ...dark, background: 'transparent' };
   const markdownTheme = globalTheme === 'dark' ? modifiedDark : light;
 
-  //todo: figure out why we can't refresh
-
   return (
     <Editor
       key={defaultValue}

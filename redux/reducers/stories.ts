@@ -77,7 +77,6 @@ const reducer = (state: StoriesState = initialState, action: AnyAction) => {
       };
     }
     case EDIT_STORY: {
-      console.log('updating story edit', action.story);
       return {
         ...state,
         byId: {
