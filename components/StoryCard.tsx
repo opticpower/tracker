@@ -4,6 +4,7 @@ import { Draggable } from 'react-beautiful-dnd';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
+import { UNESTIMATED_STORY_TYPES } from '../constants';
 import PivotalHandler from '../handlers/PivotalHandler';
 import { usePivotal } from '../hooks';
 import { selectStory } from '../redux/actions/selectedStory.actions';
@@ -13,8 +14,6 @@ import BlockersQuickView from './BlockersQuickView';
 import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
 import Labels from './Labels';
 import Owners from './Owners';
-
-const UNESTIMATED_STORY_TYPES = ['bug', 'chore'];
 
 const CardContainer = styled(Card)(({ color }) => ({
   position: 'relative',

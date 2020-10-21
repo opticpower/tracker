@@ -14,7 +14,7 @@ import Labels from '../../components/Labels';
 import Owners from '../../components/Owners';
 import ProjectPicker from '../../components/ProjectPicker';
 import StoryModal from '../../components/StoryModal';
-import { STORY_STATES } from '../../constants';
+import { STORY_STATES, UNESTIMATED_STORY_TYPES } from '../../constants';
 import PivotalHandler from '../../handlers/PivotalHandler';
 import { useAsync } from '../../hooks';
 import { redirectIfNoApiKey } from '../../redirects';
@@ -113,7 +113,10 @@ const Project: NextPage = (): JSX.Element => {
     }
     const sourceState = STORY_STATES[sourceDroppableId];
 
-    if (!stories[sourceState][sourceIndex].estimate) {
+    if (
+      !UNESTIMATED_STORY_TYPES.includes(stories[sourceState][sourceIndex].story_type) &&
+      !stories[sourceState][sourceIndex].estimate
+    ) {
       setUnestimatedStory({ ...stories[sourceState][sourceIndex], state: sourceState });
       return;
     }
