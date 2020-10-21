@@ -50,7 +50,7 @@ class PivotalHandler {
 
   // Updates a single story.
   static async updateStory({ apiKey, projectId, storyId, payload }): Promise<Story> {
-    if (storyId === 'new') {
+    if (storyId === 'pending') {
       const response = await fetch(`${PIVOTAL_API_URL}/projects/${projectId}/stories`, {
         method: 'POST',
         headers: {
