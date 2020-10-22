@@ -11,3 +11,5 @@ export const STORY_STATES = [
 export const STORIES_BY_STATE = STORY_STATES.reduce((acc, state) => ({ ...acc, [state]: [] }), {});
 
 export const UNESTIMATED_STORY_TYPES = ['bug', 'chore'];
+
+export const ESTIMATE_NOT_REQUIRED_STATES = ['unstarted', 'unscheduled'];

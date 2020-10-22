@@ -4,13 +4,12 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
+import { ESTIMATE_NOT_REQUIRED_STATES } from '../../constants';
 import PivotalHandler from '../../handlers/PivotalHandler';
 import { usePivotal } from '../../hooks';
 import { editStory } from '../../redux/actions/stories.actions';
 import { Story } from '../../redux/types';
 import EstimatePicker from '../EstimatePicker';
-
-const ESTIMATE_NOT_REQUIRED_STATES = ['unstarted', 'unscheduled'];
 
 const CenteredDiv = styled.div`
   display: flex;

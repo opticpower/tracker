@@ -14,7 +14,11 @@ import Labels from '../../components/Labels';
 import Owners from '../../components/Owners';
 import ProjectPicker from '../../components/ProjectPicker';
 import StoryModal from '../../components/StoryModal';
-import { STORY_STATES, UNESTIMATED_STORY_TYPES } from '../../constants';
+import {
+  ESTIMATE_NOT_REQUIRED_STATES,
+  STORY_STATES,
+  UNESTIMATED_STORY_TYPES,
+} from '../../constants';
 import PivotalHandler from '../../handlers/PivotalHandler';
 import { useAsync } from '../../hooks';
 import { redirectIfNoApiKey } from '../../redirects';
@@ -111,17 +115,20 @@ const Project: NextPage = (): JSX.Element => {
     if (destinationDroppableId === sourceDroppableId && destinationIndex === sourceIndex) {
       return;
     }
+
     const sourceState = STORY_STATES[sourceDroppableId];
+    const destinationState = STORY_STATES[destinationDroppableId];
+    const story = stories[sourceState][sourceIndex];
 
     if (
-      !UNESTIMATED_STORY_TYPES.includes(stories[sourceState][sourceIndex].story_type) &&
-      !stories[sourceState][sourceIndex].estimate
+      (!ESTIMATE_NOT_REQUIRED_STATES.includes(sourceState) ||
+        !ESTIMATE_NOT_REQUIRED_STATES.includes(destinationState)) &&
+      !UNESTIMATED_STORY_TYPES.includes(story.story_type) &&
+      !story.estimate
     ) {
-      setUnestimatedStory({ ...stories[sourceState][sourceIndex], state: sourceState });
+      setUnestimatedStory({ ...story, state: sourceState });
       return;
     }
-
-    const destinationState = STORY_STATES[destinationDroppableId];
 
     dispatch(
       moveStory({
