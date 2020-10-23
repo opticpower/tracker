@@ -37,8 +37,6 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
     case NEW_STORY: {
       const selectedMode = state[action.projectId].selectedMode;
 
-      console.log('got selected mode', selectedMode);
-
       let storyIdsByState = state[action.projectId].storyIdsByState;
       let storyIdsByMilestone = state[action.projectId].storyIdsByMilestone;
 
@@ -68,16 +66,26 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
     }
     case SAVED_NEW_STORY: {
       //clears the the story new story as well as adds a new story into state.
-      const unscheduledStories = state[action.projectId].storyIdsByState.unscheduled.filter(
-        id => id !== 'pending'
-      );
+      const storyIdsByState = state[action.projectId].storyIdsByState;
+      const storyIdsByMilestone = state[action.projectId].storyIdsByMilestone;
 
       return {
         ...state,
         [action.projectId]: {
+          ...state[action.projectId],
           storyIdsByState: {
-            ...state[action.projectId].storyIdsByState,
-            unscheduled: [action.story.id, ...unscheduledStories],
+            ...storyIdsByState,
+            [STORY_STATES[0]]: [
+              action.story.id,
+              ...storyIdsByState[STORY_STATES[0]].filter(id => id !== 'pending'),
+            ],
+          },
+          storyIdsByMilestone: {
+            ...storyIdsByMilestone,
+            [STORY_MILESTONES[0]]: [
+              action.story.id,
+              ...storyIdsByMilestone[STORY_MILESTONES[0]].filter(id => id !== 'pending'),
+            ],
           },
         },
       };
