@@ -36,31 +36,17 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
   switch (action.type) {
     case NEW_STORY: {
       const selectedMode = state[action.projectId].selectedMode;
-
-      let storyIdsByState = state[action.projectId].storyIdsByState;
-      let storyIdsByMilestone = state[action.projectId].storyIdsByMilestone;
-
-      if (selectedMode === 'Milestone') {
-        storyIdsByMilestone = {
-          ...storyIdsByMilestone,
-          [STORY_MILESTONES[0]]: ['pending', ...storyIdsByMilestone[STORY_MILESTONES[0]]],
-        };
-      } else {
-        console.log('got storyIdsByState', storyIdsByState, storyIdsByState[STORY_STATES[0]]);
-        storyIdsByState = {
-          ...(storyIdsByState = {
-            ...storyIdsByState,
-            [STORY_STATES[0]]: ['pending', ...storyIdsByState[STORY_STATES[0]]],
-          }),
-        };
-      }
+      const idArrayName = selectedMode === 'Milestone' ? 'storyIdsByMilestone' : 'storyIdsByState';
+      const startingState = selectedMode === 'Milestone' ? STORY_MILESTONES[0] : STORY_STATES[0];
 
       return {
         ...state,
         [action.projectId]: {
           ...state[action.projectId],
-          storyIdsByState,
-          storyIdsByMilestone,
+          [idArrayName]: {
+            ...state[action.projectId][idArrayName],
+            [startingState]: ['pending', ...state[action.projectId][idArrayName][startingState]],
+          },
         },
       };
     }
@@ -91,24 +77,18 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
       };
     }
     case CLEAR_NEW_STORY: {
+      const selectedMode = state[action.projectId].selectedMode;
+      const idArrayName = selectedMode === 'Milestone' ? 'storyIdsByMilestone' : 'storyIdsByState';
+      const startingState = selectedMode === 'Milestone' ? STORY_MILESTONES[0] : STORY_STATES[0];
+
       return {
         ...state,
         [action.projectId]: {
           ...state[action.projectId],
-          storyIdsByState: {
-            ...state[action.projectId].storyIdsByState,
-            [STORY_STATES[0]]: [
-              ...state[action.projectId].storyIdsByState[STORY_STATES[0]].filter(
-                id => id !== 'pending'
-              ),
-            ],
-          },
-          storyIdsByMilestone: {
-            ...state[action.projectId].storyIdsByMilestone,
-            [STORY_MILESTONES[0]]: [
-              ...state[action.projectId].storyIdsByMilestone[STORY_MILESTONES[0]].filter(
-                id => id !== 'pending'
-              ),
+          [idArrayName]: {
+            ...state[action.projectId][idArrayName],
+            [startingState]: [
+              ...state[action.projectId][idArrayName][startingState].filter(id => id !== 'pending'),
             ],
           },
         },
@@ -151,31 +131,6 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
       //     //todo: the story has moved on the server, we should remove it from the previous bucket,
       //     //otherwise, the story is fine.
       //   }
-
-      const { story, oldStory, projectId } = action;
-      const previousMilestone = getStoryMilestone(oldStory) || STORY_MILESTONES[0];
-      const newMilestone = getStoryMilestone(story);
-
-      if (newMilestone !== previousMilestone) {
-        const storyIdsByMilestone = state[projectId].storyIdsByMilestone;
-        return {
-          ...state,
-          [projectId]: {
-            ...state[projectId],
-            storyIdsByMilestone: {
-              ...storyIdsByMilestone,
-              [previousMilestone]: [
-                ...storyIdsByMilestone[previousMilestone].filter(id => id !== story.id),
-              ],
-              [newMilestone]: [story.id, ...storyIdsByMilestone[newMilestone]], //todo: figure out how to get new placement
-            },
-          },
-        };
-      }
-
-      //todo: for milestone case we need to check the state of the story.
-      console.log('got edit story', action);
-
       return state;
     }
 
@@ -191,7 +146,6 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
 
       if (sourceState === destinationState) {
         // If we are moving the story order in the same column, just reorganize the same array.
-
         return {
           ...state,
           [projectId]: {
