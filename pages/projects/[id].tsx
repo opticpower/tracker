@@ -133,7 +133,14 @@ const Project: NextPage = (): JSX.Element => {
       const destinationMilestone = STORY_MILESTONES[destinationDroppableId];
       const story = stories[sourceMilestone][sourceIndex];
 
-      //todo: this is where we add the label then run update where we trigger the move.
+      dispatch(
+        moveStory({
+          sourceState: sourceMilestone,
+          sourceIndex,
+          destinationState: destinationMilestone,
+          destinationIndex,
+        })
+      );
       const updatedStory = await PivotalHandler.updateStory({
         apiKey,
         projectId: id,
@@ -150,14 +157,6 @@ const Project: NextPage = (): JSX.Element => {
           ],
         },
       });
-      dispatch(
-        moveStory({
-          sourceState: sourceMilestone,
-          sourceIndex,
-          destinationState: destinationMilestone,
-          destinationIndex,
-        })
-      );
       dispatch(editStory(updatedStory));
       return;
     }
