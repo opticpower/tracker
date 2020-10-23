@@ -62,14 +62,17 @@ class PivotalHandler {
       return response.json();
     }
 
-    const response = await fetch(`${PIVOTAL_API_URL}/projects/${projectId}/stories/${storyId}`, {
-      method: 'PUT',
-      headers: {
-        'X-TrackerToken': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ...payload }),
-    });
+    const response = await fetch(
+      `${PIVOTAL_API_URL}/projects/${projectId}/stories/${storyId}?${STORY_FIELDS}`,
+      {
+        method: 'PUT',
+        headers: {
+          'X-TrackerToken': apiKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...payload }),
+      }
+    );
     return response.json();
   }
 

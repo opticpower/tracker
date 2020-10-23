@@ -1,5 +1,6 @@
 import { Button, Col, Loading, Row, useTheme } from '@geist-ui/react';
 import { NextPage } from 'next';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
@@ -25,6 +26,7 @@ import PivotalHandler from '../../handlers/PivotalHandler';
 import { useAsync } from '../../hooks';
 import { redirectIfNoApiKey } from '../../redirects';
 import { addStories, editStory, moveStory, newStory } from '../../redux/actions/stories.actions';
+import { getProjectName } from '../../redux/selectors/projects.selectors';
 import { getApiKey } from '../../redux/selectors/settings.selectors';
 import { filterStories, getSelectedProjectMode } from '../../redux/selectors/stories.selectors';
 import { wrapper } from '../../redux/store';
@@ -63,6 +65,8 @@ const Project: NextPage = (): JSX.Element => {
   );
   const mode = useSelector(getSelectedProjectMode);
   const selectedModeStates = mode === 'Milestone' ? STORY_MILESTONES : STORY_STATES;
+
+  const projectName = useSelector((state: State): string => getProjectName(state, id));
 
   const getFilterArray = (filters: Owner[] | Label[] = [], filter: Owner | Label) => {
     if (filters.find(f => f.name === filter.name)) {
@@ -196,6 +200,9 @@ const Project: NextPage = (): JSX.Element => {
 
   return (
     <Container color={palette.accents_1} image={type}>
+      <Head>
+        <title>{projectName} - Optic Tracker</title>
+      </Head>
       <StoryModal />
       <FilterContainer>
         <GlobalHotKeys
