@@ -107,7 +107,6 @@ const Project: NextPage = (): JSX.Element => {
   }, [id]);
 
   const [, onDragEnd] = useAsync(async (result: DragDropContext.result) => {
-    console.log('got result', result);
     const { source, destination, draggableId } = result;
 
     const { droppableId: sourceDroppableId, index: sourceIndex } = source || {};

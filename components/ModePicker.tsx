@@ -18,7 +18,6 @@ const ModePicker = (): JSX.Element => {
       width="200px"
       value={storyMode}
       onChange={value => {
-        console.log('changing value to', value);
         const mode = Array.isArray(value) ? value[0] : value;
         dispatch(toggleMode(mode));
       }}>
