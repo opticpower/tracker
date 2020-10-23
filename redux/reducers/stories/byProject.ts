@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux';
 
-import { STORIES_BY_STATE } from '../../../constants';
+import { STORIES_BY_MILESTONE, STORIES_BY_STATE, STORY_MILESTONES } from '../../../constants';
 import {
   ADD_STORIES,
   CLEAR_NEW_STORY,
@@ -8,11 +8,24 @@ import {
   MOVE_STORY,
   NEW_STORY,
   SAVED_NEW_STORY,
+  TOGGLE_MODE,
 } from '../../actions/stories.actions';
-import { Story } from '../../types';
+import { Story, StoryModes } from '../../types';
 import { StoriesByProject } from '../../types';
 
 const initialState = {};
+
+const getStoryMilestone = (story: Story): string => {
+  const labels = story.labels.map(label => label.name.toLowerCase());
+
+  for (const milestoneName of STORY_MILESTONES) {
+    if (labels.includes(milestoneName)) {
+      return milestoneName;
+    }
+  }
+
+  return 'backlog';
+};
 
 const reducer = (state: Record<string, StoriesByProject> = initialState, action: AnyAction) => {
   switch (action.type) {
@@ -65,11 +78,25 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
         STORIES_BY_STATE
       );
 
+      const storiesByMilestone = action.stories.reduce(
+        (stories: Record<string, string[]>, story: Story) => {
+          //get current story milestone:
+          const milestone = getStoryMilestone(story);
+
+          return { ...stories, [milestone]: [...stories[milestone], story.id] };
+        },
+        STORIES_BY_MILESTONE
+      );
+
       return {
         ...state,
         [action.projectId]: {
+          ...(state[action.projectId] || { selectedMode: StoryModes.State }),
           storyIdsByState: {
             ...storiesByState,
+          },
+          storyIdsByMilestone: {
+            ...storiesByMilestone,
           },
         },
       };
@@ -122,6 +149,16 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
               ...destinationStateList.slice(destinationIndex),
             ],
           },
+        },
+      };
+    }
+    case TOGGLE_MODE: {
+      const { mode, projectId } = action;
+      return {
+        ...state,
+        [projectId]: {
+          ...state[projectId],
+          selectedMode: mode,
         },
       };
     }

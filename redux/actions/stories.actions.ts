@@ -8,6 +8,7 @@ export const EDIT_STORY = 'EDIT_STORY';
 export const NEW_STORY = 'NEW_STORY';
 export const SAVED_NEW_STORY = 'SAVED_NEW_STORY';
 export const CLEAR_NEW_STORY = 'CLEAR_NEW_STORY';
+export const TOGGLE_MODE = 'TOGGLE_MODE';
 
 interface MoveStories {
   sourceState: string;
@@ -46,4 +47,9 @@ export const editStory = (story: Story): AnyAction => ({
 export const moveStory = (payload: MoveStories): AnyAction => ({
   type: MOVE_STORY,
   ...payload,
+});
+
+export const toggleMode = (mode: string): AnyAction => ({
+  type: TOGGLE_MODE,
+  mode,
 });

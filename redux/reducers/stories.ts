@@ -7,6 +7,7 @@ import {
   MOVE_STORY,
   NEW_STORY,
   SAVED_NEW_STORY,
+  TOGGLE_MODE,
 } from '../actions/stories.actions';
 import { StoriesState, Story } from '../types';
 import byProjectReducer from './stories/byProject';
@@ -89,15 +90,11 @@ const reducer = (state: StoriesState = initialState, action: AnyAction) => {
         }),
       };
     }
-
-    case MOVE_STORY: {
+    default:
       return {
         ...state,
         byProject: byProjectReducer(state.byProject, actionWithProjectId),
       };
-    }
-    default:
-      return state;
   }
 };
 
