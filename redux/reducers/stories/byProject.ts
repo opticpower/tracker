@@ -152,24 +152,52 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
       //     //otherwise, the story is fine.
       //   }
 
+      const { story, oldStory, projectId } = action;
+      const previousMilestone = getStoryMilestone(oldStory) || STORY_MILESTONES[0];
+      const newMilestone = getStoryMilestone(story);
+
+      if (newMilestone !== previousMilestone) {
+        const storyIdsByMilestone = state[projectId].storyIdsByMilestone;
+        return {
+          ...state,
+          [projectId]: {
+            ...state[projectId],
+            storyIdsByMilestone: {
+              ...storyIdsByMilestone,
+              [previousMilestone]: [
+                ...storyIdsByMilestone[previousMilestone].filter(id => id !== story.id),
+              ],
+              [newMilestone]: [story.id, ...storyIdsByMilestone[newMilestone]], //todo: figure out how to get new placement
+            },
+          },
+        };
+      }
+
+      //todo: for milestone case we need to check the state of the story.
+      console.log('got edit story', action);
+
       return state;
     }
 
     case MOVE_STORY: {
       const { projectId, sourceState, sourceIndex, destinationState, destinationIndex } = action;
-      const storyId: string = state[projectId].storyIdsByState[sourceState][sourceIndex];
-      const sourceWithoutStory: string[] = state[projectId].storyIdsByState[sourceState].filter(
+      const selectedMode = state[action.projectId].selectedMode;
+      const idArrayName = selectedMode === 'Milestone' ? 'storyIdsByMilestone' : 'storyIdsByState';
+
+      const storyId: string = state[projectId][idArrayName][sourceState][sourceIndex];
+      const sourceWithoutStory: string[] = state[projectId][idArrayName][sourceState].filter(
         (id: string): boolean => id !== storyId
       );
 
       if (sourceState === destinationState) {
         // If we are moving the story order in the same column, just reorganize the same array.
+
         return {
           ...state,
           [projectId]: {
             ...state[projectId],
-            storyIdsByState: {
-              ...state[projectId].storyIdsByState,
+            [idArrayName]: {
+              ...state[projectId][idArrayName],
               [sourceState]: [
                 ...sourceWithoutStory.slice(0, destinationIndex),
                 storyId,
@@ -179,14 +207,14 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
           },
         };
       }
-      const destinationStateList: string[] = state[projectId].storyIdsByState[destinationState];
+      const destinationStateList: string[] = state[projectId][idArrayName][destinationState];
       // If the story is dragged between columns, we need to adjust both states items.
       return {
         ...state,
         [projectId]: {
           ...state[projectId],
-          storyIdsByState: {
-            ...state[projectId].storyIdsByState,
+          [idArrayName]: {
+            ...state[projectId][idArrayName],
             [sourceState]: sourceWithoutStory,
             [destinationState]: [
               ...destinationStateList.slice(0, destinationIndex),

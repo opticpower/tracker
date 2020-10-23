@@ -24,7 +24,7 @@ import {
 import PivotalHandler from '../../handlers/PivotalHandler';
 import { useAsync } from '../../hooks';
 import { redirectIfNoApiKey } from '../../redirects';
-import { addStories, moveStory, newStory } from '../../redux/actions/stories.actions';
+import { addStories, editStory, moveStory, newStory } from '../../redux/actions/stories.actions';
 import { getApiKey } from '../../redux/selectors/settings.selectors';
 import { filterStories, getSelectedProjectMode } from '../../redux/selectors/stories.selectors';
 import { wrapper } from '../../redux/store';
@@ -107,6 +107,7 @@ const Project: NextPage = (): JSX.Element => {
   }, [id]);
 
   const [, onDragEnd] = useAsync(async (result: DragDropContext.result) => {
+    console.log('got result', result);
     const { source, destination, draggableId } = result;
 
     const { droppableId: sourceDroppableId, index: sourceIndex } = source || {};
@@ -117,6 +118,47 @@ const Project: NextPage = (): JSX.Element => {
     }
 
     if (destinationDroppableId === sourceDroppableId && destinationIndex === sourceIndex) {
+      return;
+    }
+
+    const landingIndex =
+      // Calculates the index in between which two stories the dragged story landed.
+      destinationDroppableId === sourceDroppableId && destinationIndex > sourceIndex
+        ? // Special case when landing further down from the same column the story was taken.
+          destinationIndex + 1
+        : destinationIndex;
+
+    if (mode === 'Milestone') {
+      const sourceMilestone = STORY_MILESTONES[sourceDroppableId];
+      const destinationMilestone = STORY_MILESTONES[destinationDroppableId];
+      const story = stories[sourceMilestone][sourceIndex];
+
+      //todo: this is where we add the label then run update where we trigger the move.
+      const updatedStory = await PivotalHandler.updateStory({
+        apiKey,
+        projectId: id,
+        storyId: story.id,
+        payload: {
+          before_id: stories[destinationMilestone][landingIndex]?.id || null,
+          // A null after_id means the story was placed last in the list.
+          after_id: stories[destinationMilestone][landingIndex - 1]?.id || null,
+          labels: [
+            ...story.labels
+              .map(label => label.name)
+              .filter(name => !STORY_MILESTONES.includes(name)), //remove all milestones from label.
+            destinationMilestone, //add new destination milestone
+          ],
+        },
+      });
+      dispatch(
+        moveStory({
+          sourceState: sourceMilestone,
+          sourceIndex,
+          destinationState: destinationMilestone,
+          destinationIndex,
+        })
+      );
+      dispatch(editStory(updatedStory));
       return;
     }
 
@@ -142,13 +184,6 @@ const Project: NextPage = (): JSX.Element => {
         destinationIndex,
       })
     );
-
-    const landingIndex =
-      // Calculates the index in between which two stories the dragged story landed.
-      destinationDroppableId === sourceDroppableId && destinationIndex > sourceIndex
-        ? // Special case when landing further down from the same column the story was taken.
-          destinationIndex + 1
-        : destinationIndex;
 
     await PivotalHandler.updateStory({
       apiKey,

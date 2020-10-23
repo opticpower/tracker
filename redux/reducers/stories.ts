@@ -4,10 +4,8 @@ import {
   ADD_STORIES,
   CLEAR_NEW_STORY,
   EDIT_STORY,
-  MOVE_STORY,
   NEW_STORY,
   SAVED_NEW_STORY,
-  TOGGLE_MODE,
 } from '../actions/stories.actions';
 import { StoriesState, Story } from '../types';
 import byProjectReducer from './stories/byProject';
