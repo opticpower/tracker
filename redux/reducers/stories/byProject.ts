@@ -1,6 +1,11 @@
 import { AnyAction } from 'redux';
 
-import { STORIES_BY_MILESTONE, STORIES_BY_STATE, STORY_MILESTONES } from '../../../constants';
+import {
+  STORIES_BY_MILESTONE,
+  STORIES_BY_STATE,
+  STORY_MILESTONES,
+  STORY_STATES,
+} from '../../../constants';
 import {
   ADD_STORIES,
   CLEAR_NEW_STORY,
@@ -30,13 +35,34 @@ const getStoryMilestone = (story: Story): string => {
 const reducer = (state: Record<string, StoriesByProject> = initialState, action: AnyAction) => {
   switch (action.type) {
     case NEW_STORY: {
+      const selectedMode = state[action.projectId].selectedMode;
+
+      console.log('got selected mode', selectedMode);
+
+      let storyIdsByState = state[action.projectId].storyIdsByState;
+      let storyIdsByMilestone = state[action.projectId].storyIdsByMilestone;
+
+      if (selectedMode === 'Milestone') {
+        storyIdsByMilestone = {
+          ...storyIdsByMilestone,
+          [STORY_MILESTONES[0]]: ['pending', ...storyIdsByMilestone[STORY_MILESTONES[0]]],
+        };
+      } else {
+        console.log('got storyIdsByState', storyIdsByState, storyIdsByState[STORY_STATES[0]]);
+        storyIdsByState = {
+          ...(storyIdsByState = {
+            ...storyIdsByState,
+            [STORY_STATES[0]]: ['pending', ...storyIdsByState[STORY_STATES[0]]],
+          }),
+        };
+      }
+
       return {
         ...state,
         [action.projectId]: {
-          storyIdsByState: {
-            ...state[action.projectId].storyIdsByState,
-            unscheduled: ['pending', ...state[action.projectId].storyIdsByState.unscheduled],
-          },
+          ...state[action.projectId],
+          storyIdsByState,
+          storyIdsByMilestone,
         },
       };
     }
@@ -60,10 +86,21 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
       return {
         ...state,
         [action.projectId]: {
+          ...state[action.projectId],
           storyIdsByState: {
             ...state[action.projectId].storyIdsByState,
-            unscheduled: [
-              ...state[action.projectId].storyIdsByState.unscheduled.filter(id => id !== 'pending'),
+            [STORY_STATES[0]]: [
+              ...state[action.projectId].storyIdsByState[STORY_STATES[0]].filter(
+                id => id !== 'pending'
+              ),
+            ],
+          },
+          storyIdsByMilestone: {
+            ...state[action.projectId].storyIdsByMilestone,
+            [STORY_MILESTONES[0]]: [
+              ...state[action.projectId].storyIdsByMilestone[STORY_MILESTONES[0]].filter(
+                id => id !== 'pending'
+              ),
             ],
           },
         },
