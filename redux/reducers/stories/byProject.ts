@@ -35,9 +35,9 @@ const getStoryMilestone = (story: Story): string => {
 const reducer = (state: Record<string, StoriesByProject> = initialState, action: AnyAction) => {
   switch (action.type) {
     case NEW_STORY: {
-      const selectedMode = state[action.projectId].selectedMode;
-      const idArrayName = selectedMode === 'Milestone' ? 'storyIdsByMilestone' : 'storyIdsByState';
-      const startingState = selectedMode === 'Milestone' ? STORY_MILESTONES[0] : STORY_STATES[0];
+      const isMilestoneMode = state[action.projectId].selectedMode === 'Milestone';
+      const idArrayName = isMilestoneMode ? 'storyIdsByMilestone' : 'storyIdsByState';
+      const startingState = isMilestoneMode ? STORY_MILESTONES[0] : STORY_STATES[0];
 
       return {
         ...state,
