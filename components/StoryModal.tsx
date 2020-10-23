@@ -35,8 +35,6 @@ const StoryModal = (): JSX.Element => {
   const story = useSelector(getSelectedStory);
   const [description, setDescription] = useState<string>(story?.description);
 
-  console.log('render with description', description);
-
   const [_, saveDescription] = usePivotal(async ({ apiKey, projectId }) => {
     const newStory = await PivotalHandler.updateStory({
       apiKey,
@@ -44,7 +42,6 @@ const StoryModal = (): JSX.Element => {
       storyId: story.id,
       payload: { description },
     });
-    console.log('saved story', newStory);
     dispatch(editStory(newStory));
   });
 
