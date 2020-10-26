@@ -18,9 +18,15 @@ export interface StoriesState {
   selectedProjectId?: string;
 }
 
+export enum StoryModes {
+  State = 'State',
+  Milestone = 'Milestone',
+}
+
 export interface StoriesByProject {
+  selectedMode: StoryModes;
   storyIdsByState: Record<string, string[]>;
-  // storyIdsByMilestone: Record<string, string[]>;
+  storyIdsByMilestone: Record<string, string[]>;
 }
 
 export interface Project {

@@ -4,7 +4,6 @@ import {
   ADD_STORIES,
   CLEAR_NEW_STORY,
   EDIT_STORY,
-  MOVE_STORY,
   NEW_STORY,
   SAVED_NEW_STORY,
 } from '../actions/stories.actions';
@@ -89,15 +88,11 @@ const reducer = (state: StoriesState = initialState, action: AnyAction) => {
         }),
       };
     }
-
-    case MOVE_STORY: {
+    default:
       return {
         ...state,
         byProject: byProjectReducer(state.byProject, actionWithProjectId),
       };
-    }
-    default:
-      return state;
   }
 };
 

@@ -43,6 +43,10 @@ const colors = {
   delivered: '#62dbc8',
   rejected: '#ff5757',
   accepted: '#7cd651',
+  backlog: '#ad6fff',
+  'milestone 1': '#4ebafd',
+  'milestone 2': '#ffd14d',
+  'milestone 3': '#ff8d48',
 };
 
 const Column = ({ idx, state, stories, addFilter }: ColumnParams): JSX.Element => {

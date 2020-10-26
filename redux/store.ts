@@ -1,6 +1,6 @@
 // store.ts
 import { Context, createWrapper, MakeStore } from 'next-redux-wrapper';
-import { AnyAction, combineReducers, createStore } from 'redux';
+import { combineReducers, createStore } from 'redux';
 
 import iterations from './reducers/iterations';
 import projects from './reducers/projects';
