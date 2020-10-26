@@ -94,3 +94,14 @@ export interface Settings {
   theme: string;
   apiKey?: string;
 }
+
+export interface User {
+  api_token?: string;
+  email?: string;
+  id?: number;
+  initials?: string;
+  kind?: string;
+  name?: string;
+  projects?: Project[];
+  receives_in_app_notifications?: boolean;
+}
