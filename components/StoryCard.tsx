@@ -1,5 +1,5 @@
 import { Badge, Breadcrumbs, Card, Divider, Select, Spacer } from '@geist-ui/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
@@ -95,7 +95,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
     }
   });
 
-  const [fn, saveStoryType] = usePivotal(async ({ apiKey, projectId }) => {
+  const [val, saveStoryType] = usePivotal(async ({ apiKey, projectId }) => {
     if (story.story_type !== type) {
       const newStory = await PivotalHandler.updateStory({
         apiKey,
@@ -108,6 +108,10 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
     }
   });
 
+  useEffect(() => {
+    saveStoryType();
+  }, [type]);
+
   const openEstimationModal = (e): void => {
     e.stopPropagation();
     setIsModalVisible(true);
@@ -117,7 +121,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
     return (
       <Select
         placeholder="Type"
-        value="feature"
+        value={type}
         size="mini"
         onChange={value => {
           setType(value);
@@ -162,7 +166,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   </div>
                 )}
                 <Breadcrumbs size="mini">
-                  {story.id === 'pending' || story.current_state === 'unscheduled' ? (
+                  {story.id === 'pending' || state === 'unscheduled' ? (
                     <StoryTypeSelect />
                   ) : (
                     <StoryType color={typeColors[story.story_type]}>{story.story_type}</StoryType>
