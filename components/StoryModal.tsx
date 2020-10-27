@@ -1,5 +1,5 @@
-import { Divider, Modal, Text } from '@geist-ui/react';
-import { useState } from 'react';
+import { Description, Divider, Modal, Text } from '@geist-ui/react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -8,11 +8,14 @@ import { usePivotal } from '../hooks';
 import { deselectStory } from '../redux/actions/selectedStory.actions';
 import { editStory } from '../redux/actions/stories.actions';
 import { getSelectedStory, isStorySelected } from '../redux/selectors/selectedStory.selectors';
+import { Owner, Story } from '../redux/types';
 import Blockers from './Blockers';
 import Comments from './Comments';
+import EditOwners from './EditOwners';
 import Labels from './Labels';
 import MarkdownEditor from './MarkdownEditor';
-import Owners from './Owners';
+
+const EDITABLE_FIELDS = ['description', 'owners'];
 
 const SectionContainer = styled.div`
   &:not(last-child) {
@@ -29,28 +32,55 @@ const Section = ({ title, children }): JSX.Element => (
   </SectionContainer>
 );
 
+interface EditableFields {
+  description?: string;
+  owners?: Owner[];
+}
+
+const getEditableFields = (story: Story): EditableFields => ({
+  description: story?.description,
+  owners: story?.owners || [],
+});
+
 const StoryModal = (): JSX.Element => {
   const dispatch = useDispatch();
   const isOpen = useSelector(isStorySelected);
   const story = useSelector(getSelectedStory);
-  const [description, setDescription] = useState<string>(story?.description);
+  const [editedFields, setEditedFields] = useState<EditableFields>(getEditableFields(story));
 
-  const [_, saveDescription] = usePivotal(async ({ apiKey, projectId }) => {
+  useEffect(() => {
+    setEditedFields(getEditableFields(story));
+  }, [story?.id]);
+
+  const [_, saveStory] = usePivotal(async ({ apiKey, projectId }) => {
+    const payload = {
+      description: editedFields.description,
+      owner_ids: editedFields.owners.map(owner => owner.id),
+    };
     const newStory = await PivotalHandler.updateStory({
       apiKey,
       projectId,
       storyId: story.id,
-      payload: { description },
+      payload,
     });
     dispatch(editStory(newStory));
-    setDescription('');
+    setEditedFields(getEditableFields(newStory));
   });
 
   const handleClose = () => {
-    if (description) {
-      saveDescription();
+    if (EDITABLE_FIELDS.some(field => editedFields[field] !== story[field])) {
+      saveStory();
     }
     dispatch(deselectStory());
+  };
+
+  const toggleOwner = (owner: Owner) => {
+    const { owners } = editedFields;
+    if (owners.find(o => owner.id === o.id)) {
+      setEditedFields({ ...editedFields, owners: owners.filter(o => o.id !== owner.id) });
+    } else {
+      setEditedFields({ ...editedFields, owners: [...owners, owner] });
+    }
   };
 
   return (
@@ -59,13 +89,14 @@ const StoryModal = (): JSX.Element => {
       <Modal.Content>
         <Section title="Description">
           <MarkdownEditor
-            defaultValue={story?.description}
+            key={story?.id}
+            defaultValue={editedFields.description}
             placeholder="Add something..."
-            onChange={value => setDescription(value)}
+            onChange={description => setEditedFields({ ...editedFields, description })}
           />
         </Section>
         <Section title="Owners">
-          <Owners owners={story?.owners} />
+          <EditOwners owners={editedFields.owners} toggleOwner={toggleOwner} />
         </Section>
         <Section title="Tags">
           <Labels labels={story?.labels} />
