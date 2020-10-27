@@ -1,5 +1,5 @@
-import { Divider, Modal, Text } from '@geist-ui/react';
-import { useState } from 'react';
+import { Description, Divider, Modal, Text } from '@geist-ui/react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -11,9 +11,9 @@ import { getSelectedStory, isStorySelected } from '../redux/selectors/selectedSt
 import { Owner, Story } from '../redux/types';
 import Blockers from './Blockers';
 import Comments from './Comments';
+import EditOwners from './EditOwners';
 import Labels from './Labels';
 import MarkdownEditor from './MarkdownEditor';
-import Owners from './Owners';
 
 const EDITABLE_FIELDS = ['description', 'owners'];
 
@@ -39,7 +39,7 @@ interface EditableFields {
 
 const getEditableFields = (story: Story): EditableFields => ({
   description: story?.description,
-  owners: story?.owners,
+  owners: story?.owners || [],
 });
 
 const StoryModal = (): JSX.Element => {
@@ -48,12 +48,20 @@ const StoryModal = (): JSX.Element => {
   const story = useSelector(getSelectedStory);
   const [editedFields, setEditedFields] = useState<EditableFields>(getEditableFields(story));
 
+  useEffect(() => {
+    setEditedFields(getEditableFields(story));
+  }, [story?.id]);
+
   const [_, saveStory] = usePivotal(async ({ apiKey, projectId }) => {
+    const payload = {
+      description: editedFields.description,
+      owner_ids: editedFields.owners.map(owner => owner.id),
+    };
     const newStory = await PivotalHandler.updateStory({
       apiKey,
       projectId,
       storyId: story.id,
-      payload: editedFields,
+      payload,
     });
     dispatch(editStory(newStory));
     setEditedFields(getEditableFields(newStory));
@@ -66,19 +74,29 @@ const StoryModal = (): JSX.Element => {
     dispatch(deselectStory());
   };
 
+  const toggleOwner = (owner: Owner) => {
+    const { owners } = editedFields;
+    if (owners.find(o => owner.id === o.id)) {
+      setEditedFields({ ...editedFields, owners: owners.filter(o => o.id !== owner.id) });
+    } else {
+      setEditedFields({ ...editedFields, owners: [...owners, owner] });
+    }
+  };
+
   return (
     <Modal open={isOpen} key={story?.id} width="60%" onClose={() => handleClose()}>
       <Modal.Title>{story?.name}</Modal.Title>
       <Modal.Content>
         <Section title="Description">
           <MarkdownEditor
-            defaultValue={story?.description}
+            key={story?.id}
+            defaultValue={editedFields.description}
             placeholder="Add something..."
             onChange={description => setEditedFields({ ...editedFields, description })}
           />
         </Section>
         <Section title="Owners">
-          <Owners owners={story?.owners} />
+          <EditOwners owners={editedFields.owners} toggleOwner={toggleOwner} />
         </Section>
         <Section title="Tags">
           <Labels labels={story?.labels} />
