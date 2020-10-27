@@ -33,6 +33,7 @@ export interface StoriesByProject {
 export interface Project {
   id: string;
   name: string;
+  people: Owner[];
 }
 
 export interface SelectedStory {
