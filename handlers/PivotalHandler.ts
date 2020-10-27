@@ -10,7 +10,7 @@ const STORY_FIELDS =
 
 class PivotalHandler {
   static async getUser({ apiKey }): Promise<User> {
-    const response = await fetch(`${PIVOTAL_API_URL}/me`, {
+    const response = await fetch(`${PIVOTAL_API_URL}/me?fields=name,id,initials,email`, {
       headers: {
         'X-TrackerToken': apiKey,
       },

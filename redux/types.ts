@@ -4,6 +4,7 @@ export interface State {
   iterations?: Record<number, Set<Iteration>>;
   settings?: Settings;
   selectedStory: SelectedStory;
+  user?: User;
 }
 
 export interface SelectedStory {
@@ -96,12 +97,8 @@ export interface Settings {
 }
 
 export interface User {
-  api_token?: string;
   email?: string;
   id?: number;
   initials?: string;
-  kind?: string;
   name?: string;
-  projects?: Project[];
-  receives_in_app_notifications?: boolean;
 }
