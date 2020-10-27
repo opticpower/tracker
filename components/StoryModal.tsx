@@ -43,17 +43,24 @@ const StoryModal = (): JSX.Element => {
       payload: { description },
     });
     dispatch(editStory(newStory));
+    setDescription('');
   });
 
+  const handleClose = () => {
+    if (description) {
+      saveDescription();
+    }
+    dispatch(deselectStory());
+  };
+
   return (
-    <Modal open={isOpen} key={story?.id} width="60%" onClose={() => dispatch(deselectStory())}>
+    <Modal open={isOpen} key={story?.id} width="60%" onClose={() => handleClose()}>
       <Modal.Title>{story?.name}</Modal.Title>
       <Modal.Content>
         <Section title="Description">
           <MarkdownEditor
             defaultValue={story?.description}
             placeholder="Add something..."
-            onSave={saveDescription}
             onChange={value => setDescription(value)}
           />
         </Section>

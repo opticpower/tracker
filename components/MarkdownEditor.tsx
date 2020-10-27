@@ -6,7 +6,7 @@ import { getTheme } from '../redux/selectors/settings.selectors';
 interface MarkdownEditorParams {
   defaultValue: string;
   placeholder: string;
-  onSave: () => void;
+  onSave?: () => void;
   onChange: (description: string) => void;
 }
 
@@ -15,7 +15,6 @@ import { dark, light } from 'rich-markdown-editor/dist/theme';
 const MarkdownEditor = ({
   defaultValue,
   placeholder,
-  onSave,
   onChange,
 }: MarkdownEditorParams): JSX.Element => {
   const globalTheme = useSelector(getTheme);
@@ -34,7 +33,6 @@ const MarkdownEditor = ({
       }}
       handleDOMEvents={{
         blur: () => {
-          onSave();
           return true;
         },
       }}
