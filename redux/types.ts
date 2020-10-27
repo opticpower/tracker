@@ -4,6 +4,7 @@ export interface State {
   iterations?: Record<number, Set<Iteration>>;
   settings?: Settings;
   selectedStory: SelectedStory;
+  user?: User;
 }
 
 export interface SelectedStory {
@@ -100,4 +101,11 @@ export interface UrlParams {
 export interface Settings {
   theme: string;
   apiKey?: string;
+}
+
+export interface User {
+  email?: string;
+  id?: number;
+  initials?: string;
+  name?: string;
 }

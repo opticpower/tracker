@@ -7,6 +7,7 @@ import projects from './reducers/projects';
 import selectedStory from './reducers/selectedStory';
 import settings from './reducers/settings';
 import stories from './reducers/stories';
+import user from './reducers/user';
 import { State } from './types';
 
 const makeStore: MakeStore<State> = (context: Context) => {
@@ -21,6 +22,7 @@ const makeStore: MakeStore<State> = (context: Context) => {
       iterations,
       settings,
       selectedStory,
+      user,
     }),
     ext
   );

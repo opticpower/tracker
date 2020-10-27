@@ -1,7 +1,7 @@
 import { subDays } from 'date-fns';
 
 import { STORY_STATES } from '../constants';
-import { Project, Story } from '../redux/types';
+import { Project, Story, User } from '../redux/types';
 
 const PIVOTAL_API_URL = 'https://www.pivotaltracker.com/services/v5';
 
@@ -9,6 +9,16 @@ const STORY_FIELDS =
   'fields=name,estimate,owners,labels,blockers,reviews,story_type,description,comments(id,person,text,created_at),current_state';
 
 class PivotalHandler {
+  static async getUser({ apiKey }): Promise<User> {
+    const response = await fetch(`${PIVOTAL_API_URL}/me?fields=name,id,initials,email`, {
+      headers: {
+        'X-TrackerToken': apiKey,
+      },
+    });
+
+    return await response.json();
+  }
+
   // Gets all projects for the provided user apiKey.
   static async fetchProjects({ apiKey }): Promise<Project[]> {
     const response = await fetch(
@@ -35,14 +45,11 @@ class PivotalHandler {
             fetchString = `${fetchString}&accepted_after=${oneWeekAgo.getTime()}`;
           }
 
-          const request = await fetch(
-            `https://www.pivotaltracker.com/services/v5/projects/${projectId}/${fetchString}`,
-            {
-              headers: {
-                'X-TrackerToken': apiKey,
-              },
-            }
-          );
+          const request = await fetch(`${PIVOTAL_API_URL}/projects/${projectId}/${fetchString}`, {
+            headers: {
+              'X-TrackerToken': apiKey,
+            },
+          });
           return request.json();
         }
       )
