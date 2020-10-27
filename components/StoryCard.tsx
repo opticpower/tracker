@@ -65,7 +65,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [name, setName] = useState<string>(story.name);
-  const [type, setType] = useState<string>(story.story_type);
+  const [type, setType] = useState<string | string[]>(story.story_type);
   const escape = useRef(false); // we can't use setState for this as the dispatch of this takes an extra tick.
 
   const [_, saveName] = usePivotal(async ({ apiKey, projectId }) => {
@@ -117,7 +117,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
     setIsModalVisible(true);
   };
 
-  const StoryTypeSelect = () => {
+  const StoryTypeSelect = (): JSX.Element => {
     return (
       <Select
         placeholder="Type"
