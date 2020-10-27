@@ -6,7 +6,6 @@ import { getTheme } from '../redux/selectors/settings.selectors';
 interface MarkdownEditorParams {
   defaultValue: string;
   placeholder: string;
-  onSave?: () => void;
   onChange: (description: string) => void;
 }
 
@@ -30,11 +29,6 @@ const MarkdownEditor = ({
       onChange={value => {
         const changedValue = value();
         onChange(changedValue);
-      }}
-      handleDOMEvents={{
-        blur: () => {
-          return true;
-        },
       }}
       theme={{ ...markdownTheme, zIndex: 10000 }}
     />
