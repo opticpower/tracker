@@ -23,9 +23,10 @@ import {
   UNESTIMATED_STORY_TYPES,
 } from '../../constants';
 import PivotalHandler from '../../handlers/PivotalHandler';
-import { useAsync } from '../../hooks';
+import { useAsync, usePivotal } from '../../hooks';
 import { redirectIfNoApiKey } from '../../redirects';
 import { addStories, editStory, moveStory, newStory } from '../../redux/actions/stories.actions';
+import { setUser } from '../../redux/actions/user.actions';
 import { getProjectName } from '../../redux/selectors/projects.selectors';
 import { getApiKey } from '../../redux/selectors/settings.selectors';
 import { filterStories, getSelectedProjectMode } from '../../redux/selectors/stories.selectors';
@@ -109,6 +110,19 @@ const Project: NextPage = (): JSX.Element => {
     };
     getStories();
   }, [id]);
+
+  const [, getUser] = usePivotal(async ({ apiKey }) => {
+    const user = await PivotalHandler.getUser({ apiKey });
+    dispatch(setUser(user));
+  });
+
+  const stateUser = useSelector(state => state.user);
+
+  useEffect(() => {
+    if (!stateUser || !Object.keys(stateUser).length) {
+      getUser();
+    }
+  }, []);
 
   const [, onDragEnd] = useAsync(async (result: DragDropContext.result) => {
     const { source, destination, draggableId } = result;

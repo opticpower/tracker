@@ -1,8 +1,9 @@
-import { Settings } from '../types';
-import { AnyAction } from 'redux';
-import { SET_THEME, SET_API_KEY } from '../actions/settings.actions';
-import { setCookie } from 'nookies';
 import { HYDRATE } from 'next-redux-wrapper';
+import { setCookie } from 'nookies';
+import { AnyAction } from 'redux';
+
+import { SET_API_KEY, SET_THEME } from '../actions/settings.actions';
+import { Settings } from '../types';
 
 const initialState = {
   theme: 'dark',

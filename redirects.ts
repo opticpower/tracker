@@ -1,4 +1,3 @@
-import { NextApiResponse } from 'next';
 import { GetServerSidePropsContext } from 'next-redux-wrapper';
 import { Store } from 'redux';
 
