@@ -8,11 +8,14 @@ import { usePivotal } from '../hooks';
 import { deselectStory } from '../redux/actions/selectedStory.actions';
 import { editStory } from '../redux/actions/stories.actions';
 import { getSelectedStory, isStorySelected } from '../redux/selectors/selectedStory.selectors';
+import { Owner, Story } from '../redux/types';
 import Blockers from './Blockers';
 import Comments from './Comments';
 import Labels from './Labels';
 import MarkdownEditor from './MarkdownEditor';
 import Owners from './Owners';
+
+const EDITABLE_FIELDS = ['description', 'owners'];
 
 const SectionContainer = styled.div`
   &:not(last-child) {
@@ -29,26 +32,36 @@ const Section = ({ title, children }): JSX.Element => (
   </SectionContainer>
 );
 
+interface EditableFields {
+  description?: string;
+  owners?: Owner[];
+}
+
+const getEditableFields = (story: Story): EditableFields => ({
+  description: story?.description,
+  owners: story?.owners,
+});
+
 const StoryModal = (): JSX.Element => {
   const dispatch = useDispatch();
   const isOpen = useSelector(isStorySelected);
   const story = useSelector(getSelectedStory);
-  const [description, setDescription] = useState<string>(story?.description);
+  const [editedFields, setEditedFields] = useState<EditableFields>(getEditableFields(story));
 
-  const [_, saveDescription] = usePivotal(async ({ apiKey, projectId }) => {
+  const [_, saveStory] = usePivotal(async ({ apiKey, projectId }) => {
     const newStory = await PivotalHandler.updateStory({
       apiKey,
       projectId,
       storyId: story.id,
-      payload: { description },
+      payload: editedFields,
     });
     dispatch(editStory(newStory));
-    setDescription('');
+    setEditedFields(getEditableFields(newStory));
   });
 
   const handleClose = () => {
-    if (description) {
-      saveDescription();
+    if (EDITABLE_FIELDS.some(field => editedFields[field] !== story[field])) {
+      saveStory();
     }
     dispatch(deselectStory());
   };
@@ -61,7 +74,7 @@ const StoryModal = (): JSX.Element => {
           <MarkdownEditor
             defaultValue={story?.description}
             placeholder="Add something..."
-            onChange={value => setDescription(value)}
+            onChange={description => setEditedFields({ ...editedFields, description })}
           />
         </Section>
         <Section title="Owners">
