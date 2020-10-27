@@ -1,7 +1,11 @@
-import { State, Story } from '../types';
+import { State, Story, StoryModes } from '../types';
 
 export const getSelectedProjectId = (state: State): string => {
   return state.stories.selectedProjectId;
+};
+
+export const getSelectedProjectMode = (state: State): string => {
+  return state.stories.byProject[state.stories.selectedProjectId]?.selectedMode;
 };
 
 export const filterStories = (
@@ -9,9 +13,14 @@ export const filterStories = (
   projectId: string,
   filters: any //for now
 ): Record<string, Story[]> => {
-  let storyIdsByState = state.stories.byProject[projectId]?.storyIdsByState;
+  const mode = state.stories.byProject[projectId]?.selectedMode;
 
-  if (!storyIdsByState) {
+  let storyIdsByMode =
+    mode === 'Milestone'
+      ? state.stories.byProject[projectId]?.storyIdsByMilestone
+      : state.stories.byProject[projectId]?.storyIdsByState;
+
+  if (!storyIdsByMode) {
     return null;
   }
 
@@ -23,18 +32,18 @@ export const filterStories = (
       const selectedStories = filters[filter].stories.map((s: Story): string => s.id);
       const filteredStories = {};
 
-      for (const state of Object.keys(storyIdsByState)) {
-        filteredStories[state] = storyIdsByState[state].filter((storyId: string): boolean =>
+      for (const mode of Object.keys(storyIdsByMode)) {
+        filteredStories[mode] = storyIdsByMode[mode].filter((storyId: string): boolean =>
           selectedStories.includes(storyId)
         );
       }
-      storyIdsByState = { ...filteredStories };
+      storyIdsByMode = { ...filteredStories };
       continue;
     }
     for (const label of filters[filter]) {
       const filteredStories = {};
-      for (const status of Object.keys(storyIdsByState)) {
-        filteredStories[status] = storyIdsByState[status].filter((storyId: string): boolean => {
+      for (const mode of Object.keys(storyIdsByMode)) {
+        filteredStories[mode] = storyIdsByMode[mode].filter((storyId: string): boolean => {
           const story = byId[storyId];
           for (const thisLabel of story[filter]) {
             if (thisLabel.id == label.id) {
@@ -44,15 +53,15 @@ export const filterStories = (
           return false;
         });
       }
-      storyIdsByState = { ...filteredStories };
+      storyIdsByMode = { ...filteredStories };
     }
   }
 
   //now map all these stories.
-  const stories = Object.keys(storyIdsByState).reduce(
+  const stories = Object.keys(storyIdsByMode).reduce(
     (total, state) => ({
       ...total,
-      [state]: storyIdsByState[state].map((storyId: string): Story => byId[storyId]),
+      [state]: storyIdsByMode[state].map((storyId: string): Story => byId[storyId]),
     }),
     {}
   );

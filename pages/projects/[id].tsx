@@ -12,22 +12,24 @@ import Column from '../../components/Column';
 import EstimateChangeDialog from '../../components/Dialogs/EstimateChangeDialog';
 import IterationPicker from '../../components/IterationPicker';
 import Labels from '../../components/Labels';
+import ModePicker from '../../components/ModePicker';
 import Owners from '../../components/Owners';
 import ProjectPicker from '../../components/ProjectPicker';
 import StoryModal from '../../components/StoryModal';
 import {
   ESTIMATE_NOT_REQUIRED_STATES,
+  STORY_MILESTONES,
   STORY_STATES,
   UNESTIMATED_STORY_TYPES,
 } from '../../constants';
 import PivotalHandler from '../../handlers/PivotalHandler';
 import { useAsync, usePivotal } from '../../hooks';
 import { redirectIfNoApiKey } from '../../redirects';
-import { addStories, moveStory, newStory } from '../../redux/actions/stories.actions';
+import { addStories, editStory, moveStory, newStory } from '../../redux/actions/stories.actions';
 import { setUser } from '../../redux/actions/user.actions';
 import { getProjectName } from '../../redux/selectors/projects.selectors';
 import { getApiKey } from '../../redux/selectors/settings.selectors';
-import { filterStories } from '../../redux/selectors/stories.selectors';
+import { filterStories, getSelectedProjectMode } from '../../redux/selectors/stories.selectors';
 import { wrapper } from '../../redux/store';
 import { Filters, Iteration, Label, Owner, State, Story, UrlParams } from '../../redux/types';
 import { spacing } from '../../styles';
@@ -62,6 +64,8 @@ const Project: NextPage = (): JSX.Element => {
   const stories = useSelector(
     (state: State): Record<string, Story[]> => filterStories(state, id, filters)
   );
+  const mode = useSelector(getSelectedProjectMode);
+  const selectedModeStates = mode === 'Milestone' ? STORY_MILESTONES : STORY_STATES;
 
   const projectName = useSelector((state: State): string => getProjectName(state, id));
 
@@ -134,6 +138,46 @@ const Project: NextPage = (): JSX.Element => {
       return;
     }
 
+    const landingIndex =
+      // Calculates the index in between which two stories the dragged story landed.
+      destinationDroppableId === sourceDroppableId && destinationIndex > sourceIndex
+        ? // Special case when landing further down from the same column the story was taken.
+          destinationIndex + 1
+        : destinationIndex;
+
+    if (mode === 'Milestone') {
+      const sourceMilestone = STORY_MILESTONES[sourceDroppableId];
+      const destinationMilestone = STORY_MILESTONES[destinationDroppableId];
+      const story = stories[sourceMilestone][sourceIndex];
+
+      dispatch(
+        moveStory({
+          sourceState: sourceMilestone,
+          sourceIndex,
+          destinationState: destinationMilestone,
+          destinationIndex,
+        })
+      );
+      const updatedStory = await PivotalHandler.updateStory({
+        apiKey,
+        projectId: id,
+        storyId: story.id,
+        payload: {
+          before_id: stories[destinationMilestone][landingIndex]?.id || null,
+          // A null after_id means the story was placed last in the list.
+          after_id: stories[destinationMilestone][landingIndex - 1]?.id || null,
+          labels: [
+            ...story.labels
+              .map(label => label.name)
+              .filter(name => !STORY_MILESTONES.includes(name)), //remove all milestones from label.
+            destinationMilestone, //add new destination milestone
+          ],
+        },
+      });
+      dispatch(editStory(updatedStory));
+      return;
+    }
+
     const sourceState = STORY_STATES[sourceDroppableId];
     const destinationState = STORY_STATES[destinationDroppableId];
     const story = stories[sourceState][sourceIndex];
@@ -156,13 +200,6 @@ const Project: NextPage = (): JSX.Element => {
         destinationIndex,
       })
     );
-
-    const landingIndex =
-      // Calculates the index in between which two stories the dragged story landed.
-      destinationDroppableId === sourceDroppableId && destinationIndex > sourceIndex
-        ? // Special case when landing further down from the same column the story was taken.
-          destinationIndex + 1
-        : destinationIndex;
 
     await PivotalHandler.updateStory({
       apiKey,
@@ -199,6 +236,7 @@ const Project: NextPage = (): JSX.Element => {
           addIteration={val => addFilter('iterations', val)}
           removeIteration={() => removeFilter('iterations', null)}
         />
+        <ModePicker />
         <Labels labels={filters.labels} onClick={removeFilter} />
         <Owners owners={filters.owners} onClick={removeFilter} display="inline-block" />
       </FilterContainer>
@@ -211,7 +249,7 @@ const Project: NextPage = (): JSX.Element => {
         )}
         {!loading && (
           <DragDropContext onDragEnd={onDragEnd}>
-            {STORY_STATES.map((state: string, idx: number) => (
+            {selectedModeStates.map((state: string, idx: number) => (
               <Column
                 key={state}
                 state={state}

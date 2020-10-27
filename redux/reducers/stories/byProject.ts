@@ -1,6 +1,11 @@
 import { AnyAction } from 'redux';
 
-import { STORIES_BY_STATE } from '../../../constants';
+import {
+  STORIES_BY_MILESTONE,
+  STORIES_BY_STATE,
+  STORY_MILESTONES,
+  STORY_STATES,
+} from '../../../constants';
 import {
   ADD_STORIES,
   CLEAR_NEW_STORY,
@@ -8,49 +13,82 @@ import {
   MOVE_STORY,
   NEW_STORY,
   SAVED_NEW_STORY,
+  TOGGLE_MODE,
 } from '../../actions/stories.actions';
-import { Story } from '../../types';
+import { Story, StoryModes } from '../../types';
 import { StoriesByProject } from '../../types';
 
 const initialState = {};
 
+const getStoryMilestone = (story: Story): string => {
+  const labels = story.labels.map(label => label.name.toLowerCase());
+
+  for (const milestoneName of STORY_MILESTONES) {
+    if (labels.includes(milestoneName)) {
+      return milestoneName;
+    }
+  }
+
+  return 'backlog';
+};
+
 const reducer = (state: Record<string, StoriesByProject> = initialState, action: AnyAction) => {
   switch (action.type) {
     case NEW_STORY: {
+      const isMilestoneMode = state[action.projectId].selectedMode === 'Milestone';
+      const idArrayName = isMilestoneMode ? 'storyIdsByMilestone' : 'storyIdsByState';
+      const startingState = isMilestoneMode ? STORY_MILESTONES[0] : STORY_STATES[0];
+
       return {
         ...state,
         [action.projectId]: {
-          storyIdsByState: {
-            ...state[action.projectId].storyIdsByState,
-            unscheduled: ['pending', ...state[action.projectId].storyIdsByState.unscheduled],
+          ...state[action.projectId],
+          [idArrayName]: {
+            ...state[action.projectId][idArrayName],
+            [startingState]: ['pending', ...state[action.projectId][idArrayName][startingState]],
           },
         },
       };
     }
     case SAVED_NEW_STORY: {
       //clears the the story new story as well as adds a new story into state.
-      const unscheduledStories = state[action.projectId].storyIdsByState.unscheduled.filter(
-        id => id !== 'pending'
-      );
+      const storyIdsByState = state[action.projectId].storyIdsByState;
+      const storyIdsByMilestone = state[action.projectId].storyIdsByMilestone;
 
       return {
         ...state,
         [action.projectId]: {
+          ...state[action.projectId],
           storyIdsByState: {
-            ...state[action.projectId].storyIdsByState,
-            unscheduled: [action.story.id, ...unscheduledStories],
+            ...storyIdsByState,
+            [STORY_STATES[0]]: [
+              action.story.id,
+              ...storyIdsByState[STORY_STATES[0]].filter(id => id !== 'pending'),
+            ],
+          },
+          storyIdsByMilestone: {
+            ...storyIdsByMilestone,
+            [STORY_MILESTONES[0]]: [
+              action.story.id,
+              ...storyIdsByMilestone[STORY_MILESTONES[0]].filter(id => id !== 'pending'),
+            ],
           },
         },
       };
     }
     case CLEAR_NEW_STORY: {
+      const selectedMode = state[action.projectId].selectedMode;
+      const idArrayName = selectedMode === 'Milestone' ? 'storyIdsByMilestone' : 'storyIdsByState';
+      const startingState = selectedMode === 'Milestone' ? STORY_MILESTONES[0] : STORY_STATES[0];
+
       return {
         ...state,
         [action.projectId]: {
-          storyIdsByState: {
-            ...state[action.projectId].storyIdsByState,
-            unscheduled: [
-              ...state[action.projectId].storyIdsByState.unscheduled.filter(id => id !== 'pending'),
+          ...state[action.projectId],
+          [idArrayName]: {
+            ...state[action.projectId][idArrayName],
+            [startingState]: [
+              ...state[action.projectId][idArrayName][startingState].filter(id => id !== 'pending'),
             ],
           },
         },
@@ -65,11 +103,25 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
         STORIES_BY_STATE
       );
 
+      const storiesByMilestone = action.stories.reduce(
+        (stories: Record<string, string[]>, story: Story) => {
+          //get current story milestone:
+          const milestone = getStoryMilestone(story);
+
+          return { ...stories, [milestone]: [...stories[milestone], story.id] };
+        },
+        STORIES_BY_MILESTONE
+      );
+
       return {
         ...state,
         [action.projectId]: {
+          ...(state[action.projectId] || { selectedMode: StoryModes.State }),
           storyIdsByState: {
             ...storiesByState,
+          },
+          storyIdsByMilestone: {
+            ...storiesByMilestone,
           },
         },
       };
@@ -79,14 +131,16 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
       //     //todo: the story has moved on the server, we should remove it from the previous bucket,
       //     //otherwise, the story is fine.
       //   }
-
       return state;
     }
 
     case MOVE_STORY: {
       const { projectId, sourceState, sourceIndex, destinationState, destinationIndex } = action;
-      const storyId: string = state[projectId].storyIdsByState[sourceState][sourceIndex];
-      const sourceWithoutStory: string[] = state[projectId].storyIdsByState[sourceState].filter(
+      const selectedMode = state[action.projectId].selectedMode;
+      const idArrayName = selectedMode === 'Milestone' ? 'storyIdsByMilestone' : 'storyIdsByState';
+
+      const storyId: string = state[projectId][idArrayName][sourceState][sourceIndex];
+      const sourceWithoutStory: string[] = state[projectId][idArrayName][sourceState].filter(
         (id: string): boolean => id !== storyId
       );
 
@@ -96,8 +150,8 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
           ...state,
           [projectId]: {
             ...state[projectId],
-            storyIdsByState: {
-              ...state[projectId].storyIdsByState,
+            [idArrayName]: {
+              ...state[projectId][idArrayName],
               [sourceState]: [
                 ...sourceWithoutStory.slice(0, destinationIndex),
                 storyId,
@@ -107,14 +161,14 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
           },
         };
       }
-      const destinationStateList: string[] = state[projectId].storyIdsByState[destinationState];
+      const destinationStateList: string[] = state[projectId][idArrayName][destinationState];
       // If the story is dragged between columns, we need to adjust both states items.
       return {
         ...state,
         [projectId]: {
           ...state[projectId],
-          storyIdsByState: {
-            ...state[projectId].storyIdsByState,
+          [idArrayName]: {
+            ...state[projectId][idArrayName],
             [sourceState]: sourceWithoutStory,
             [destinationState]: [
               ...destinationStateList.slice(0, destinationIndex),
@@ -122,6 +176,16 @@ const reducer = (state: Record<string, StoriesByProject> = initialState, action:
               ...destinationStateList.slice(destinationIndex),
             ],
           },
+        },
+      };
+    }
+    case TOGGLE_MODE: {
+      const { mode, projectId } = action;
+      return {
+        ...state,
+        [projectId]: {
+          ...state[projectId],
+          selectedMode: mode,
         },
       };
     }

@@ -27,6 +27,9 @@
     "rich-markdown-editor": "^11.0.2",
     "styled-components": "^5.1.1"
   },
+  "resolutions": {
+    "object-path": "^0.11.5"
+  },
   "devDependencies": {
     "@types/node": "^14.6.0",
     "@types/react": "^16.9.47",
