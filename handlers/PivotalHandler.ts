@@ -51,14 +51,17 @@ class PivotalHandler {
   // Updates a single story.
   static async updateStory({ apiKey, projectId, storyId, payload }): Promise<Story> {
     if (storyId === 'pending') {
-      const response = await fetch(`${PIVOTAL_API_URL}/projects/${projectId}/stories`, {
-        method: 'POST',
-        headers: {
-          'X-TrackerToken': apiKey,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...payload }),
-      });
+      const response = await fetch(
+        `${PIVOTAL_API_URL}/projects/${projectId}/stories?${STORY_FIELDS}`,
+        {
+          method: 'POST',
+          headers: {
+            'X-TrackerToken': apiKey,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ...payload }),
+        }
+      );
       return response.json();
     }
 
@@ -92,14 +95,17 @@ class PivotalHandler {
   }
 
   static async addComment({ apiKey, projectId, storyId, text }): Promise<void> {
-    await fetch(`${PIVOTAL_API_URL}/projects/${projectId}/stories/${storyId}/comments`, {
-      method: 'POST',
-      headers: {
-        'X-TrackerToken': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ text }),
-    });
+    await fetch(
+      `${PIVOTAL_API_URL}/projects/${projectId}/stories/${storyId}/comments?${STORY_FIELDS}`,
+      {
+        method: 'POST',
+        headers: {
+          'X-TrackerToken': apiKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      }
+    );
   }
 }
 export default PivotalHandler;
