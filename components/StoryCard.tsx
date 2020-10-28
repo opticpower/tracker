@@ -123,6 +123,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
         placeholder="Type"
         value={type}
         size="mini"
+        disabled={story.id === 'pending'}
         onChange={value => {
           setType(value);
           saveStoryType();
