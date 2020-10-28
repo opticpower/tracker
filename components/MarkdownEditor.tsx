@@ -22,7 +22,6 @@ const MarkdownEditor = ({
 
   return (
     <Editor
-      key={defaultValue}
       defaultValue={defaultValue}
       placeholder={placeholder}
       dark={globalTheme === 'dark'}
