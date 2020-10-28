@@ -17,6 +17,8 @@ export const STORIES_BY_MILESTONE = STORY_MILESTONES.reduce(
   {}
 );
 
+export const STORY_TYPES = ['feature', 'bug', 'chore', 'release'];
+
 export const UNESTIMATED_STORY_TYPES = ['bug', 'chore'];
 
 export const ESTIMATE_NOT_REQUIRED_STATES = ['unstarted', 'unscheduled'];

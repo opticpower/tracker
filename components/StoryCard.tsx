@@ -1,5 +1,5 @@
 import { Badge, Breadcrumbs, Card, Divider, Spacer } from '@geist-ui/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
@@ -14,6 +14,7 @@ import BlockersQuickView from './BlockersQuickView';
 import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
 import Labels from './Labels';
 import Owners from './Owners';
+import StoryTypeSelect from './StoryTypeSelect';
 
 const CardContainer = styled(Card)(({ color }) => ({
   position: 'relative',
@@ -44,7 +45,6 @@ const Title = styled.textarea`
   width: 100%;
   border: none;
   font-weight: 500;
-  overflow: hidden;
   resize: none;
   background: none;
 `;
@@ -66,6 +66,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [name, setName] = useState<string>(story.name);
+  const [type, setType] = useState<string>(story.story_type);
   const escape = useRef(false); // we can't use setState for this as the dispatch of this takes an extra tick.
 
   const [_, saveName] = usePivotal(async ({ apiKey, projectId }) => {
@@ -95,10 +96,28 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
     }
   });
 
+  const [val, saveStoryType] = usePivotal(async ({ apiKey, projectId }) => {
+    if (story.story_type !== type) {
+      const newStory = await PivotalHandler.updateStory({
+        apiKey,
+        projectId,
+        storyId: story.id,
+        payload: { story_type: type },
+      });
+
+      dispatch(editStory(newStory));
+    }
+  });
+
+  useEffect(() => {
+    saveStoryType();
+  }, [type]);
+
   const openEstimationModal = (e): void => {
     e.stopPropagation();
     setIsModalVisible(true);
   };
+
   return (
     <>
       <Draggable draggableId={story.id.toString()} index={index}>
@@ -128,7 +147,16 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   </div>
                 )}
                 <Breadcrumbs size="mini">
-                  <StoryType color={typeColors[story.story_type]}>{story.story_type}</StoryType>
+                  {story.id === 'pending' || state === 'unscheduled' ? (
+                    <StoryTypeSelect
+                      type={type}
+                      story={story}
+                      setType={setType}
+                      saveStoryType={saveStoryType}
+                    />
+                  ) : (
+                    <StoryType color={typeColors[story.story_type]}>{story.story_type}</StoryType>
+                  )}
                   <Breadcrumbs.Item>
                     <a
                       href={`https://www.pivotaltracker.com/story/show/${story.id}`}
