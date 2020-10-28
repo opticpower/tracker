@@ -1,10 +1,10 @@
-import { Badge, Breadcrumbs, Card, Divider, Select, Spacer } from '@geist-ui/react';
+import { Badge, Breadcrumbs, Card, Divider, Spacer } from '@geist-ui/react';
 import { useEffect, useRef, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
-import { STORY_TYPES, UNESTIMATED_STORY_TYPES } from '../constants';
+import { UNESTIMATED_STORY_TYPES } from '../constants';
 import PivotalHandler from '../handlers/PivotalHandler';
 import { usePivotal } from '../hooks';
 import { selectStory } from '../redux/actions/selectedStory.actions';
@@ -14,6 +14,7 @@ import BlockersQuickView from './BlockersQuickView';
 import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
 import Labels from './Labels';
 import Owners from './Owners';
+import StoryTypeSelect from './StoryTypeSelect';
 
 const CardContainer = styled(Card)(({ color }) => ({
   position: 'relative',
@@ -65,7 +66,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [name, setName] = useState<string>(story.name);
-  const [type, setType] = useState<string | string[]>(story.story_type);
+  const [type, setType] = useState<string>(story.story_type);
   const escape = useRef(false); // we can't use setState for this as the dispatch of this takes an extra tick.
 
   const [_, saveName] = usePivotal(async ({ apiKey, projectId }) => {
@@ -117,27 +118,6 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
     setIsModalVisible(true);
   };
 
-  const StoryTypeSelect = (): JSX.Element => {
-    return (
-      <Select
-        placeholder="Type"
-        value={type}
-        size="mini"
-        disabled={story.id === 'pending'}
-        onChange={value => {
-          setType(value);
-          saveStoryType();
-        }}
-        width="80px">
-        {STORY_TYPES.map(type => (
-          <Select.Option key={type} value={type}>
-            {type}
-          </Select.Option>
-        ))}
-      </Select>
-    );
-  };
-
   return (
     <>
       <Draggable draggableId={story.id.toString()} index={index}>
@@ -168,7 +148,12 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                 )}
                 <Breadcrumbs size="mini">
                   {story.id === 'pending' || state === 'unscheduled' ? (
-                    <StoryTypeSelect />
+                    <StoryTypeSelect
+                      type={type}
+                      story={story}
+                      setType={setType}
+                      saveStoryType={saveStoryType}
+                    />
                   ) : (
                     <StoryType color={typeColors[story.story_type]}>{story.story_type}</StoryType>
                   )}
