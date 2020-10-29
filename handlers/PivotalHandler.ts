@@ -6,7 +6,7 @@ import { Project, Story, User } from '../redux/types';
 const PIVOTAL_API_URL = 'https://www.pivotaltracker.com/services/v5';
 
 const STORY_FIELDS =
-  'fields=name,estimate,owners,labels,blockers,reviews,story_type,description,comments(id,person,text,created_at),current_state';
+  'fields=name,estimate,owners,labels,blockers,reviews,story_type,description,comments(id,person,text,created_at),current_state,blocked_story_ids';
 
 class PivotalHandler {
   static async getUser({ apiKey }): Promise<User> {

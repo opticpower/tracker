@@ -52,6 +52,7 @@ export interface Story {
   comments: Comment[];
   description: string;
   current_state?: string;
+  blocked_story_ids?: number[];
 }
 
 export interface Owner {

@@ -101,7 +101,7 @@ const StoryModal = (): JSX.Element => {
         <Section title="Tags">
           <Labels labels={story?.labels} />
         </Section>
-        <Blockers blockers={story?.blockers} />
+        <Blockers blockers={story?.blockers} blockedStoryIds={story?.blocked_story_ids} />
         <Divider>Comments</Divider>
         <Comments story={story} />
       </Modal.Content>
