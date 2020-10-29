@@ -12,7 +12,9 @@ const Blockers = ({ blockers = [] }: BlockersParams): JSX.Element => (
     {blockers.map(
       (blocker: Blocker): JSX.Element => (
         <Fragment key={blocker.id}>
-          <Note type="error" label="blocker">
+          <Note
+            type={blocker.resolved ? 'secondary' : 'error'}
+            label={blocker.resolved ? 'complete' : 'blocker'}>
             {blocker.description}
           </Note>
           <Spacer y={1} />
