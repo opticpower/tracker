@@ -34,6 +34,7 @@ export interface Project {
   id: string;
   name: string;
   people: Owner[];
+  labels: Label[];
 }
 
 export interface SelectedStory {
@@ -63,6 +64,7 @@ export interface Owner {
 export interface Label {
   id: string;
   name: string;
+  kind: string;
 }
 
 export interface Blocker {

@@ -1,4 +1,4 @@
-import { Description, Divider, Modal, Text } from '@geist-ui/react';
+import { Divider, Modal, Text } from '@geist-ui/react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -8,7 +8,8 @@ import { usePivotal } from '../hooks';
 import { deselectStory } from '../redux/actions/selectedStory.actions';
 import { editStory } from '../redux/actions/stories.actions';
 import { getSelectedStory, isStorySelected } from '../redux/selectors/selectedStory.selectors';
-import { Owner, Story } from '../redux/types';
+import { Label, Owner, Story } from '../redux/types';
+import AddLabel from './AddLabel';
 import Blockers from './Blockers';
 import Comments from './Comments';
 import EditOwners from './EditOwners';
@@ -35,11 +36,13 @@ const Section = ({ title, children }): JSX.Element => (
 interface EditableFields {
   description?: string;
   owners?: Owner[];
+  labels?: Label[];
 }
 
 const getEditableFields = (story: Story): EditableFields => ({
   description: story?.description,
   owners: story?.owners || [],
+  labels: story?.labels || [],
 });
 
 const StoryModal = (): JSX.Element => {
@@ -98,8 +101,21 @@ const StoryModal = (): JSX.Element => {
         <Section title="Owners">
           <EditOwners owners={editedFields.owners} toggleOwner={toggleOwner} />
         </Section>
-        <Section title="Tags">
-          <Labels labels={story?.labels} />
+        <Section title="Labels">
+          <AddLabel
+            addLabel={label =>
+              setEditedFields({ ...editedFields, labels: [...editedFields.labels, label] })
+            }
+          />
+          <Labels
+            labels={editedFields.labels}
+            removeLabel={label =>
+              setEditedFields({
+                ...editedFields,
+                labels: editedFields.labels.filter(l => l.id !== label.id),
+              })
+            }
+          />
         </Section>
         <Blockers blockers={story?.blockers} />
         <Divider>Comments</Divider>

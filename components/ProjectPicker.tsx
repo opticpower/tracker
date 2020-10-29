@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
 import { Select } from '@geist-ui/react';
 import { useRouter } from 'next/router';
-import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import PivotalHandler from '../handlers/PivotalHandler';
-import { State, Project } from '../redux/types';
 import { addProjects } from '../redux/actions/projects.actions';
 import { getApiKey } from '../redux/selectors/settings.selectors';
+import { Project, State } from '../redux/types';
 
 const ProjectPicker = ({ id }): JSX.Element => {
   const apiKey = useSelector(getApiKey);
@@ -24,7 +24,6 @@ const ProjectPicker = ({ id }): JSX.Element => {
 
       const getProjects = async () => {
         const projects = await PivotalHandler.fetchProjects({ apiKey });
-
         dispatch(addProjects(projects));
       };
       getProjects();
