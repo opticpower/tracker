@@ -1,4 +1,4 @@
-import { Description, Divider, Modal, Text } from '@geist-ui/react';
+import { Divider, Modal, Text } from '@geist-ui/react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -8,14 +8,15 @@ import { usePivotal } from '../hooks';
 import { deselectStory } from '../redux/actions/selectedStory.actions';
 import { editStory } from '../redux/actions/stories.actions';
 import { getSelectedStory, isStorySelected } from '../redux/selectors/selectedStory.selectors';
-import { Owner, Story } from '../redux/types';
+import { Owner, Review, Story } from '../redux/types';
 import Blockers from './Blockers';
 import Comments from './Comments';
 import EditOwners from './EditOwners';
 import Labels from './Labels';
 import MarkdownEditor from './MarkdownEditor';
+import Reviews from './Reviews';
 
-const EDITABLE_FIELDS = ['description', 'owners'];
+const EDITABLE_FIELDS = ['description', 'owners', 'reviews'];
 
 const SectionContainer = styled.div`
   &:not(last-child) {
@@ -35,11 +36,13 @@ const Section = ({ title, children }): JSX.Element => (
 interface EditableFields {
   description?: string;
   owners?: Owner[];
+  reviews: Review[];
 }
 
 const getEditableFields = (story: Story): EditableFields => ({
   description: story?.description,
   owners: story?.owners || [],
+  reviews: story?.reviews || [],
 });
 
 const StoryModal = (): JSX.Element => {
@@ -97,6 +100,14 @@ const StoryModal = (): JSX.Element => {
         </Section>
         <Section title="Owners">
           <EditOwners owners={editedFields.owners} toggleOwner={toggleOwner} />
+        </Section>
+        <Section title="Reviews">
+          <Reviews
+            reviewsData={editedFields.reviews || []}
+            storyId={story?.id}
+            currentState={editedFields}
+            updateStory={setEditedFields}
+          />
         </Section>
         <Section title="Tags">
           <Labels labels={story?.labels} />

@@ -52,6 +52,7 @@ export interface Story {
   comments: Comment[];
   description: string;
   current_state?: string;
+  reviews: Review[];
 }
 
 export interface Owner {
@@ -108,4 +109,13 @@ export interface User {
   id?: number;
   initials?: string;
   name?: string;
+}
+
+export interface Review {
+  id?: number;
+  creation_id?: number;
+  reviewer_id?: number;
+  story_id: number;
+  review_type_id: number;
+  status: string;
 }

@@ -114,5 +114,35 @@ class PivotalHandler {
       body: JSON.stringify({ text }),
     });
   }
+
+  // Updates a single review
+  static async updateReview({ apiKey, projectId, review }): Promise<void> {
+    await fetch(
+      `${PIVOTAL_API_URL}/projects/${projectId}/stories/${review.story_id}/reviews/${review.id}`,
+      {
+        method: 'PUT',
+        headers: {
+          'X-TrackerToken': apiKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...review, project_id: projectId }),
+      }
+    );
+  }
+
+  // Deletes a single review
+  static async deleteReview({ apiKey, projectId, review }): Promise<void> {
+    await fetch(
+      `${PIVOTAL_API_URL}/projects/${projectId}/stories/${review.story_id}/reviews/${review.id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'X-TrackerToken': apiKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...review, project_id: projectId }),
+      }
+    );
+  }
 }
 export default PivotalHandler;
