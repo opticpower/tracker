@@ -16,7 +16,7 @@ import EditOwners from './EditOwners';
 import Labels from './Labels';
 import MarkdownEditor from './MarkdownEditor';
 
-const EDITABLE_FIELDS = ['description', 'owners'];
+const EDITABLE_FIELDS = ['description', 'owners', 'labels'];
 
 const SectionContainer = styled.div`
   &:not(last-child) {
@@ -59,6 +59,7 @@ const StoryModal = (): JSX.Element => {
     const payload = {
       description: editedFields.description,
       owner_ids: editedFields.owners.map(owner => owner.id),
+      label_ids: editedFields.labels.map(label => label.id),
     };
     const newStory = await PivotalHandler.updateStory({
       apiKey,
