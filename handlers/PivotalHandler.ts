@@ -1,7 +1,7 @@
 import { subDays } from 'date-fns';
 
 import { STORY_STATES } from '../constants';
-import { Project, Story, User } from '../redux/types';
+import { Label, Project, Story, User } from '../redux/types';
 
 const PIVOTAL_API_URL = 'https://www.pivotaltracker.com/services/v5';
 
@@ -22,7 +22,7 @@ class PivotalHandler {
   // Gets all projects for the provided user apiKey.
   static async fetchProjects({ apiKey }): Promise<Project[]> {
     const response = await fetch(
-      'https://www.pivotaltracker.com/services/v5/projects?fields=id,name,memberships',
+      'https://www.pivotaltracker.com/services/v5/projects?fields=id,name,memberships,labels',
       {
         headers: {
           'X-TrackerToken': apiKey,
@@ -113,6 +113,19 @@ class PivotalHandler {
       },
       body: JSON.stringify({ text }),
     });
+  }
+
+  static async createLabel({ apiKey, projectId, name }): Promise<Label> {
+    const response = await fetch(`${PIVOTAL_API_URL}/projects/${projectId}/labels`, {
+      method: 'POST',
+      headers: {
+        'X-TrackerToken': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name }),
+    });
+
+    return response.json();
   }
 }
 export default PivotalHandler;

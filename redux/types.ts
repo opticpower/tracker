@@ -34,6 +34,7 @@ export interface Project {
   id: string;
   name: string;
   people: Owner[];
+  labels: Label[];
 }
 
 export interface SelectedStory {
