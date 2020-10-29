@@ -1,12 +1,15 @@
 import { AutoComplete } from '@geist-ui/react';
-import { useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
+import PivotalHandler from '../handlers/PivotalHandler';
+import { usePivotal } from '../hooks';
+import { addLabel } from '../redux/actions/projects.actions';
 import { getLabels } from '../redux/selectors/projects.selectors';
 import { Label } from '../redux/types';
 
 interface AddLabelParams {
-  addLabel?: (label: Label) => void;
+  labelAddedToStory?: (label: Label) => void;
 }
 
 interface SelectLabel {
@@ -23,20 +26,22 @@ const labelsToSelects = (labels: Label[]): SelectLabel[] => {
   }));
 };
 
-// TODO: split out tag filtering tool on top vs card filters, so they can have different visuals.
-const AddLabel = ({ addLabel }: AddLabelParams): JSX.Element => {
+const AddLabel = ({ labelAddedToStory }: AddLabelParams): JSX.Element => {
   const labels = useSelector(getLabels);
   const labelSelects = labelsToSelects(labels);
   const [options, setOptions] = useState(labelSelects);
-  const [loading, setLoading] = useState<boolean>(false);
   const [value, setValue] = useState<string>('');
+  const dispatch = useDispatch();
 
-  //todo: logic to add a brand new label;
-
-  const createNewLabel = async (label): Promise<Label> => {
-    //todo: this is where we do the use PivotalBlock.
-    //todo: send a pivotal request to create the new label.
-  };
+  const [{ isLoading }, createNewLabel] = usePivotal(async ({ apiKey, projectId }) => {
+    const newLabel = await PivotalHandler.createLabel({
+      apiKey,
+      projectId,
+      name: value,
+    });
+    dispatch(addLabel(projectId, newLabel)); //adding to global state;
+    labelAddedToStory(newLabel); //adding to current story;
+  });
 
   const searchLabels = (currentValue: string): void => {
     const createOptions = [
@@ -57,20 +62,15 @@ const AddLabel = ({ addLabel }: AddLabelParams): JSX.Element => {
   };
 
   //will create the new label or add the new label.
-  const selectLabel = async (selectedValue: string): void => {
-    setLoading(true);
-
-    let label = labels.find(label => label.id === selectedValue);
+  const selectLabel = (selectedValue: string): void => {
+    const label = labels.find(label => label.id === selectedValue);
 
     if (!label) {
-      label = await createNewLabel(selectedValue);
-      console.log('todo: add the label to pivotal to get new id');
+      createNewLabel({ name: selectedValue });
+      setValue('');
       return;
     }
-
-    setValue('');
-    addLabel(label);
-    setLoading(false);
+    labelAddedToStory(label);
   };
 
   return (
@@ -78,8 +78,8 @@ const AddLabel = ({ addLabel }: AddLabelParams): JSX.Element => {
       key={typeof value === 'number' ? value : ''} //hack to reset the value ater select
       options={options}
       placeholder="Select Label or Epic"
-      searching={loading}
-      disabled={loading}
+      searching={isLoading}
+      disabled={isLoading}
       onSearch={searchLabels}
       onSelect={selectLabel}
       onChange={setValue}

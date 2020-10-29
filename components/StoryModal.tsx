@@ -103,7 +103,7 @@ const StoryModal = (): JSX.Element => {
         </Section>
         <Section title="Labels">
           <AddLabel
-            addLabel={label =>
+            labelAddedToStory={label =>
               setEditedFields({ ...editedFields, labels: [...editedFields.labels, label] })
             }
           />

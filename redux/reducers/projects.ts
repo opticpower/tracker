@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux';
 
-import { ADD_PROJECTS } from '../actions/projects.actions';
+import { ADD_LABEL, ADD_PROJECTS } from '../actions/projects.actions';
 import { Project } from '../types';
 
 const initialState = [];
@@ -16,6 +16,14 @@ const reducer = (state: Project[] = initialState, action: AnyAction) => {
           labels: project.labels,
         })),
       ];
+    case ADD_LABEL: {
+      return [
+        ...state.map(project => ({
+          ...project,
+          labels: [...project.labels, action.label],
+        })),
+      ];
+    }
     default:
       return state;
   }
