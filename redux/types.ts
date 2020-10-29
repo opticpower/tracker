@@ -70,6 +70,7 @@ export interface Blocker {
   kind: string;
   story_id: string;
   description: string;
+  resolved: boolean;
 }
 
 export interface Comment {
