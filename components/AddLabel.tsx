@@ -14,14 +14,12 @@ interface AddLabelParams {
 
 interface SelectLabel {
   label: string;
-  kind: string;
   value: string;
 }
 
 const labelsToSelects = (labels: Label[]): SelectLabel[] => {
   return labels.map(label => ({
     label: label.name,
-    kind: label.kind,
     value: label.id,
   }));
 };

@@ -64,7 +64,6 @@ export interface Owner {
 export interface Label {
   id: string;
   name: string;
-  kind: string;
 }
 
 export interface Blocker {
