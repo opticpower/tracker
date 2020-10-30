@@ -8,7 +8,7 @@ import { getPeople } from '../redux/selectors/projects.selectors';
 import { Review } from '../redux/types';
 
 interface ReviewParams {
-  reviewsData: Review[];
+  reviews: Review[];
   currentState: any;
   storyId: number;
   updateStory: (state: any) => void;
@@ -26,12 +26,7 @@ const AddReviewContainer = styled.div`
   display: flex;
 `;
 
-const Reviews = ({
-  reviewsData,
-  storyId,
-  currentState,
-  updateStory,
-}: ReviewParams): JSX.Element => {
+const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams): JSX.Element => {
   const [addingReview, setAddingReview] = useState(false);
   const people = useSelector(getPeople);
 
@@ -71,12 +66,17 @@ const Reviews = ({
     setAddingReview(false);
   };
 
-  const AddButtons = () =>
-    Object.entries(STORY_REVIEW_TYPES).map(o => (
-      <Button key={o[0]} onClick={() => handleReviewAdd(Number(o[0]))}>
-        {o[1].type}
-      </Button>
-    ));
+  const AddButtons = () => {
+    return (
+      <>
+        {Object.entries(STORY_REVIEW_TYPES).map(o => (
+          <Button key={o[0]} onClick={() => handleReviewAdd(Number(o[0]))}>
+            {o[1].type}
+          </Button>
+        ))}
+      </>
+    );
+  };
 
   return (
     <>
@@ -90,7 +90,7 @@ const Reviews = ({
         )}
       </AddReviewContainer>
 
-      {reviewsData.map(
+      {reviews.map(
         (rev: Review): JSX.Element => (
           <ReviewCard key={rev.id}>
             <Text span>{STORY_REVIEW_TYPES[rev.review_type_id].type}</Text>

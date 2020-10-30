@@ -9,6 +9,7 @@ import { deselectStory } from '../redux/actions/selectedStory.actions';
 import { editStory } from '../redux/actions/stories.actions';
 import { getSelectedStory, isStorySelected } from '../redux/selectors/selectedStory.selectors';
 import { Owner, Review, Story } from '../redux/types';
+import { getDiff, isSameObj } from '../utils';
 import Blockers from './Blockers';
 import Comments from './Comments';
 import EditOwners from './EditOwners';
@@ -45,6 +46,25 @@ const getEditableFields = (story: Story): EditableFields => ({
   reviews: story?.reviews || [],
 });
 
+const getReviewsChanges = (newReviews, reviews) => {
+  const deleted = getDiff(reviews, newReviews);
+  const added = getDiff(newReviews, reviews);
+
+  // retrieve changed reviews looking for current review and comparing data
+  const changed = newReviews.filter(review => {
+    const storyReview = reviews.find(r => r.id === review.id);
+    if (storyReview) {
+      return !isSameObj(storyReview, review);
+    }
+  });
+
+  return {
+    added,
+    deleted,
+    changed,
+  };
+};
+
 const StoryModal = (): JSX.Element => {
   const dispatch = useDispatch();
   const isOpen = useSelector(isStorySelected);
@@ -68,6 +88,16 @@ const StoryModal = (): JSX.Element => {
     });
     dispatch(editStory(newStory));
     setEditedFields(getEditableFields(newStory));
+
+    const reviewsChanges = getReviewsChanges(editedFields.reviews, story?.reviews);
+
+    if (
+      reviewsChanges.added.length ||
+      reviewsChanges.deleted.length ||
+      reviewsChanges.changed.length
+    ) {
+      const updatedReviews = await PivotalHandler.reviews({ apiKey, projectId, reviewsChanges });
+    }
   });
 
   const handleClose = () => {
@@ -103,7 +133,7 @@ const StoryModal = (): JSX.Element => {
         </Section>
         <Section title="Reviews">
           <Reviews
-            reviewsData={editedFields.reviews || []}
+            reviews={editedFields.reviews || []}
             storyId={story?.id}
             currentState={editedFields}
             updateStory={setEditedFields}
