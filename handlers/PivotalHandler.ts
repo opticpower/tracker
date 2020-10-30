@@ -174,7 +174,7 @@ class PivotalHandler {
 
   // Deletes a single review
   static async deleteReview({ apiKey, projectId, review }: ReviewActionParams): Promise<void> {
-    const response = await fetch(
+    await fetch(
       `${PIVOTAL_API_URL}/projects/${projectId}/stories/${review.story_id}/reviews/${review.id}`,
       {
         method: 'DELETE',
@@ -185,7 +185,6 @@ class PivotalHandler {
         body: JSON.stringify({ story_id: review.story_id, project_id: projectId }),
       }
     );
-    return response.json();
   }
 
   static async reviews({ apiKey, projectId, reviewsChanges }: ReviewHandlerParams): Promise<any> {

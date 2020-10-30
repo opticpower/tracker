@@ -80,14 +80,6 @@ const StoryModal = (): JSX.Element => {
       description: editedFields.description,
       owner_ids: editedFields.owners.map(owner => owner.id),
     };
-    const newStory = await PivotalHandler.updateStory({
-      apiKey,
-      projectId,
-      storyId: story.id,
-      payload,
-    });
-    dispatch(editStory(newStory));
-    setEditedFields(getEditableFields(newStory));
 
     const reviewsChanges = getReviewsChanges(editedFields.reviews, story?.reviews);
 
@@ -96,8 +88,17 @@ const StoryModal = (): JSX.Element => {
       reviewsChanges.deleted.length ||
       reviewsChanges.changed.length
     ) {
-      const updatedReviews = await PivotalHandler.reviews({ apiKey, projectId, reviewsChanges });
+      await PivotalHandler.reviews({ apiKey, projectId, reviewsChanges });
     }
+
+    const newStory = await PivotalHandler.updateStory({
+      apiKey,
+      projectId,
+      storyId: story.id,
+      payload,
+    });
+    dispatch(editStory(newStory));
+    setEditedFields(getEditableFields(newStory));
   });
 
   const handleClose = () => {

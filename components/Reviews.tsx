@@ -14,16 +14,32 @@ interface ReviewParams {
   updateStory: (state: any) => void;
 }
 
-const ReviewCard = styled(Card)`
-  width: max-content;
-`;
-
-const ReviewSelect = styled(Select)`
-  margin-left: 8px;
-`;
-
 const AddReviewContainer = styled.div`
   display: flex;
+  margin-bottom: 8px;
+  gap: 8px;
+`;
+
+const ReviewCard = styled.div`
+  max-width: max-content;
+  margin: 8px 0;
+`;
+
+const TypeContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+`;
+
+const SelectsContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+`;
+
+const DeleteButton = styled(Button)`
+  align-self: flex-end;
 `;
 
 const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams): JSX.Element => {
@@ -47,7 +63,7 @@ const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams):
     updateStory({ ...currentState, reviews: withRemovedReview });
   };
 
-  const setReviewer = (reviewId: number, reviewerId: number) => {
+  const setReviewer = (reviewId: number, reviewerId: string) => {
     const withUpdatedReview = currentState.reviews.map(review =>
       review.id === reviewId ? { ...review, reviewer_id: Number(reviewerId) } : review
     );
@@ -70,7 +86,7 @@ const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams):
     return (
       <>
         {Object.entries(STORY_REVIEW_TYPES).map(o => (
-          <Button key={o[0]} onClick={() => handleReviewAdd(Number(o[0]))}>
+          <Button key={o[0]} size="small" onClick={() => handleReviewAdd(Number(o[0]))}>
             {o[1].type}
           </Button>
         ))}
@@ -84,7 +100,7 @@ const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams):
         {addingReview ? (
           <AddButtons />
         ) : (
-          <Button auto onClick={() => setAddingReview(true)}>
+          <Button auto size="small" onClick={() => setAddingReview(true)}>
             Add review
           </Button>
         )}
@@ -93,33 +109,52 @@ const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams):
       {reviews.map(
         (rev: Review): JSX.Element => (
           <ReviewCard key={rev.id}>
-            <Text span>{STORY_REVIEW_TYPES[rev.review_type_id].type}</Text>
+            <Card>
+              <TypeContainer>
+                <Text span>{STORY_REVIEW_TYPES[rev.review_type_id].type}</Text>
 
-            <ReviewSelect
-              placeholder="Reviewer"
-              value={String(rev.reviewer_id)}
-              size="small"
-              onChange={reviewerId => setReviewer(rev.id, reviewerId)}>
-              {people.map(owner => (
-                <Select.Option key={owner.id} value={String(owner.id)}>
-                  {owner.name}
-                </Select.Option>
-              ))}
-            </ReviewSelect>
+                <DeleteButton
+                  auto
+                  ghost
+                  size="mini"
+                  type="error"
+                  onClick={() => deleteReview(rev.id)}>
+                  Delete
+                </DeleteButton>
+              </TypeContainer>
 
-            <ReviewSelect
-              placeholder="Status"
-              value={rev.status}
-              size="small"
-              onChange={status => setReviewStatus(rev.id, status)}>
-              {STORY_REVIEW_STATUS.map(type => (
-                <Select.Option key={type} value={type}>
-                  {type}
-                </Select.Option>
-              ))}
-            </ReviewSelect>
+              <SelectsContainer>
+                <Text span small>
+                  Reviewer:
+                </Text>
+                <Select
+                  placeholder="Reviewer"
+                  value={rev.reviewer_id && String(rev.reviewer_id)}
+                  size="small"
+                  onChange={reviewerId => setReviewer(rev.id, reviewerId)}>
+                  {people.map(owner => (
+                    <Select.Option key={owner.id} value={String(owner.id)}>
+                      {owner.name}
+                    </Select.Option>
+                  ))}
+                </Select>
 
-            <Button onClick={() => deleteReview(rev.id)}>Delete</Button>
+                <Text span small>
+                  Status:
+                </Text>
+                <Select
+                  placeholder="Status"
+                  value={rev.status}
+                  size="small"
+                  onChange={status => setReviewStatus(rev.id, status)}>
+                  {STORY_REVIEW_STATUS.map(type => (
+                    <Select.Option key={type} value={type}>
+                      {type}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </SelectsContainer>
+            </Card>
           </ReviewCard>
         )
       )}
