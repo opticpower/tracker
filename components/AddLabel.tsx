@@ -18,7 +18,7 @@ interface SelectLabel {
 }
 
 const labelsToSelects = (labels: Label[]): SelectLabel[] => {
-  return labels.map(label => ({
+  return labels?.map(label => ({
     label: label.name,
     value: label.id,
   }));

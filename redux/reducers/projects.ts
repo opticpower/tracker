@@ -5,7 +5,7 @@ import { Project } from '../types';
 
 const initialState = [];
 
-const reducer = (state: Project[] = initialState, action: AnyAction) => {
+const reducer = (state: Project[] = initialState, action: AnyAction): Project[] => {
   switch (action.type) {
     case ADD_PROJECTS:
       return [
