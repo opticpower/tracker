@@ -1,17 +1,18 @@
-import { Button, Card, Select, Text, User } from '@geist-ui/react';
+import { Button, Card, Select, Text } from '@geist-ui/react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import { STORY_REVIEW_STATUS, STORY_REVIEW_TYPES } from '../constants';
 import { getPeople } from '../redux/selectors/projects.selectors';
-import { Review, Story } from '../redux/types';
+import { Review } from '../redux/types';
+import { EditableFields } from './StoryModal';
 
 interface ReviewParams {
   reviews: Review[];
-  currentState: Story;
+  currentState: EditableFields;
   storyId: number;
-  updateStory: (state: Story) => void;
+  updateStory: (state: EditableFields) => void;
 }
 
 const AddReviewContainer = styled.div`

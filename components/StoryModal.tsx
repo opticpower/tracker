@@ -34,7 +34,7 @@ const Section = ({ title, children }): JSX.Element => (
   </SectionContainer>
 );
 
-interface EditableFields {
+export interface EditableFields {
   description?: string;
   owners?: Owner[];
   reviews: Review[];
