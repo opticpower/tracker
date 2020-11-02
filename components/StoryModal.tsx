@@ -8,8 +8,9 @@ import { usePivotal } from '../hooks';
 import { deselectStory } from '../redux/actions/selectedStory.actions';
 import { editStory } from '../redux/actions/stories.actions';
 import { getSelectedStory, isStorySelected } from '../redux/selectors/selectedStory.selectors';
-import { Owner, Review, Story } from '../redux/types';
+import { Label, Owner, Review, Story } from '../redux/types';
 import { getDiff, isSameObj } from '../utils';
+import AddLabel from './AddLabel';
 import Blockers from './Blockers';
 import Comments from './Comments';
 import EditOwners from './EditOwners';
@@ -17,7 +18,7 @@ import Labels from './Labels';
 import MarkdownEditor from './MarkdownEditor';
 import Reviews from './Reviews';
 
-const EDITABLE_FIELDS = ['description', 'owners', 'reviews'];
+const EDITABLE_FIELDS = ['description', 'owners', 'labels', 'reviews'];
 
 const SectionContainer = styled.div`
   &:not(last-child) {
@@ -38,12 +39,14 @@ export interface EditableFields {
   description?: string;
   owners?: Owner[];
   reviews: Review[];
+  labels?: Label[];
 }
 
 const getEditableFields = (story: Story): EditableFields => ({
   description: story?.description,
   owners: story?.owners || [],
   reviews: story?.reviews || [],
+  labels: story?.labels || [],
 });
 
 const getReviewsChanges = (newReviews, reviews) => {
@@ -79,6 +82,7 @@ const StoryModal = (): JSX.Element => {
     const payload = {
       description: editedFields.description,
       owner_ids: editedFields.owners.map(owner => owner.id),
+      label_ids: editedFields.labels.map(label => label.id),
     };
 
     const reviewsChanges = getReviewsChanges(editedFields.reviews, story?.reviews);
@@ -140,10 +144,23 @@ const StoryModal = (): JSX.Element => {
             updateStory={setEditedFields}
           />
         </Section>
-        <Section title="Tags">
-          <Labels labels={story?.labels} />
+        <Section title="Labels">
+          <AddLabel
+            labelAddedToStory={label =>
+              setEditedFields({ ...editedFields, labels: [...editedFields.labels, label] })
+            }
+          />
+          <Labels
+            labels={editedFields.labels}
+            removeLabel={label =>
+              setEditedFields({
+                ...editedFields,
+                labels: editedFields.labels.filter(l => l.id !== label.id),
+              })
+            }
+          />
         </Section>
-        <Blockers blockers={story?.blockers} />
+        <Blockers blockers={story?.blockers} blockedStoryIds={story?.blocked_story_ids} />
         <Divider>Comments</Divider>
         <Comments story={story} />
       </Modal.Content>

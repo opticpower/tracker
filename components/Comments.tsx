@@ -1,4 +1,4 @@
-import { Card, Divider, Text } from '@geist-ui/react';
+import { Card, Text } from '@geist-ui/react';
 import { formatRelative, parseISO } from 'date-fns';
 import { Fragment } from 'react';
 import Markdown from 'react-markdown';

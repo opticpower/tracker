@@ -35,6 +35,7 @@ export interface Project {
   name: string;
   people: Owner[];
   review_types: number[];
+  labels: Label[];
 }
 
 export interface SelectedStory {
@@ -54,6 +55,7 @@ export interface Story {
   description: string;
   current_state?: string;
   reviews: Review[];
+  blocked_story_ids?: number[];
 }
 
 export interface Owner {
@@ -72,6 +74,7 @@ export interface Blocker {
   kind: string;
   story_id: string;
   description: string;
+  resolved: boolean;
 }
 
 export interface Comment {

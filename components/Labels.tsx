@@ -1,4 +1,5 @@
 import { Tag } from '@geist-ui/react';
+import { X } from '@geist-ui/react-icons';
 import styled from 'styled-components';
 
 import { Label } from '../redux/types';
@@ -6,6 +7,7 @@ import { Label } from '../redux/types';
 interface LabelsParams {
   labels?: Label[];
   onClick?: (name: string, filter: Label) => void;
+  removeLabel?: (label: Label) => void;
 }
 
 const getType = (
@@ -41,7 +43,7 @@ const StyledTag = styled(Tag)`
 `;
 
 // TODO: split out tag filtering tool on top vs card filters, so they can have different visuals.
-const Labels = ({ labels = [], onClick }: LabelsParams): JSX.Element => (
+const Labels = ({ labels = [], onClick, removeLabel }: LabelsParams): JSX.Element => (
   <>
     {labels
       .sort((a, b) => (a.name.length > b.name.length ? 1 : -1)) // shorter in front makes fluid multi-line look better
@@ -50,10 +52,17 @@ const Labels = ({ labels = [], onClick }: LabelsParams): JSX.Element => (
           <StyledTag
             key={label.name}
             type={getType(label.name)}
-            onClick={(): void => onClick && onClick('labels', label)}
+            onClick={(): void => {
+              if (onClick) {
+                onClick('labels', label);
+              } else if (removeLabel) {
+                removeLabel(label);
+              }
+            }}
             title={label.name}
             invert>
             {label.name}
+            {Boolean(removeLabel) && <X size={16} />}
           </StyledTag>
         )
       )}
