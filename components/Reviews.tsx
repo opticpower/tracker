@@ -5,13 +5,13 @@ import styled from 'styled-components';
 
 import { STORY_REVIEW_STATUS, STORY_REVIEW_TYPES } from '../constants';
 import { getPeople } from '../redux/selectors/projects.selectors';
-import { Review } from '../redux/types';
+import { Review, Story } from '../redux/types';
 
 interface ReviewParams {
   reviews: Review[];
-  currentState: any;
+  currentState: Story;
   storyId: number;
-  updateStory: (state: any) => void;
+  updateStory: (state: Story) => void;
 }
 
 const AddReviewContainer = styled.div`
@@ -131,7 +131,9 @@ const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams):
                   placeholder="Reviewer"
                   value={rev.reviewer_id && String(rev.reviewer_id)}
                   size="small"
-                  onChange={reviewerId => setReviewer(rev.id, reviewerId)}>
+                  onChange={reviewerId =>
+                    setReviewer(rev.id, Array.isArray(reviewerId) ? reviewerId[0] : reviewerId)
+                  }>
                   {people.map(owner => (
                     <Select.Option key={owner.id} value={String(owner.id)}>
                       {owner.name}
@@ -146,7 +148,9 @@ const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams):
                   placeholder="Status"
                   value={rev.status}
                   size="small"
-                  onChange={status => setReviewStatus(rev.id, status)}>
+                  onChange={status =>
+                    setReviewStatus(rev.id, Array.isArray(status) ? status[0] : status)
+                  }>
                   {STORY_REVIEW_STATUS.map(type => (
                     <Select.Option key={type} value={type}>
                       {type}
