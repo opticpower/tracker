@@ -13,6 +13,7 @@ const reducer = (state: Project[] = initialState, action: AnyAction) => {
           id: project.id,
           name: project.name,
           people: project.memberships.map(membership => membership.person),
+          review_types: project.review_type_ids,
         })),
       ];
     default:

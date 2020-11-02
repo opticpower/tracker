@@ -34,6 +34,7 @@ export interface Project {
   id: string;
   name: string;
   people: Owner[];
+  review_types: number[];
 }
 
 export interface SelectedStory {

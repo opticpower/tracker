@@ -9,3 +9,7 @@ export const getPeople = (state: State): Owner[] => {
     project => String(project.id) === String(state.stories?.selectedProjectId)
   )?.people;
 };
+
+export const getReviewTypes = (state: State, id: string): number[] => {
+  return state.projects.find(project => String(project.id) === String(id))?.review_types;
+};
