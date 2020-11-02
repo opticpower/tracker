@@ -136,11 +136,13 @@ class PivotalHandler {
 
   // Create a single review
   static async createReview({ apiKey, projectId, review }: ReviewActionParams): Promise<void> {
-    // We should delete id and reviewer_id to meet API requirements
-    delete review.id;
-    if (review.reviewer_id === null) {
-      delete review.reviewer_id;
-    }
+    // We should remove id and null values to meet API requirements
+    const filteredReview = Object.keys(review).reduce((res, curr) => {
+      if (curr !== 'id' && review[curr] !== null) {
+        res[curr] = review[curr];
+      }
+      return res;
+    }, {});
 
     const response = await fetch(
       `${PIVOTAL_API_URL}/projects/${projectId}/stories/${review.story_id}/reviews`,
@@ -150,7 +152,7 @@ class PivotalHandler {
           'X-TrackerToken': apiKey,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...review, project_id: projectId }),
+        body: JSON.stringify({ ...filteredReview, project_id: projectId }),
       }
     );
     return response.json();
