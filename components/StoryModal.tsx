@@ -8,15 +8,17 @@ import { usePivotal } from '../hooks';
 import { deselectStory } from '../redux/actions/selectedStory.actions';
 import { editStory } from '../redux/actions/stories.actions';
 import { getSelectedStory, isStorySelected } from '../redux/selectors/selectedStory.selectors';
-import { Label, Owner, Story } from '../redux/types';
+import { Label, Owner, Review, Story } from '../redux/types';
+import { getDiff, isSameObj } from '../utils';
 import AddLabel from './AddLabel';
 import Blockers from './Blockers';
 import Comments from './Comments';
 import EditOwners from './EditOwners';
 import Labels from './Labels';
 import MarkdownEditor from './MarkdownEditor';
+import Reviews from './Reviews';
 
-const EDITABLE_FIELDS = ['description', 'owners', 'labels'];
+const EDITABLE_FIELDS = ['description', 'owners', 'labels', 'reviews'];
 
 const SectionContainer = styled.div`
   &:not(last-child) {
@@ -33,17 +35,38 @@ const Section = ({ title, children }): JSX.Element => (
   </SectionContainer>
 );
 
-interface EditableFields {
+export interface EditableFields {
   description?: string;
   owners?: Owner[];
+  reviews: Review[];
   labels?: Label[];
 }
 
 const getEditableFields = (story: Story): EditableFields => ({
   description: story?.description,
   owners: story?.owners || [],
+  reviews: story?.reviews || [],
   labels: story?.labels || [],
 });
+
+const getReviewsChanges = (newReviews, reviews) => {
+  const deleted = getDiff(reviews, newReviews);
+  const added = getDiff(newReviews, reviews);
+
+  // retrieve changed reviews looking for current review and comparing data
+  const changed = newReviews.filter(review => {
+    const storyReview = reviews.find(r => r.id === review.id);
+    if (storyReview) {
+      return !isSameObj(storyReview, review);
+    }
+  });
+
+  return {
+    added,
+    deleted,
+    changed,
+  };
+};
 
 const StoryModal = (): JSX.Element => {
   const dispatch = useDispatch();
@@ -61,6 +84,17 @@ const StoryModal = (): JSX.Element => {
       owner_ids: editedFields.owners.map(owner => owner.id),
       label_ids: editedFields.labels.map(label => label.id),
     };
+
+    const reviewsChanges = getReviewsChanges(editedFields.reviews, story?.reviews);
+
+    if (
+      reviewsChanges.added.length ||
+      reviewsChanges.deleted.length ||
+      reviewsChanges.changed.length
+    ) {
+      await PivotalHandler.reviews({ apiKey, projectId, reviewsChanges });
+    }
+
     const newStory = await PivotalHandler.updateStory({
       apiKey,
       projectId,
@@ -101,6 +135,14 @@ const StoryModal = (): JSX.Element => {
         </Section>
         <Section title="Owners">
           <EditOwners owners={editedFields.owners} toggleOwner={toggleOwner} />
+        </Section>
+        <Section title="Reviews">
+          <Reviews
+            reviews={editedFields.reviews || []}
+            storyId={story?.id}
+            currentState={editedFields}
+            updateStory={setEditedFields}
+          />
         </Section>
         <Section title="Labels">
           <AddLabel

@@ -13,6 +13,7 @@ const reducer = (state: Project[] = initialState, action: AnyAction): Project[] 
           id: project.id,
           name: project.name,
           people: project.memberships.map(membership => membership.person),
+          review_types: project.review_types,
           labels: project.labels,
         })),
       ];

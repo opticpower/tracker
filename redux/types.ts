@@ -34,6 +34,7 @@ export interface Project {
   id: string;
   name: string;
   people: Owner[];
+  review_types: ReviewType[];
   labels: Label[];
 }
 
@@ -53,6 +54,7 @@ export interface Story {
   comments: Comment[];
   description: string;
   current_state?: string;
+  reviews: Review[];
   blocked_story_ids?: number[];
 }
 
@@ -111,4 +113,22 @@ export interface User {
   id?: number;
   initials?: string;
   name?: string;
+}
+
+export interface Review {
+  id?: number;
+  creation_id?: number;
+  reviewer_id?: number;
+  story_id: number;
+  review_type_id: number;
+  status: string;
+}
+
+export interface ReviewType {
+  id?: number;
+  name: string;
+  hidden: boolean;
+}
+export interface ReviewTypesObj {
+  [key: number]: ReviewType;
 }

@@ -22,3 +22,5 @@ export const STORY_TYPES = ['feature', 'bug', 'chore', 'release'];
 export const UNESTIMATED_STORY_TYPES = ['bug', 'chore'];
 
 export const ESTIMATE_NOT_REQUIRED_STATES = ['unstarted', 'unscheduled'];
+
+export const STORY_REVIEW_STATUS = ['unstarted', 'in_review', 'pass', 'revise'];
