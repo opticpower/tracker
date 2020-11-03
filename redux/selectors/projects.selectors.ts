@@ -13,7 +13,7 @@ export const getPeople = (state: State): Owner[] => {
 export const getReviewTypes = (state: State, id: string): ReviewTypesObj => {
   return state.projects
     .find(project => String(project.id) === String(id))
-    ?.review_types.reduce((prev, curr: any) => {
+    ?.review_types.reduce((prev, curr) => {
       prev[curr.id] = {
         name: curr.name,
         hidden: curr.hidden,
