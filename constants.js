@@ -24,15 +24,3 @@ export const UNESTIMATED_STORY_TYPES = ['bug', 'chore'];
 export const ESTIMATE_NOT_REQUIRED_STATES = ['unstarted', 'unscheduled'];
 
 export const STORY_REVIEW_STATUS = ['unstarted', 'in_review', 'pass', 'revise'];
-
-export const STORY_REVIEW_TYPES = {
-  5793752: {
-    type: 'Test (QA)',
-  },
-  5793753: {
-    type: 'Design',
-  },
-  5793754: {
-    type: 'Code',
-  },
-};

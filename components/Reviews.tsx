@@ -1,11 +1,12 @@
 import { Button, Card, Select, Text } from '@geist-ui/react';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import { STORY_REVIEW_STATUS, STORY_REVIEW_TYPES } from '../constants';
-import { getPeople } from '../redux/selectors/projects.selectors';
-import { Review } from '../redux/types';
+import { STORY_REVIEW_STATUS } from '../constants';
+import { getPeople, getReviewTypes } from '../redux/selectors/projects.selectors';
+import { Review, ReviewTypesObj, State, UrlParams } from '../redux/types';
 import { EditableFields } from './StoryModal';
 
 interface ReviewParams {
@@ -46,6 +47,9 @@ const DeleteButton = styled(Button)`
 const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams): JSX.Element => {
   const [addingReview, setAddingReview] = useState(false);
   const people = useSelector(getPeople);
+  const router = useRouter();
+  const { id }: UrlParams = router.query;
+  const reviewTypes = useSelector((state: State): ReviewTypesObj => getReviewTypes(state, id));
 
   const addReview = (reviewType: number) => {
     const { reviews } = currentState;
@@ -86,9 +90,9 @@ const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams):
   const AddButtons = () => {
     return (
       <>
-        {Object.entries(STORY_REVIEW_TYPES).map(o => (
-          <Button key={o[0]} size="small" onClick={() => handleReviewAdd(Number(o[0]))}>
-            {o[1].type}
+        {Object.keys(reviewTypes).map(key => (
+          <Button key={key} size="small" onClick={() => handleReviewAdd(Number(key))}>
+            {reviewTypes[key].name}
           </Button>
         ))}
       </>
@@ -112,7 +116,7 @@ const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams):
           <ReviewCard key={rev.id}>
             <Card>
               <TypeContainer>
-                <Text span>{STORY_REVIEW_TYPES[rev.review_type_id].type}</Text>
+                <Text span>{reviewTypes[rev.review_type_id].name}</Text>
 
                 <DeleteButton
                   auto

@@ -41,7 +41,7 @@ class PivotalHandler {
   // Gets all projects for the provided user apiKey.
   static async fetchProjects({ apiKey }): Promise<Project[]> {
     const response = await fetch(
-      'https://www.pivotaltracker.com/services/v5/projects?fields=id,name,memberships,labels,review_type_ids',
+      'https://www.pivotaltracker.com/services/v5/projects?fields=id,name,memberships,labels,review_types',
       {
         headers: {
           'X-TrackerToken': apiKey,

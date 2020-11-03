@@ -123,3 +123,12 @@ export interface Review {
   review_type_id: number;
   status: string;
 }
+
+export interface ReviewType {
+  id?: number;
+  name: string;
+  hidden: boolean;
+}
+export interface ReviewTypesObj {
+  [key: number]: ReviewType;
+}
