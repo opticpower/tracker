@@ -1,4 +1,4 @@
-import { Button, Textarea } from '@geist-ui/react';
+import { Button } from '@geist-ui/react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 

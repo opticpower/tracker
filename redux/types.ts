@@ -132,3 +132,8 @@ export interface ReviewType {
 export interface ReviewTypesObj {
   [key: number]: ReviewType;
 }
+
+export interface ReviewComment {
+  review_id: number;
+  text: string;
+}
