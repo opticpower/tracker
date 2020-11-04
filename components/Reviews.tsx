@@ -1,4 +1,4 @@
-import { Button, Card, Select, Text } from '@geist-ui/react';
+import { Button, Card, Modal, Select, Text } from '@geist-ui/react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { STORY_REVIEW_STATUS } from '../constants';
 import { getPeople, getReviewTypes } from '../redux/selectors/projects.selectors';
 import { Review, ReviewTypesObj, State, UrlParams } from '../redux/types';
+import MarkdownEditor from './MarkdownEditor';
 import { EditableFields } from './StoryModal';
 
 interface ReviewParams {
@@ -46,6 +47,9 @@ const DeleteButton = styled(Button)`
 
 const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams): JSX.Element => {
   const [addingReview, setAddingReview] = useState(false);
+  const [addingCommentInReviewId, setAddingCommentInReviewId] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [currentComment, setCurrentComment] = useState('');
   const people = useSelector(getPeople);
   const router = useRouter();
   const { id }: UrlParams = router.query;
@@ -63,28 +67,76 @@ const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams):
     updateStory({ ...currentState, reviews: [...reviews, newReview] });
   };
 
-  const deleteReview = (id: number) => {
+  const deleteReview = (id: number): void => {
     const withRemovedReview = currentState.reviews.filter(r => r.id !== id);
     updateStory({ ...currentState, reviews: withRemovedReview });
   };
 
-  const setReviewer = (reviewId: number, reviewerId: string) => {
+  const setReviewer = (reviewId: number, reviewerId: string): void => {
     const withUpdatedReview = currentState.reviews.map(review =>
       review.id === reviewId ? { ...review, reviewer_id: Number(reviewerId) } : review
     );
     updateStory({ ...currentState, reviews: withUpdatedReview });
   };
 
-  const setReviewStatus = (reviewId: number, status: string) => {
-    const withUpdatedReview = currentState.reviews.map(review =>
-      review.id === reviewId ? { ...review, status } : review
-    );
-    updateStory({ ...currentState, reviews: withUpdatedReview });
+  const addReviewComment = (reviewId: number, addUserComment: boolean): void => {
+    const updatedReview = reviews.find(r => r.id === reviewId);
+    let comment = `${reviewTypes[updatedReview.review_type_id].name} review set to ${
+      updatedReview.status
+    }`;
+
+    if (addUserComment) {
+      comment = `${comment} \n ${currentComment}`;
+    }
+
+    // Look for comment
+    const commentIdx = currentState.review_comments.findIndex(c => c.review_id === reviewId);
+
+    // if comment, update comment
+    if (commentIdx >= 0) {
+      const withUpdatedComment = currentState.review_comments.map(comm =>
+        comm.review_id === reviewId ? { ...comm, text: comment } : comm
+      );
+      updateStory({ ...currentState, review_comments: withUpdatedComment });
+      // if no comment, create it
+    } else {
+      const newComment = { review_id: reviewId, text: comment };
+      updateStory({
+        ...currentState,
+        review_comments: [...currentState.review_comments, newComment],
+      });
+    }
   };
 
-  const handleReviewAdd = (id: number) => {
+  const deleteReviewComment = (review: Review): void => {
+    const withRemovedComment = currentState.review_comments.filter(c => c.review_id !== review.id);
+    updateStory({ ...currentState, review_comments: withRemovedComment });
+  };
+
+  const setReviewStatus = (review: Review, status: string): void => {
+    const withUpdatedReview = currentState.reviews.map(rev =>
+      rev.id === review.id ? { ...rev, status } : rev
+    );
+    updateStory({ ...currentState, reviews: withUpdatedReview });
+
+    if (['pass', 'revise'].includes(status)) {
+      setCurrentComment('');
+      setAddingCommentInReviewId(review.id);
+      setShowModal(true);
+    } else {
+      deleteReviewComment(review);
+      setAddingCommentInReviewId(null);
+    }
+  };
+
+  const handleReviewAdd = (id: number): void => {
     addReview(id);
     setAddingReview(false);
+  };
+
+  const handleModalClose = (reviewId: number, addUserComment = false): void => {
+    setShowModal(false);
+    addReviewComment(reviewId, addUserComment);
   };
 
   const AddButtons = () => {
@@ -154,7 +206,7 @@ const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams):
                   value={rev.status}
                   size="small"
                   onChange={status =>
-                    setReviewStatus(rev.id, Array.isArray(status) ? status[0] : status)
+                    setReviewStatus(rev, Array.isArray(status) ? status[0] : status)
                   }>
                   {STORY_REVIEW_STATUS.map(type => (
                     <Select.Option key={type} value={type}>
@@ -167,6 +219,35 @@ const Reviews = ({ reviews, storyId, currentState, updateStory }: ReviewParams):
           </ReviewCard>
         )
       )}
+      <Modal
+        open={showModal}
+        key={storyId}
+        width="60%"
+        // onClose={() => handleModalClose(rev, true)}>
+        onClose={() => null}>
+        <Modal.Title>Add a comment to your review (optional)</Modal.Title>
+        <Modal.Content>
+          <MarkdownEditor
+            key={`${storyId}-comment`}
+            defaultValue=""
+            placeholder="Add Comment..."
+            onChange={comment => setCurrentComment(comment)}
+          />
+          <Button
+            disabled={!currentComment.length}
+            type="success"
+            size="small"
+            onClick={() => handleModalClose(addingCommentInReviewId, true)}>
+            Add comment
+          </Button>
+          <Button
+            type="warning"
+            size="small"
+            onClick={() => handleModalClose(addingCommentInReviewId)}>
+            No comment
+          </Button>
+        </Modal.Content>
+      </Modal>
     </>
   );
 };
