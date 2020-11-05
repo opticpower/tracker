@@ -98,7 +98,7 @@ const Reviews = ({
       updatedReview.status
     }**`;
 
-    // If user writed a comment, we add it
+// If user wrote a comment, we add it
     if (addUserComment && currentComment.length) {
       comment = `${comment} \n \n ${currentComment}`;
     }
