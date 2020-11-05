@@ -93,7 +93,7 @@ const Reviews = ({
       return;
     }
 
-    // Pivotal default comment for Pass or Review status
+    // Pivotal default comment for Pass or Revise status
     let comment = `**${reviewTypes[updatedReview.review_type_id].name}** review set to **${
       updatedReview.status
     }**`;
