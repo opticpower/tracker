@@ -93,24 +93,24 @@ const Reviews = ({
       return;
     }
 
+    // Pivotal default comment for Pass or Review status
     let comment = `**${reviewTypes[updatedReview.review_type_id].name}** review set to **${
       updatedReview.status
     }**`;
 
+    // If user writed a comment, we add it
     if (addUserComment && currentComment.length) {
       comment = `${comment} \n \n ${currentComment}`;
     }
 
-    // Look for comment
+    // Create comment or update it if user already created a comment for that review
     const commentIdx = currentState.review_comments.findIndex(c => c.review_id === reviewId);
 
-    // if comment, update comment
     if (commentIdx >= 0) {
       const withUpdatedComment = currentState.review_comments.map(comm =>
         comm.review_id === reviewId ? { ...comm, text: comment } : comm
       );
       updateStory({ ...currentState, review_comments: withUpdatedComment });
-      // if no comment, create it
     } else {
       const newComment = { review_id: reviewId, text: comment };
       updateStory({
@@ -136,6 +136,8 @@ const Reviews = ({
       setShowModal(true);
       updateStory({ ...currentState, reviews: withUpdatedReview });
     } else {
+      // If a review was changed to pass or revise in this session, a comment was created.
+      // We should remote it if user changed status again to unstarted or in_review, to avoid saving stale comment.
       const withRemovedComment = currentState.review_comments.filter(
         c => c.review_id !== review.id
       );
