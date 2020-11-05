@@ -93,12 +93,12 @@ const Reviews = ({
       return;
     }
 
-    let comment = `${reviewTypes[updatedReview.review_type_id].name} review set to ${
+    let comment = `**${reviewTypes[updatedReview.review_type_id].name}** review set to **${
       updatedReview.status
-    }`;
+    }**`;
 
     if (addUserComment && currentComment.length) {
-      comment = `${comment} \n ${currentComment}`;
+      comment = `${comment} \n \n ${currentComment}`;
     }
 
     // Look for comment
