@@ -8,7 +8,7 @@ import { usePivotal } from '../hooks';
 import { deselectStory } from '../redux/actions/selectedStory.actions';
 import { editStory } from '../redux/actions/stories.actions';
 import { getSelectedStory, isStorySelected } from '../redux/selectors/selectedStory.selectors';
-import { Label, Owner, Review, Story } from '../redux/types';
+import { Label, Owner, Review, ReviewComment, Story } from '../redux/types';
 import { getDiff, isSameObj } from '../utils';
 import AddLabel from './AddLabel';
 import Blockers from './Blockers';
@@ -40,6 +40,7 @@ export interface EditableFields {
   owners?: Owner[];
   reviews: Review[];
   labels?: Label[];
+  review_comments?: ReviewComment[];
 }
 
 const getEditableFields = (story: Story): EditableFields => ({
@@ -47,6 +48,7 @@ const getEditableFields = (story: Story): EditableFields => ({
   owners: story?.owners || [],
   reviews: story?.reviews || [],
   labels: story?.labels || [],
+  review_comments: [],
 });
 
 const getReviewsChanges = (newReviews, reviews) => {
@@ -87,12 +89,22 @@ const StoryModal = (): JSX.Element => {
 
     const reviewsChanges = getReviewsChanges(editedFields.reviews, story?.reviews);
 
+    // Send reviews
     if (
       reviewsChanges.added.length ||
       reviewsChanges.deleted.length ||
       reviewsChanges.changed.length
     ) {
       await PivotalHandler.reviews({ apiKey, projectId, reviewsChanges });
+    }
+
+    // Send review comments
+    if (editedFields.review_comments.length) {
+      await Promise.all(
+        editedFields.review_comments.map(comment =>
+          PivotalHandler.addComment({ apiKey, projectId, storyId: story.id, text: comment.text })
+        )
+      );
     }
 
     const newStory = await PivotalHandler.updateStory({
@@ -138,7 +150,7 @@ const StoryModal = (): JSX.Element => {
         </Section>
         <Section title="Reviews">
           <Reviews
-            reviews={editedFields.reviews || []}
+            originalReviews={story?.reviews || []}
             storyId={story?.id}
             currentState={editedFields}
             updateStory={setEditedFields}
