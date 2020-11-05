@@ -150,7 +150,7 @@ const StoryModal = (): JSX.Element => {
         </Section>
         <Section title="Reviews">
           <Reviews
-            reviews={editedFields.reviews || []}
+            originalReviews={story?.reviews || []}
             storyId={story?.id}
             currentState={editedFields}
             updateStory={setEditedFields}
