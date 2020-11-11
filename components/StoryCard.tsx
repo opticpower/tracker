@@ -230,6 +230,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                           type={reviewTypes[review.review_type_id].name}
                           status={review.status}
                           ownersIds={[review.reviewer_id]}
+                          onClick={addFilter}
                         />
                       ))}
                     </ReviewBadgesContainer>

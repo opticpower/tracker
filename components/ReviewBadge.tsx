@@ -12,10 +12,15 @@ const statusColors = {
   revise: 'red',
 };
 
+interface OwnersLinksParams {
+  ownersData: Owner[] | null;
+  onClick?: (name: string, filter: Owner) => void;
+}
 interface ReviewBadgeParams {
   type: string;
   status: string;
   ownersIds?: number[];
+  onClick?: (name: string, filter: Owner) => void;
 }
 
 const Container = styled.div`
@@ -32,15 +37,24 @@ const Icon = styled.div`
   background: ${props => statusColors[props.status] || 'grey'};
 `;
 
-const OwnersLinks = ({ ownersData }: { ownersData: Owner[] | null }): JSX.Element => {
+const ReviewerText = styled(Text)`
+  cursor: pointer;
+`;
+
+const OwnersLinks = ({ ownersData, onClick }: OwnersLinksParams): JSX.Element => {
   return (
     <>
       {' ('}
       {ownersData.map(owner => (
         <Tooltip key={`tooltip-${owner.id}`} type="secondary" text={owner.name}>
-          <Link color key={`link-${owner.id}`}>
+          <ReviewerText
+            type="success"
+            size={12}
+            span
+            key={`link-${owner.id}`}
+            onClick={(): void => onClick('owners', owner)}>
             {owner.initials}
-          </Link>
+          </ReviewerText>
         </Tooltip>
       ))}
       {')'}
@@ -48,7 +62,7 @@ const OwnersLinks = ({ ownersData }: { ownersData: Owner[] | null }): JSX.Elemen
   );
 };
 
-const ReviewBadge = ({ type, status, ownersIds }: ReviewBadgeParams): JSX.Element => {
+const ReviewBadge = ({ type, status, ownersIds, onClick }: ReviewBadgeParams): JSX.Element => {
   let ownersData = null;
   if (ownersIds?.length) {
     ownersData = useSelector((state: State): Owner[] => getPeople(state, ownersIds));
@@ -61,7 +75,7 @@ const ReviewBadge = ({ type, status, ownersIds }: ReviewBadgeParams): JSX.Elemen
       </Tooltip>
       <Text size={12} span>
         {type}
-        {Boolean(ownersData.length) && <OwnersLinks ownersData={ownersData} />}
+        {Boolean(ownersData.length) && <OwnersLinks ownersData={ownersData} onClick={onClick} />}
       </Text>
     </Container>
   );
