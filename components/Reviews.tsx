@@ -53,6 +53,7 @@ const Reviews = ({
 }: ReviewParams): JSX.Element => {
   const [addingReview, setAddingReview] = useState(false);
   const [addingCommentInReviewId, setAddingCommentInReviewId] = useState(null);
+  const [currentReviewBeingChanged, setCurrentReviewBeingChanged] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [currentComment, setCurrentComment] = useState('');
   const people = useSelector(getPeople);
@@ -126,6 +127,8 @@ const Reviews = ({
       return;
     }
 
+    setCurrentReviewBeingChanged(review);
+
     const withUpdatedReview = currentState.reviews.map(rev =>
       rev.id === review.id ? { ...rev, status } : rev
     );
@@ -158,6 +161,15 @@ const Reviews = ({
   const handleModalClose = (reviewId: number, addUserComment = false): void => {
     setShowModal(false);
     addReviewComment(reviewId, addUserComment);
+  };
+
+  const cancelReviewChange = () => {
+    const withUpdatedReview = currentState.reviews.map(rev =>
+      rev.id === currentReviewBeingChanged.id ? { ...currentReviewBeingChanged } : rev
+    );
+    setShowModal(false);
+    setCurrentComment('');
+    updateStory({ ...currentState, reviews: withUpdatedReview });
   };
 
   const AddButtons = () => {
@@ -259,6 +271,9 @@ const Reviews = ({
         </Modal.Action>
         <Modal.Action passive onClick={() => handleModalClose(addingCommentInReviewId)}>
           No comment
+        </Modal.Action>
+        <Modal.Action passive onClick={() => cancelReviewChange()}>
+          Cancel
         </Modal.Action>
       </Modal>
     </>
