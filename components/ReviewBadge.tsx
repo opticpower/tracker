@@ -1,4 +1,4 @@
-import { Link, Text, Tooltip } from '@geist-ui/react';
+import { Text, Tooltip } from '@geist-ui/react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -63,10 +63,9 @@ const OwnersLinks = ({ ownersData, onClick }: OwnersLinksParams): JSX.Element =>
 };
 
 const ReviewBadge = ({ type, status, ownersIds, onClick }: ReviewBadgeParams): JSX.Element => {
-  let ownersData = null;
-  if (ownersIds?.length) {
-    ownersData = useSelector((state: State): Owner[] => getPeople(state, ownersIds));
-  }
+  const ownersData = ownersIds?.length
+    ? useSelector((state: State): Owner[] => getPeople(state, ownersIds))
+    : null;
 
   return (
     <Container>
