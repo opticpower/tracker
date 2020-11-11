@@ -1,6 +1,8 @@
 import { Badge, Breadcrumbs, Card, Divider, Spacer } from '@geist-ui/react';
+import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
+import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
@@ -9,11 +11,13 @@ import PivotalHandler from '../handlers/PivotalHandler';
 import { usePivotal } from '../hooks';
 import { selectStory } from '../redux/actions/selectedStory.actions';
 import { clearNewStory, editStory, savedNewStory } from '../redux/actions/stories.actions';
-import { Iteration, Label, Owner, Story } from '../redux/types';
+import { getReviewTypes } from '../redux/selectors/projects.selectors';
+import { Iteration, Label, Owner, ReviewTypesObj, State, Story, UrlParams } from '../redux/types';
 import BlockersQuickView from './BlockersQuickView';
 import EstimateChangeDialog from './Dialogs/EstimateChangeDialog';
 import Labels from './Labels';
 import Owners from './Owners';
+import ReviewBadge from './ReviewBadge';
 import StoryTypeSelect from './StoryTypeSelect';
 
 const CardContainer = styled(Card)(({ color }) => ({
@@ -49,6 +53,12 @@ const Title = styled.textarea`
   background: none;
 `;
 
+const ReviewBadgesContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
 // Used to override Card.Content's default 16pt padding
 const CardContent = styled(Card.Content)`
   padding: 0 !important;
@@ -68,6 +78,9 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
   const [name, setName] = useState<string>(story.name);
   const [type, setType] = useState<string>(story.story_type);
   const escape = useRef(false); // we can't use setState for this as the dispatch of this takes an extra tick.
+  const router = useRouter();
+  const { id }: UrlParams = router.query;
+  const reviewTypes = useSelector((state: State): ReviewTypesObj => getReviewTypes(state, id));
 
   const [_, saveName] = usePivotal(async ({ apiKey, projectId }) => {
     if (!name || escape.current) {
@@ -204,6 +217,27 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                   onBlur={saveName}
                 />
               </CardContent>
+
+              {Boolean(story?.reviews?.length) && (
+                <>
+                  <Divider y={0} />
+                  <Spacer y={0.5} />
+                  <CardContent>
+                    <ReviewBadgesContainer>
+                      {story.reviews.map(review => (
+                        <ReviewBadge
+                          key={review.id}
+                          type={reviewTypes[review.review_type_id].name}
+                          status={review.status}
+                          ownersIds={[review.reviewer_id]}
+                        />
+                      ))}
+                    </ReviewBadgesContainer>
+                  </CardContent>
+                  <Spacer y={0.5} />
+                </>
+              )}
+
               {Boolean(story?.owners?.length || story?.labels?.length) && (
                 <>
                   <Divider y={0} />

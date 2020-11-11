@@ -1,5 +1,4 @@
-import { Checkbox, Spacer } from '@geist-ui/react';
-import { Fragment } from 'react';
+import { Checkbox } from '@geist-ui/react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
