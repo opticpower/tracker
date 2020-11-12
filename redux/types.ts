@@ -82,6 +82,7 @@ export interface Comment {
   person: Owner;
   text: string;
   created_at: string;
+  attachments: AttachmentFile[];
 }
 
 export interface Filters {
@@ -136,4 +137,15 @@ export interface ReviewTypesObj {
 export interface ReviewComment {
   review_id: number;
   text: string;
+}
+
+export interface AttachmentFile {
+  id: number;
+  big_url: string;
+  download_url: string;
+  filename: string;
+  height: number;
+  thumbnail_url: string;
+  thumbnailable: boolean;
+  width: number;
 }
