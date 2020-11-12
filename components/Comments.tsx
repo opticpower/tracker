@@ -6,6 +6,7 @@ import styled from 'styled-components';
 
 import { Comment, Story } from '../redux/types';
 import AddComment from './AddComment';
+import CommentAttachments from './CommentImage';
 import Person from './Person';
 
 interface CommentsParams {
@@ -50,6 +51,7 @@ const Comments = ({ story }: CommentsParams): JSX.Element => {
             <CommentContainer>
               <Card>
                 <Markdown>{comment.text}</Markdown>
+                <CommentAttachments attachments={comment.attachments} />
               </Card>
             </CommentContainer>
           </Fragment>

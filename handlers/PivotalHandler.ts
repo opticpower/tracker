@@ -6,7 +6,7 @@ import { Label, Project, Review, Story, User } from '../redux/types';
 const PIVOTAL_API_URL = 'https://www.pivotaltracker.com/services/v5';
 
 const STORY_FIELDS =
-  'fields=name,estimate,owners,labels,blockers,reviews,story_type,description,comments(id,person,text,created_at),current_state,blocked_story_ids';
+  'fields=name,estimate,owners,labels,blockers,reviews,story_type,description,comments(id,person,text,created_at,attachments),current_state,blocked_story_ids';
 
 interface ProjectCredentials {
   apiKey: string;
