@@ -10,6 +10,7 @@ import styled from 'styled-components';
 
 import Column from '../../components/Column';
 import EstimateChangeDialog from '../../components/Dialogs/EstimateChangeDialog';
+import HiddenColumnsPicker from '../../components/HiddenColumnsPicker';
 import IterationPicker from '../../components/IterationPicker';
 import Labels from '../../components/Labels';
 import ModePicker from '../../components/ModePicker';
@@ -60,6 +61,7 @@ const Project: NextPage = (): JSX.Element => {
   const dispatch = useDispatch();
   const [filters, setFilters] = useState<Filters>({});
   const [unestimatedStory, setUnestimatedStory] = useState<Story>();
+  const [hiddenColumns, setHiddenColumns] = useState<string[]>([]);
   const apiKey = useSelector(getApiKey);
   const stories = useSelector(
     (state: State): Record<string, Story[]> => filterStories(state, id, filters)
@@ -123,6 +125,11 @@ const Project: NextPage = (): JSX.Element => {
       getUser();
     }
   }, []);
+
+  // Reset hidden columns when mode is changed
+  useEffect(() => {
+    setHiddenColumns([]);
+  }, [mode]);
 
   const [, onDragEnd] = useAsync(async (result: DragDropContext.result) => {
     const { source, destination, draggableId } = result;
@@ -212,6 +219,18 @@ const Project: NextPage = (): JSX.Element => {
   const loading = !(stories && Object.values(stories).length);
   const { palette, type } = useTheme();
 
+  const hideColumn = (column: string): void => {
+    if (!hiddenColumns.includes(column)) {
+      const updated = [...hiddenColumns, column];
+      setHiddenColumns(updated);
+    }
+  };
+
+  const showColumn = (column: string): void => {
+    const updated = hiddenColumns.filter(col => col !== column);
+    setHiddenColumns(updated);
+  };
+
   return (
     <Container color={palette.accents_1} image={type}>
       <Head>
@@ -240,6 +259,7 @@ const Project: NextPage = (): JSX.Element => {
         <Labels labels={filters.labels} onClick={removeFilter} />
         <Owners owners={filters.owners} onClick={removeFilter} display="inline-block" />
       </FilterContainer>
+      <HiddenColumnsPicker columns={hiddenColumns} showColumn={showColumn} />
 
       <Row gap={0.8}>
         {loading && (
@@ -249,15 +269,20 @@ const Project: NextPage = (): JSX.Element => {
         )}
         {!loading && (
           <DragDropContext onDragEnd={onDragEnd}>
-            {selectedModeStates.map((state: string, idx: number) => (
-              <Column
-                key={state}
-                state={state}
-                idx={idx}
-                stories={stories[state]}
-                addFilter={addFilter}
-              />
-            ))}
+            {selectedModeStates.map((state: string, idx: number) => {
+              if (!hiddenColumns.includes(state)) {
+                return (
+                  <Column
+                    key={state}
+                    state={state}
+                    idx={idx}
+                    stories={stories[state]}
+                    addFilter={addFilter}
+                    hideColumn={() => hideColumn(state)}
+                  />
+                );
+              }
+            })}
           </DragDropContext>
         )}
       </Row>
