@@ -1,4 +1,4 @@
-import { Col, Text } from '@geist-ui/react';
+import { Button, Col, Text } from '@geist-ui/react';
 import { useTheme } from '@geist-ui/react';
 import { Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
@@ -12,6 +12,7 @@ const Header = styled(Text)(({ color }) => ({
   textAlign: 'center',
   textTransform: 'capitalize',
   fontFamily: 'Georgia, Times New Roman, Times, serif',
+  flexGrow: 1,
 }));
 
 const ColumnContainer = styled(Col)(({ colors, background, shadow }) => ({
@@ -28,11 +29,20 @@ const Card = styled.div(() => ({
   minHeight: 50,
 }));
 
+const HeaderContainer = styled.div`
+  display: flex;
+`;
+
+const StyledButton = styled(Button)`
+  position: absolute !important;
+`;
+
 interface ColumnParams {
   idx: number;
   state: string;
   stories: Story[];
   addFilter: (name: string, filter: Owner | Label | Iteration) => void;
+  hideColumn: () => void;
 }
 
 const colors = {
@@ -49,7 +59,7 @@ const colors = {
   'milestone 3': '#ff8d48',
 };
 
-const Column = ({ idx, state, stories, addFilter }: ColumnParams): JSX.Element => {
+const Column = ({ idx, state, stories, addFilter, hideColumn }: ColumnParams): JSX.Element => {
   const { type, palette } = useTheme();
 
   return (
@@ -58,9 +68,14 @@ const Column = ({ idx, state, stories, addFilter }: ColumnParams): JSX.Element =
       colors={colors[state]}
       background={palette.accents_2}
       shadow={palette.accents_1}>
-      <Header h5 color={type === 'light' ? palette.accents_6 : palette.accents_7}>
-        {state}
-      </Header>
+      <HeaderContainer>
+        <Header h5 color={type === 'light' ? palette.accents_6 : palette.accents_7}>
+          {state}
+        </Header>
+        <StyledButton size="mini" auto onClick={() => hideColumn()}>
+          Hide
+        </StyledButton>
+      </HeaderContainer>
       <Droppable key={state} droppableId={idx.toString()}>
         {(provided: Droppable.provided) => (
           <Card {...provided.droppableProps} ref={provided.innerRef}>
