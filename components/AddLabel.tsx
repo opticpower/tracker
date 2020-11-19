@@ -73,7 +73,7 @@ const AddLabel = ({ labelAddedToStory }: AddLabelParams): JSX.Element => {
 
   return (
     <AutoComplete
-      key={typeof value === 'number' ? value : ''} //hack to reset the value ater select
+      key={typeof value === 'number' ? value : ''} //hack to reset the value after select
       options={options}
       placeholder="Select Label or Epic"
       searching={isLoading}

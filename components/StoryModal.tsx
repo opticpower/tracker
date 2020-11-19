@@ -139,7 +139,6 @@ const StoryModal = (): JSX.Element => {
       <Modal.Content>
         <Section title="Description">
           <MarkdownEditor
-            key={story?.id}
             defaultValue={editedFields.description}
             placeholder="Add something..."
             onChange={description => setEditedFields({ ...editedFields, description })}
