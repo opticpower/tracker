@@ -6,11 +6,15 @@ import styled from 'styled-components';
 import { getPeople } from '../redux/selectors/projects.selectors';
 import { Owner } from '../redux/types';
 
+// This value is Geist-UI small button height.
+// Added here as reference because is used to calculate tooltip position
+const BUTTON_HEIGHT = 32;
+
 interface Position {
   offsetLeft: number;
   offsetTop: number;
 }
-interface PersonsHelperParams {
+interface PeopleHelperParams {
   currentInput: string | null;
   inputPosition: Position;
   onSelect: (userName: string) => void;
@@ -25,7 +29,7 @@ const getDropdownPosition = (inputPosition: Position, dropdownHeight: number): P
   const offsetLeft = inputPosition.offsetLeft;
   const offsetTop =
     inputPosition.offsetTop < 1000
-      ? inputPosition.offsetTop + 32
+      ? inputPosition.offsetTop + BUTTON_HEIGHT
       : inputPosition.offsetTop - dropdownHeight;
 
   return {
@@ -53,11 +57,11 @@ const Option = styled(Button)`
   text-align: left !important;
 `;
 
-const PersonsHelper = ({
+const PeopleHelper = ({
   currentInput,
   inputPosition,
   onSelect,
-}: PersonsHelperParams): JSX.Element => {
+}: PeopleHelperParams): JSX.Element => {
   const people = useSelector<Owner[]>(getPeople);
   const allOptions = people.map(
     (p: Owner): PersonOption => ({
@@ -79,10 +83,6 @@ const PersonsHelper = ({
     searchHandler(currentInput);
   }, [currentInput]);
 
-  // This value is Geist-UI small button height.
-  // Added here as reference because is used to calculate tooltip position
-  const BUTTON_HEIGHT = 32;
-
   return (
     <OptionsDropdown inputPosition={inputPosition} dropdownHeight={options.length * BUTTON_HEIGHT}>
       {options.length
@@ -99,4 +99,4 @@ const PersonsHelper = ({
   );
 };
 
-export default PersonsHelper;
+export default PeopleHelper;

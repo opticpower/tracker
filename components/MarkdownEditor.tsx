@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import Editor from 'rich-markdown-editor';
 
 import { getTheme } from '../redux/selectors/settings.selectors';
-import PersonsHelper from './PersonsHelper';
+import PeopleHelper from './PeopleHelper';
 
 interface MarkdownEditorParams {
   defaultValue: string;
@@ -71,7 +71,7 @@ const MarkdownEditor = ({
         autoFocus
       />
       {showUserHelper && (
-        <PersonsHelper
+        <PeopleHelper
           currentInput={nameBeignAdded}
           inputPosition={cursorPosition}
           onSelect={handleUserSelect}
