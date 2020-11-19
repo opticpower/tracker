@@ -62,6 +62,7 @@ export interface Owner {
   id: string;
   name: string;
   initials: string;
+  username?: string;
 }
 
 export interface Label {

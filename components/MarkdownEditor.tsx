@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Editor from 'rich-markdown-editor';
 
@@ -22,19 +22,20 @@ const MarkdownEditor = ({
   const [lastHandlerIndex, setLastHandlerIndex] = useState(null);
   const [editorKey, setEditorKey] = useState(defaultValue);
   const globalTheme = useSelector(getTheme);
+  const textInput = useRef(null);
 
   useEffect(() => {
+    // Here we check if last @ was deleted to hide helper tooltip
     if (lastHandlerIndex && defaultValue?.length <= lastHandlerIndex) {
       setShowUserHelper(false);
       setLastHandlerIndex(null);
-    }
-    if (defaultValue?.endsWith('@')) {
+    } else if (defaultValue?.endsWith('@')) {
       setShowUserHelper(true);
       setLastHandlerIndex(defaultValue?.lastIndexOf('@'));
     }
   }, [defaultValue]);
 
-  const handleUserSelect = userName => {
+  const handleUserSelect = (userName: string): void => {
     const textUntilHandler = defaultValue.slice(0, defaultValue.lastIndexOf('@'));
     const withName = `${textUntilHandler}@${userName} `;
     onChange(withName);
@@ -44,6 +45,10 @@ const MarkdownEditor = ({
 
   const modifiedDark = { ...dark, background: 'transparent' };
   const markdownTheme = globalTheme === 'dark' ? modifiedDark : light;
+  const cursorPosition = {
+    offsetTop: textInput?.current?.element?.offsetTop,
+    offsetLeft: textInput?.current?.element?.offsetLeft,
+  };
   const nameBeignAdded =
     defaultValue?.lastIndexOf('@') > 0
       ? defaultValue.slice(defaultValue.lastIndexOf('@') + 1)
@@ -53,6 +58,7 @@ const MarkdownEditor = ({
     <>
       <Editor
         key={editorKey}
+        ref={textInput}
         defaultValue={defaultValue}
         placeholder={placeholder}
         dark={globalTheme === 'dark'}
@@ -61,9 +67,15 @@ const MarkdownEditor = ({
           onChange(changedValue);
         }}
         theme={{ ...markdownTheme, zIndex: 10000 }}
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus
       />
       {showUserHelper && (
-        <PersonsHelper currentInput={nameBeignAdded} onSelect={handleUserSelect} />
+        <PersonsHelper
+          currentInput={nameBeignAdded}
+          inputPosition={cursorPosition}
+          onSelect={handleUserSelect}
+        />
       )}
     </>
   );
