@@ -14,6 +14,9 @@ interface AddCommentParams {
 
 const AddComment = ({ story }: AddCommentParams): JSX.Element => {
   const [comment, setComment] = useState<string>();
+  /* This will be used as the key for the Markdown component and will be updated on comment save.
+  We do this to force a re-render and reset the component state, avoiding buggy behaviors. */
+  const [inputKey, setInputKey] = useState(`comment-${Date.now()}`);
 
   const dispatch = useDispatch();
 
@@ -26,18 +29,19 @@ const AddComment = ({ story }: AddCommentParams): JSX.Element => {
     });
     dispatch(editStory(newStory));
     setComment('');
+    setInputKey(`comment-${Date.now()}`);
   });
 
   return (
     <>
       <MarkdownEditor
-        key={story?.id}
+        key={inputKey}
         defaultValue={comment}
         placeholder="Add Comment..."
         onChange={comment => setComment(comment)}
       />
       <Button
-        disabled={!comment}
+        disabled={!comment || comment === '\n'}
         type="success"
         size="small"
         loading={isLoading}
