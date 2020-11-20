@@ -17,6 +17,8 @@
     "next-redux-wrapper": "^6.0.2",
     "node-fetch": ">=2.6.1",
     "nookies": "^2.4.0",
+    "patch-package": "^6.2.2",
+    "postinstall-postinstall": "^2.1.0",
     "react": "16.13.1",
     "react-beautiful-dnd": "^13.0.0",
     "react-dom": "16.13.1",
