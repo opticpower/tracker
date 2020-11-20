@@ -64,7 +64,7 @@ const MarkdownEditor = ({
         dark={globalTheme === 'dark'}
         onChange={value => {
           const changedValue = value();
-          onChange(changedValue);
+          onChange(changedValue.replace(/\\\n/g, '\n')); // Remove some weird backslashes
         }}
         theme={{ ...markdownTheme, zIndex: 10000 }}
         // eslint-disable-next-line jsx-a11y/no-autofocus
