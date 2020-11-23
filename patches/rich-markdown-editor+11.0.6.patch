@@ -1,0 +1,13 @@
+diff --git a/node_modules/rich-markdown-editor/dist/components/BlockMenu.js b/node_modules/rich-markdown-editor/dist/components/BlockMenu.js
+index 49b943c..1fa7cd7 100644
+--- a/node_modules/rich-markdown-editor/dist/components/BlockMenu.js
++++ b/node_modules/rich-markdown-editor/dist/components/BlockMenu.js
+@@ -259,7 +259,7 @@ class BlockMenu extends React.Component {
+             return {
+                 left: left + window.scrollX,
+                 top: undefined,
+-                bottom: window.innerHeight - top - window.scrollY,
++                bottom: document.body.clientHeight - top - window.scrollY,
+                 isAbove: false,
+             };
+         }
