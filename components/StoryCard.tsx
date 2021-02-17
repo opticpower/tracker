@@ -227,7 +227,7 @@ const StoryCard = ({ story, state, index, addFilter }: StoryCardParams): JSX.Ele
                       {story.reviews.map(review => (
                         <ReviewBadge
                           key={review.id}
-                          type={reviewTypes[review.review_type_id].name}
+                          type={reviewTypes[review.review_type_id]?.name}
                           status={review.status}
                           ownersIds={[review.reviewer_id]}
                           onClick={addFilter}

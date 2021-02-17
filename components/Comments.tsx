@@ -30,7 +30,7 @@ const CommentContainer = styled.div`
 `;
 
 const Comments = ({ story }: CommentsParams): JSX.Element => {
-  const comments = story.comments;
+  const comments = story?.comments || [];
   if (!comments.length) {
     return (
       <>
