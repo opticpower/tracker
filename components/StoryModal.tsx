@@ -20,6 +20,11 @@ import Reviews from './Reviews';
 
 const EDITABLE_FIELDS = ['description', 'owners', 'labels', 'reviews'];
 
+// Used to override Modal.Content's default margin
+const ModalContent = styled(Modal.Content)`
+  margin: unset !important;
+`;
+
 const SectionContainer = styled.div`
   &:not(last-child) {
     margin-bottom: 24px;
@@ -136,7 +141,7 @@ const StoryModal = (): JSX.Element => {
   return (
     <Modal open={isOpen} key={story?.id} width="60%" onClose={() => handleClose()}>
       <Modal.Title>{story?.name}</Modal.Title>
-      <Modal.Content>
+      <ModalContent>
         <Section title="Description">
           <MarkdownEditor
             defaultValue={editedFields.description}
@@ -174,7 +179,7 @@ const StoryModal = (): JSX.Element => {
         <Blockers blockers={story?.blockers} blockedStoryIds={story?.blocked_story_ids} />
         <Divider>Comments</Divider>
         <Comments story={story} />
-      </Modal.Content>
+      </ModalContent>
     </Modal>
   );
 };

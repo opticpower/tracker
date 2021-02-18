@@ -3,11 +3,17 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
 
 import { redirectIfApiKeyExists } from '../redirects';
 import { setApiKey } from '../redux/actions/settings.actions';
 import { getApiKey } from '../redux/selectors/settings.selectors';
 import { wrapper } from '../redux/store';
+
+const StyledSpan = styled.span`
+  text-decoration: underline;
+  cursor: pointer;
+`;
 
 const Home = () => {
   const [key, setKey] = useState('');
@@ -31,7 +37,9 @@ const Home = () => {
       <Card shadow>
         <Note type="success">
           To get your API Token, go to{' '}
-          <a href="https://www.pivotaltracker.com/profile">Your pivotal profile</a>
+          <a href="https://www.pivotaltracker.com/profile">
+            Your pivotal <StyledSpan>profile</StyledSpan>
+          </a>
         </Note>
         <Spacer y={1} />
         Please input your pivotal token below:
