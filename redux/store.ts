@@ -28,4 +28,4 @@ const makeStore: MakeStore<State> = (context: Context) => {
   );
 };
 
-export const wrapper = createWrapper<State>(makeStore, { debug: true });
+export const wrapper = createWrapper<State>(makeStore, { debug: false });

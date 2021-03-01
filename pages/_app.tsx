@@ -10,14 +10,13 @@ import Nav from '../components/Nav';
 import { setApiKey, setTheme } from '../redux/actions/settings.actions';
 import { getTheme } from '../redux/selectors/settings.selectors';
 import { wrapper } from '../redux/store';
-import { darkTheme, lightTheme } from '../themes';
 
 const OpticTracker = ({ Component, pageProps }: AppProps): JSX.Element => {
   const selectedTheme = useSelector(getTheme);
-  const theme = selectedTheme === 'light' ? lightTheme : darkTheme;
+
   const scTheme = useTheme();
   return (
-    <GeistProvider theme={theme}>
+    <GeistProvider themeType={selectedTheme}>
       <SCThemeProvider theme={scTheme}>
         <CssBaseline />
         <Nav />
